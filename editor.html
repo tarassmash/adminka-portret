@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portretto — редактор фото</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: control desk on the left, darkroom "print" viewer on the right; stacks on phones */
+:root {
+  --bg: #f3f1ee;
+  --panel: #fbfaf8;
+  --line: #ddd8d1;
+  --fg: #1f1b18;
+  --muted: #6f6760;
+  --accent: #c2410c;      /* safelight amber-red */
+  --accent-fg: #ffffff;
+  --accent-soft: #fbe6da;
+  --stage: #e7e3dd;
+  --ok: #2f7d4f;
+  --err: #b42318;
+  --f-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --f-body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141110; --panel: #1c1816; --line: #342d29; --fg: #efe9e4; --muted: #a49a92;
+    --accent: #f07a3a; --accent-fg: #1a0f08; --accent-soft: #3a2116; --stage: #0d0b0a;
+    --ok: #5cc28a; --err: #ff7a6b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141110; --panel: #1c1816; --line: #342d29; --fg: #efe9e4; --muted: #a49a92;
+  --accent: #f07a3a; --accent-fg: #1a0f08; --accent-soft: #3a2116; --stage: #0d0b0a;
+  --ok: #5cc28a; --err: #ff7a6b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 15px/1.5 var(--f-body);
+  padding: 20px 16px 40px;
+}
+.app { max-width: 1320px; margin: 0 auto; display: grid; gap: 20px; }
+header.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+h1 { font: 700 26px/1.1 var(--f-display); margin: 0; letter-spacing: -0.01em; }
+h1 span { color: var(--accent); }
+.tag { font: 12px var(--f-mono); color: var(--muted); }
+.grid { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.desk { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 18px; }
+.field { display: grid; gap: 8px; min-width: 0; }
+.label { font: 500 11px var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+input[type=text], input[type=password], textarea, select {
+  width: 100%; font: inherit; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px;
+}
+textarea { resize: vertical; min-height: 92px; }
+input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible, .drop:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+}
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row > input { flex: 1 1 160px; min-width: 0; }
+button { font: inherit; cursor: pointer; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); padding: 8px 12px; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 600; padding: 12px 16px; width: 100%; font-size: 16px; }
+.primary:hover:not(:disabled) { filter: brightness(1.08); }
+.small { font-size: 13px; padding: 5px 9px; }
+.check { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+
+.drop {
+  border: 1.5px dashed var(--line); border-radius: 8px; padding: 14px; text-align: center; color: var(--muted);
+  font-size: 14px; cursor: pointer; transition: border-color .15s, background .15s;
+}
+.drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.thumbs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.thumb { position: relative; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: var(--stage); border: 1px solid var(--line); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .x { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; padding: 0; line-height: 1; font-size: 14px; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; border: 0; }
+.thumb .n { position: absolute; left: 4px; bottom: 4px; font: 10px var(--f-mono); background: rgba(0,0,0,.6); color: #fff; padding: 1px 5px; border-radius: 3px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--bg); }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+.seg { justify-self: start; display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; padding: 6px 12px; font: 500 13px var(--f-mono); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+
+.status { font: 13px var(--f-mono); color: var(--muted); min-height: 1.5em; word-break: break-word; }
+.status.err { color: var(--err); }
+.status.ok { color: var(--ok); }
+
+/* Viewer */
+.viewer { display: grid; gap: 14px; min-width: 0; }
+.stage {
+  position: relative; background: var(--stage); border-radius: 10px; min-height: 420px;
+  display: grid; place-items: center; overflow: hidden; border: 1px solid var(--line);
+}
+.stage .empty { color: var(--muted); text-align: center; padding: 30px; max-width: 40ch; }
+.stage .empty b { display: block; font: 700 18px var(--f-display); color: var(--fg); margin-bottom: 6px; }
+.compare { position: relative; width: 100%; max-height: 72vh; aspect-ratio: var(--ar, 1); max-width: calc(72vh * var(--ar, 1)); margin: 0 auto; user-select: none; touch-action: none; cursor: ew-resize; }
+.compare.single { cursor: default; }
+.compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.slider { width: 100%; accent-color: var(--accent); }
+.compare .before { clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0); }
+.compare .bar { position: absolute; top: 0; bottom: 0; left: var(--pos, 50%); width: 2px; background: var(--accent); transform: translateX(-1px); }
+.compare .bar::after { content: "⟷"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--accent); color: var(--accent-fg); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; }
+.compare .lbl { position: absolute; top: 10px; font: 500 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; background: rgba(0,0,0,.55); color: #fff; padding: 3px 8px; border-radius: 4px; }
+.compare .lbl.l { left: 10px; } .compare .lbl.r { right: 10px; }
+.compare.single .before, .compare.single .bar, .compare.single .lbl { display: none; }
+
+.busy { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--stage) 70%, transparent); }
+.busy .box { text-align: center; font: 13px var(--f-mono); color: var(--fg); }
+.spinner { width: 38px; height: 38px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--accent); animation: spin .9s linear infinite; margin: 0 auto 10px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+
+.tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.tools .desc { flex: 1 1 200px; font-size: 13px; color: var(--muted); min-width: 0; }
+.strip-h { display: flex; justify-content: space-between; align-items: baseline; }
+.strip { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+.shot { flex: 0 0 auto; width: 120px; cursor: pointer; background: none; border: 1px solid var(--line); padding: 0; border-radius: 6px; overflow: hidden; text-align: left; }
+.shot[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.shot img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--stage); }
+.shot span { display: block; font: 10.5px var(--f-mono); color: var(--muted); padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+details.log { font: 12px var(--f-mono); color: var(--muted); }
+details.log pre { white-space: pre-wrap; max-height: 180px; overflow: auto; background: var(--panel); border: 1px solid var(--line); padding: 8px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>Portretto<span> · редактор</span></h1>
+    <div class="tag"><a href="/admin" style="color:inherit">← админка</a> · только для владельца</div>
+  </header>
+
+  <div class="grid">
+    <!-- Control desk -->
+    <section class="desk" aria-label="Настройки">
+      <div class="field" id="codeField" hidden>
+        <label class="label" for="key">Код доступа</label>
+        <input id="key" type="password" autocomplete="off" placeholder="Код от владельца сайта">
+      </div>
+
+      <div class="field">
+        <div class="label"><span>Фото</span><span id="imgCount">0 / 4</span></div>
+        <div id="drop" class="drop" tabindex="0" role="button">Перетащи фото сюда, нажми или вставь из буфера (Ctrl+V)</div>
+        <input id="file" type="file" accept="image/*" multiple hidden>
+        <div id="thumbs" class="thumbs"></div>
+        <p class="hint">Первое фото основное. Остальные используются как референсы там, где модель это поддерживает.</p>
+      </div>
+
+      <div class="field">
+        <label class="label" for="model">Модель</label>
+        <select id="model"></select>
+        <p id="modelHint" class="hint"></p>
+        <input id="customModel" type="text" placeholder="например fal-ai/nano-banana/edit" hidden>
+      </div>
+
+      <div class="field">
+        <label class="label" for="prompt">Что изменить</label>
+        <textarea id="prompt" placeholder="Опиши правку: «замени фон на вечерний пляж», «сделай фото в стиле плёнки 70-х»…"></textarea>
+        <div class="chips" id="chips"></div>
+        <p class="hint">Модели лучше понимают английский, но русский тоже работает.</p>
+      </div>
+
+      <div class="field">
+        <div class="label"><span>Вариантов</span></div>
+        <div class="seg" id="numSeg">
+          <button type="button" aria-pressed="true" data-n="1">1</button>
+          <button type="button" aria-pressed="false" data-n="2">2</button>
+          <button type="button" aria-pressed="false" data-n="3">3</button>
+          <button type="button" aria-pressed="false" data-n="4">4</button>
+        </div>
+      </div>
+
+      <button id="go" class="primary" type="button">Проявить</button>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <details class="log"><summary>Журнал запроса</summary><pre id="log"></pre></details>
+    </section>
+
+    <!-- Viewer -->
+    <section class="viewer" aria-label="Результат">
+      <div class="stage" id="stage">
+        <div class="empty" id="empty"><b>Здесь появится результат</b>Загрузи фото, опиши правку и нажми «Проявить». Потом сравни с оригиналом, двигая ползунок.</div>
+        <div class="compare single" id="compare" hidden>
+          <img class="after" id="afterImg" alt="Результат">
+          <img class="before" id="beforeImg" alt="Оригинал">
+          <div class="bar"></div>
+          <span class="lbl l">до</span><span class="lbl r">после</span>
+        </div>
+        <div class="busy" id="busy" hidden><div class="box"><div class="spinner"></div><div id="busyText">В очереди…</div></div></div>
+      </div>
+
+      <input id="slider" class="slider" type="range" min="0" max="100" value="50" aria-label="Положение сравнения" hidden>
+      <div class="tools" id="tools" hidden>
+        <div class="desc" id="resultDesc"></div>
+        <button id="btnCompare" class="small" type="button">Сравнить с оригиналом</button>
+        <button id="btnReuse" class="small" type="button">Редактировать дальше</button>
+        <button id="btnOpen" class="small" type="button">Открыть</button>
+        <button id="btnDownload" class="small" type="button">Скачать</button>
+      </div>
+
+      <div class="field" id="historyWrap" hidden>
+        <div class="strip-h"><span class="label">История сеанса</span></div>
+        <div class="strip" id="strip"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---- Models ----
+  // multi: accepts image_urls[]; single: accepts image_url
+  const MODELS = [
+    { id: "fal-ai/nano-banana/edit", name: "Nano Banana (Gemini)", multi: true, extra: { output_format: "png" }, hint: "Быстрая и универсальная. Хорошо держит лицо и детали, понимает несколько фото." },
+    { id: "fal-ai/nano-banana-pro/edit", name: "Nano Banana Pro", multi: true, extra: { output_format: "png" }, hint: "Самая точная на сложных многошаговых правках и тексте. Дороже и медленнее." },
+    { id: "fal-ai/nano-banana-2/edit", name: "Nano Banana 2", multi: true, extra: { output_format: "png" }, hint: "Новое поколение: быстрая и яркая." },
+    { id: "fal-ai/flux-pro/kontext", name: "FLUX.1 Kontext [pro]", multi: false, extra: {}, hint: "Точечные правки и смена стиля. Работает с одним фото." },
+    { id: "fal-ai/bytedance/seedream/v4/edit", name: "Seedream 4 (ByteDance)", multi: true, extra: {}, hint: "Высокое разрешение, несколько референсов." },
+    { id: "fal-ai/qwen-image-edit", name: "Qwen Image Edit", multi: false, extra: {}, hint: "Недорогая, хорошо правит текст на фото. Одно фото." },
+    { id: "custom", name: "Своя модель (endpoint)…", multi: true, extra: {}, hint: "Введи endpoint с fal.ai/models. Фото передаются как image_urls и image_url." },
+  ];
+  const PRESETS = [
+    ["Убрать фон", "Remove the background, keep the subject exactly the same, place it on a clean pure white background"],
+    ["Сменить фон", "Replace the background with a sunny beach at golden hour, keep the person unchanged, match lighting"],
+    ["Ретушь", "Professional portrait retouch: even skin tone, remove blemishes, keep natural skin texture and identity"],
+    ["Улучшить качество", "Enhance this photo: sharpen details, fix exposure and white balance, reduce noise, keep composition identical"],
+    ["Раскрасить", "Colorize this black and white photo with realistic natural colors"],
+    ["Плёнка 70-х", "Make it look like a 1970s film photograph with warm tones and subtle grain"],
+    ["Аниме", "Transform into anime illustration style, keep composition and pose"],
+    ["Убрать людей сзади", "Remove all people in the background, fill naturally, keep the main subject unchanged"],
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+
+  let images = []; // {dataUrl, name}
+  let numImages = 1;
+  let history = []; // {url, prompt, model, source}
+  let current = null;
+  let busy = false;
+
+  // ---- Key ----
+  const keyEl = $("key");
+  // Ключ fal.ai хранится на сервере. Здесь только код доступа, если владелец его включил.
+  // Доступ только владельцу: пароль берётся из входа в админку (/admin)
+  let requiresCode = false;
+  try { keyEl.value = sessionStorage.getItem("pt_admin") || ""; } catch {}
+  const saveKey = () => {};
+  if (!keyEl.value) location.href = "/admin";
+
+  // ---- Models UI ----
+  const sel = $("model");
+  MODELS.forEach(m => { const o = document.createElement("option"); o.value = m.id; o.textContent = m.name; sel.appendChild(o); });
+  sel.value = store.get("fal_model") || MODELS[0].id;
+  if (!MODELS.some(m => m.id === sel.value)) sel.value = MODELS[0].id;
+  $("customModel").value = store.get("fal_custom") || "";
+  const updModel = () => {
+    const m = MODELS.find(x => x.id === sel.value);
+    $("modelHint").textContent = m.hint;
+    $("customModel").hidden = m.id !== "custom";
+    store.set("fal_model", m.id);
+  };
+  sel.onchange = updModel; updModel();
+  $("customModel").onchange = () => store.set("fal_custom", $("customModel").value.trim());
+
+  // ---- Presets ----
+  PRESETS.forEach(([label, text]) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = label;
+    b.onclick = () => { $("prompt").value = text; $("prompt").focus(); };
+    $("chips").appendChild(b);
+  });
+
+  // ---- Count ----
+  $("numSeg").querySelectorAll("button").forEach(b => b.onclick = () => {
+    numImages = +b.dataset.n;
+    $("numSeg").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+  });
+
+  // ---- Images ----
+  function resizeToDataUrl(file, maxSide = 1600) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        let { naturalWidth: w, naturalHeight: h } = img;
+        const k = Math.min(1, maxSide / Math.max(w, h));
+        w = Math.round(w * k); h = Math.round(h * k);
+        const c = document.createElement("canvas"); c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        // JPEG keeps the upload small (PNG at 2048px can be 5–10 MB and slows the request a lot)
+        resolve(c.toDataURL("image/jpeg", 0.9));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Не удалось прочитать изображение " + file.name)); };
+      img.src = url;
+    });
+  }
+  async function addFiles(files) {
+    for (const f of files) {
+      if (!f.type.startsWith("image/")) continue;
+      if (images.length >= 4) { setStatus("Можно не больше 4 фото.", "err"); break; }
+      try { images.push({ dataUrl: await resizeToDataUrl(f), name: f.name || "фото" }); }
+      catch (e) { setStatus(e.message, "err"); }
+    }
+    renderThumbs();
+  }
+  function renderThumbs() {
+    const t = $("thumbs"); t.innerHTML = "";
+    images.forEach((im, i) => {
+      const d = document.createElement("div"); d.className = "thumb";
+      d.innerHTML = `<img alt=""><span class="n">${i === 0 ? "основное" : "реф " + i}</span><button class="x" type="button" aria-label="Убрать">×</button>`;
+      d.querySelector("img").src = im.dataUrl;
+      d.querySelector(".x").onclick = () => { images.splice(i, 1); renderThumbs(); };
+      t.appendChild(d);
+    });
+    $("imgCount").textContent = images.length + " / 4";
+  }
+  const drop = $("drop");
+  drop.onclick = () => $("file").click();
+  drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } };
+  $("file").onchange = (e) => { addFiles([...e.target.files]); e.target.value = ""; };
+  ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", e => addFiles([...e.dataTransfer.files]));
+  document.addEventListener("paste", e => {
+    const files = [...(e.clipboardData?.items || [])].filter(i => i.kind === "file").map(i => i.getAsFile()).filter(Boolean);
+    if (files.length) addFiles(files);
+  });
+
+  // ---- Status / log ----
+  function setStatus(msg, kind = "") { const s = $("status"); s.textContent = msg; s.className = "status " + kind; }
+  function log(msg) { const l = $("log"); l.textContent += `[${new Date().toLocaleTimeString()}] ${msg}\n`; l.scrollTop = l.scrollHeight; }
+
+  // ---- fal queue API ----
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  // Все запросы к fal.ai идут через наш сервер (/api/editor), который подставляет ключ
+  async function falJSON(url, code, opts = {}) {
+    const body = opts.method === "POST"
+      ? { action: "submit", endpoint: url.replace("https://queue.fal.run/", ""), input: JSON.parse(opts.body) }
+      : { action: "get", url };
+    const res = await fetch("/api/editor", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin": code || "" },
+      body: JSON.stringify(body),
+    });
+    const text = await res.text();
+    let data; try { data = JSON.parse(text); } catch { data = { raw: text }; }
+    if (!res.ok) {
+      let detail = data.detail ?? data.error ?? data.message ?? data.raw ?? res.statusText;
+      if (Array.isArray(detail)) detail = detail.map(d => d.msg || JSON.stringify(d)).join("; ");
+      else if (typeof detail === "object") detail = JSON.stringify(detail);
+      const hint = /balance|credit|locked/i.test(detail) ? " Пополни баланс на fal.ai." : res.status === 401 || res.status === 403 ? " Войди в админку заново или проверь FAL_KEY." : "";
+      throw new Error(`Ошибка ${res.status}: ${detail}.${hint}`);
+    }
+    return data;
+  }
+
+  async function run() {
+    if (busy) return;
+    const key = keyEl.value.trim();
+    const prompt = $("prompt").value.trim();
+    const m = MODELS.find(x => x.id === sel.value);
+    const endpoint = m.id === "custom" ? $("customModel").value.trim().replace(/^https?:\/\/[^/]+\//, "") : m.id;
+    if (requiresCode && !key) return setStatus("Введи код доступа.", "err");
+    if (!images.length) return setStatus("Добавь хотя бы одно фото.", "err");
+    if (!prompt) return setStatus("Опиши, что изменить.", "err");
+    if (!endpoint) return setStatus("Введи endpoint модели.", "err");
+    saveKey();
+
+    const urls = images.map(i => i.dataUrl);
+    const input = { prompt, num_images: numImages, ...m.extra };
+    if (m.id === "custom") { input.image_urls = urls; input.image_url = urls[0]; }
+    else if (m.multi) input.image_urls = urls;
+    else input.image_url = urls[0];
+
+    busy = true; $("go").disabled = true; $("busy").hidden = false; $("empty").hidden = true;
+    const t0 = Date.now();
+    const tick = setInterval(() => { $("busyText").dataset.t = ((Date.now() - t0) / 1000).toFixed(0); renderBusy(); }, 500);
+    let phase = "Отправка…";
+    const renderBusy = () => { $("busyText").textContent = `${phase} · ${$("busyText").dataset.t || 0} с`; };
+    const setPhase = (p) => { phase = p; renderBusy(); setStatus(p); };
+    $("log").textContent = "";
+    try {
+      setPhase("Отправка…");
+      log(`POST queue.fal.run/${endpoint}`);
+      const sub = await falJSON(`https://queue.fal.run/${endpoint}`, key, { method: "POST", body: JSON.stringify(input) });
+      log(`request_id: ${sub.request_id}`);
+      const statusUrl = sub.status_url || `https://queue.fal.run/${endpoint}/requests/${sub.request_id}/status`;
+      const responseUrl = sub.response_url || `https://queue.fal.run/${endpoint}/requests/${sub.request_id}`;
+      let seenLogs = 0;
+      while (true) {
+        await sleep(1200);
+        const st = await falJSON(statusUrl + (statusUrl.includes("?") ? "&" : "?") + "logs=1", key);
+        (st.logs || []).slice(seenLogs).forEach(l => log(l.message)); seenLogs = (st.logs || []).length;
+        if (st.status === "IN_QUEUE") setPhase(`В очереди${st.queue_position != null ? " (позиция " + st.queue_position + ")" : ""}…`);
+        else if (st.status === "IN_PROGRESS") setPhase("Обработка…");
+        else if (st.status === "COMPLETED") { if (st.error) throw new Error(st.error); break; }
+        if (Date.now() - t0 > 10 * 60 * 1000) throw new Error("Слишком долго, больше 10 минут. Попробуй ещё раз.");
+      }
+      setPhase("Получаю результат…");
+      const out = await falJSON(responseUrl, key);
+      const imgs = (out.images || (out.image ? [out.image] : [])).map(i => typeof i === "string" ? i : i.url).filter(Boolean);
+      if (!imgs.length) throw new Error("Модель не вернула изображений. " + (out.description || JSON.stringify(out).slice(0, 200)));
+      const secs = ((Date.now() - t0) / 1000).toFixed(1);
+      const source = images[0].dataUrl;
+      const modelName = m.id === "custom" ? endpoint : m.name;
+      imgs.forEach(url => history.unshift({ url, prompt, model: modelName, source, desc: out.description || "" }));
+      show(history[imgs.length - 1] ? history[0] : history[0]);
+      renderHistory();
+      setStatus(`Готово за ${secs} с · ${imgs.length} ${imgs.length === 1 ? "вариант" : "варианта"}`, "ok");
+      log("Готово");
+    } catch (e) {
+      const msg = e instanceof TypeError ? "Сеть недоступна или запрос заблокирован браузером. Проверь интернет и ключ." : e.message;
+      setStatus(msg, "err"); log("ОШИБКА: " + msg);
+      if (!current) $("empty").hidden = false;
+    } finally {
+      clearInterval(tick);
+      busy = false; $("go").disabled = false; $("busy").hidden = true;
+    }
+  }
+  $("go").onclick = run;
+  $("prompt").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) run(); });
+
+  // ---- Viewer ----
+  const cmp = $("compare");
+  function show(item) {
+    current = item;
+    const after = $("afterImg");
+    after.onload = () => { if (after.naturalWidth) cmp.style.setProperty("--ar", after.naturalWidth / after.naturalHeight); };
+    after.src = item.url;
+    $("beforeImg").src = item.source;
+    cmp.hidden = false; $("empty").hidden = true; $("tools").hidden = false;
+    setCompare(true);
+    setPosPct(50);
+    $("resultDesc").textContent = `${item.model} · «${item.prompt.slice(0, 90)}${item.prompt.length > 90 ? "…" : ""}»`;
+    renderHistory();
+  }
+  function setCompare(on) {
+    cmp.classList.toggle("single", !on);
+    $("slider").hidden = !on;
+    $("btnCompare").textContent = on ? "Только результат" : "Сравнить с оригиналом";
+  }
+  function setPosPct(p) {
+    p = Math.max(0, Math.min(100, p));
+    cmp.style.setProperty("--pos", p.toFixed(2) + "%");
+    $("slider").value = p;
+  }
+  $("btnCompare").onclick = () => { setCompare(cmp.classList.contains("single")); setPosPct(50); };
+  $("slider").addEventListener("input", e => setPosPct(+e.target.value));
+  const posFromX = (clientX) => {
+    const r = cmp.getBoundingClientRect();
+    setPosPct((clientX - r.left) / r.width * 100);
+  };
+  let dragging = false;
+  cmp.addEventListener("pointerdown", e => {
+    if (cmp.classList.contains("single")) return;
+    dragging = true;
+    try { cmp.setPointerCapture(e.pointerId); } catch {}
+    posFromX(e.clientX);
+  });
+  // mouse: divider follows the cursor even without pressing; touch: drag
+  cmp.addEventListener("pointermove", e => {
+    if (cmp.classList.contains("single")) return;
+    if (dragging || e.pointerType === "mouse") posFromX(e.clientX);
+  });
+  ["pointerup", "pointercancel"].forEach(ev => cmp.addEventListener(ev, () => dragging = false));
+
+  $("btnOpen").onclick = () => current && window.open(current.url, "_blank", "noopener");
+  $("btnDownload").onclick = async () => {
+    if (!current) return;
+    try {
+      const blob = await (await fetch(current.url)).blob();
+      const ext = (blob.type.split("/")[1] || "png").replace("jpeg", "jpg");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `proyavka-${Date.now()}.${ext}`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    } catch { window.open(current.url, "_blank", "noopener"); setStatus("Открыл в новой вкладке: сохрани через правый клик.", ""); }
+  };
+  $("btnReuse").onclick = async () => {
+    if (!current) return;
+    try {
+      setStatus("Загружаю результат как новое основное фото…");
+      const blob = await (await fetch(current.url)).blob();
+      const dataUrl = await resizeToDataUrl(new File([blob], "result", { type: blob.type }));
+      images = [{ dataUrl, name: "result" }, ...images.slice(1)];
+      renderThumbs(); $("prompt").value = ""; $("prompt").focus();
+      setStatus("Результат стал основным фото. Опиши следующую правку.", "ok");
+    } catch {
+      images = [{ dataUrl: current.url, name: "result" }, ...images.slice(1)];
+      renderThumbs(); setStatus("Результат стал основным фото (по ссылке).", "ok");
+    }
+  };
+
+  function renderHistory() {
+    $("historyWrap").hidden = !history.length;
+    const s = $("strip"); s.innerHTML = "";
+    history.forEach(h => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "shot";
+      b.setAttribute("aria-current", h === current ? "true" : "false");
+      b.innerHTML = `<img alt=""><span></span>`;
+      b.querySelector("img").src = h.url;
+      b.querySelector("span").textContent = h.prompt;
+      b.title = h.prompt;
+      b.onclick = () => show(h);
+      s.appendChild(b);
+    });
+  }
+})();
+</script>
+</body>
+</html>
