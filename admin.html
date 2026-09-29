@@ -289,7 +289,7 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
     items.slice(0, 200).forEach(({ g, u }) => {
       const d = document.createElement("div"); const on = u && (g.showcase || []).includes(u); d.className = "g" + (on ? " on" : "");
       d.innerHTML = u ? `<a href="${esc(u)}" target="_blank" rel="noopener"><img alt="" loading="lazy" src="${esc(u)}"></a>` : `<div style="aspect-ratio:4/5;display:grid;place-items:center;background:var(--soft)"><span class="pill ${g.status}">${g.status === "failed" ? "ошибка" : "в работе"}</span></div>`;
-      d.innerHTML += `<div class="m"><b>${esc(sname(g.style))}</b><span>${date(g.created)} · ${esc(g.email || g.key)}</span>${g.error ? `<span style="color:var(--bad)">${esc(g.error)}</span>` : ""}${u ? `<label><input type="checkbox" ${on ? "checked" : ""}> На витрину</label>` : ""}</div>`;
+      d.innerHTML += `<div class="m"><b>${esc(sname(g.style))}</b><span>${date(g.created)} · ${esc(g.email || g.key)}</span>${g.text ? `<span style="color:var(--ink);font-family:var(--f-body)">«${esc(g.text)}»</span>` : ""}${g.error ? `<span style="color:var(--bad)">${esc(g.error)}</span>` : ""}${u ? `<label><input type="checkbox" ${on ? "checked" : ""}> На витрину</label>` : ""}</div>`;
       if (u) d.querySelector("input").onchange = async e => { try { const r = await api("/api/admin/showcase", { gen: g.id, url: u, on: e.target.checked }); g.showcase = r.showcase; d.classList.toggle("on", e.target.checked); } catch (err) { e.target.checked = !e.target.checked; alertMsg(err.message); } };
       box.appendChild(d);
     });
