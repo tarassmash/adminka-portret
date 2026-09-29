@@ -127,6 +127,7 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
 
     <div class="tabs" role="tablist" id="tabs">
       <button role="tab" data-tab="gens" aria-selected="true">Генерации</button>
+      <button role="tab" data-tab="covers" aria-selected="false">Примеры образов</button>
       <button role="tab" data-tab="orders" aria-selected="false">Заказы</button>
       <button role="tab" data-tab="keys" aria-selected="false">Коды клиентов</button>
       <button role="tab" data-tab="packs" aria-selected="false">Пакеты и цены</button>
@@ -137,6 +138,15 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
     <section class="card" data-panel="gens">
       <p style="margin:0 0 12px;color:var(--muted);font-size:14px">Отметьте лучшие работы: они появятся на главной странице в витрине. Показывайте только снимки клиентов, которые дали согласие.</p>
       <div class="gallery" id="gallery"></div>
+    </section>
+    <section class="card" data-panel="covers" hidden>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:14px">Фото-примеры для карточек образов и первого экрана сайта. Их можно сгенерировать на вымышленных моделях через fal.ai (примерно по одному портрету на образ) или загрузить свои. Лучшие работы клиентов с витрины показываются раньше примеров.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+        <button class="btn solid" id="covGenAll" type="button">Сгенерировать примеры для всех образов</button>
+        <span class="msg" id="covMsg"></span>
+      </div>
+      <input type="file" id="covFile" accept="image/*" hidden>
+      <div class="gallery" id="covers"></div>
     </section>
     <section class="card" data-panel="orders" hidden><div class="tbl"><table><thead><tr><th>Дата</th><th>Email</th><th>Пакет</th><th class="num">Кредиты</th><th class="num">Сумма</th><th>Код</th></tr></thead><tbody id="ordersBody"></tbody></table></div></section>
     <section class="card" data-panel="keys" hidden>
@@ -204,7 +214,7 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
     // alerts
     const a = [], s = stats.system;
     if (!s.falOk) a.push(["bad", "fal.ai", s.fal + ". Генерация не работает."]);
-    if (!s.persistent) a.push(["bad", "Данные", "Volume не подключён: коды и заказы пропадут при перезапуске. Railway → сервис → Settings → Volumes → смонтировать в /data."]);
+    if (!s.persistent) a.push(["bad", "Данные", "Volume не подключён: коды, заказы и обложки пропадут при перезапуске. Railway → схема проекта → правый клик по сервису → Attach volume → Mount path: /data → Deploy."]);
     if (!s.stripe) a.push(["warn", "Оплата", "Stripe не подключён: кнопки покупки неактивны. Добавьте STRIPE_SECRET_KEY."]);
     else if (!s.webhook) a.push(["warn", "Вебхук", "Вебхук Stripe не подключён. Оплата работает, но если клиент закроет вкладку до возврата на сайт, кредиты не начислятся автоматически. Добавьте STRIPE_WEBHOOK_SECRET."]);
     $("alerts").innerHTML = a.map(([k, t, m]) => `<div class="alert ${k}"><b>${t}</b><span>${esc(m)}</span></div>`).join("");
@@ -273,6 +283,7 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
   async function loadTab() {
     try {
       if (tab === "gens") { gens = await api("/api/admin/gens"); renderGens(); }
+      if (tab === "covers") renderCovers(await api("/api/admin/covers"));
       if (tab === "orders") renderOrders(await api("/api/admin/orders"));
       if (tab === "keys") { keys = await api("/api/admin/keys"); renderKeys(); }
       if (tab === "packs") renderPacks((await (await fetch("/api/config")).json()));
@@ -294,6 +305,44 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
       box.appendChild(d);
     });
   }
+  let covPoll = null, covTarget = null;
+  function renderCovers(list) {
+    const box = $("covers"); box.innerHTML = "";
+    const working = list.some(c => c.job?.status === "working");
+    $("covMsg").className = "msg";
+    $("covMsg").textContent = working ? "Генерируются… обычно 20–60 секунд, страницу можно не закрывать." : "";
+    list.forEach(c => {
+      const d = document.createElement("div"); d.className = "g";
+      const st = c.job?.status;
+      const pic = c.cover ? `<img alt="" src="${esc(c.cover)}">` : `<div style="aspect-ratio:4/5;display:grid;place-items:center;background:var(--soft);color:var(--muted);font-size:13px">${st === "working" ? '<span class="pill queued">генерируется…</span>' : "нет примера"}</div>`;
+      d.innerHTML = `${pic}<div class="m"><b>${esc(c.name)}</b>${st === "working" && c.cover ? '<span class="pill queued">обновляется…</span>' : ""}${st === "failed" ? `<span style="color:var(--bad)">Ошибка: ${esc(c.job.error)}</span>` : ""}<div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn sm" data-a="gen" type="button">${c.cover ? "Перегенерировать" : "Сгенерировать"}</button><button class="btn sm" data-a="up" type="button">Загрузить своё</button>${c.cover ? '<button class="btn sm" data-a="rm" type="button">Убрать</button>' : ""}</div></div>`;
+      d.querySelector('[data-a="gen"]').onclick = async () => { try { renderCovers(await api("/api/admin/covers/generate", { ids: [c.id] })); } catch (e) { alertMsg(e.message); } };
+      d.querySelector('[data-a="up"]').onclick = () => { covTarget = c.id; $("covFile").click(); };
+      const rm = d.querySelector('[data-a="rm"]'); if (rm) rm.onclick = async () => { try { renderCovers(await api("/api/admin/covers/remove", { style: c.id })); } catch (e) { alertMsg(e.message); } };
+      box.appendChild(d);
+    });
+    clearTimeout(covPoll);
+    if (working && tab === "covers") covPoll = setTimeout(async () => { try { renderCovers(await api("/api/admin/covers")); } catch {} }, 4000);
+  }
+  $("covGenAll").onclick = async () => {
+    $("covGenAll").disabled = true;
+    try { renderCovers(await api("/api/admin/covers/generate", {})); } catch (e) { $("covMsg").className = "msg err"; $("covMsg").textContent = e.message; }
+    $("covGenAll").disabled = false;
+  };
+  $("covFile").onchange = async (e) => {
+    const f = e.target.files[0]; e.target.value = "";
+    if (!f || !covTarget) return;
+    try {
+      const dataUrl = await new Promise((ok, bad) => {
+        const img = new Image(), u = URL.createObjectURL(f);
+        img.onload = () => { const k = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight)); const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u); ok(c.toDataURL("image/jpeg", 0.9)); };
+        img.onerror = () => bad(new Error("Не удалось открыть картинку."));
+        img.src = u;
+      });
+      renderCovers(await api("/api/admin/covers/upload", { style: covTarget, image: dataUrl }));
+    } catch (err) { alertMsg(err.message); }
+  };
+
   function renderOrders(list) {
     $("ordersBody").innerHTML = list.length ? list.map(o => `<tr><td class="mono">${date(o.created)}</td><td>${esc(o.email)}</td><td>${esc(o.pack)}</td><td class="num">${num(o.credits)}</td><td class="num">${money(o.amount)}</td><td class="mono">${esc(o.key)}</td></tr>`).join("") : `<tr><td colspan="6" style="color:var(--muted)">Заказов пока нет.</td></tr>`;
   }
