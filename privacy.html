@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{BRAND}} — Политика конфиденциальности</title>
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tenor+Sans&family=Manrope:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: a single readable column of legal text on studio paper */
+:root { --paper: #eceef0; --card: #ffffff; --ink: #18212b; --muted: #5b6672; --line: #d5dae0; --lamp: #e0a82e;
+  --f-display: "Tenor Sans", "Manrope", Georgia, serif; --f-body: "Manrope", system-ui, sans-serif; --f-mono: "IBM Plex Mono", ui-monospace, monospace; color-scheme: light; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper: #11161b; --card: #181f26; --ink: #e9edf0; --muted: #9aa6b1; --line: #2a343e; --lamp: #f0c150; color-scheme: dark; } }
+:root[data-theme="dark"] { --paper: #11161b; --card: #181f26; --ink: #e9edf0; --muted: #9aa6b1; --line: #2a343e; --lamp: #f0c150; color-scheme: dark; }
+* { box-sizing: border-box; } [hidden] { display: none !important; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.65 var(--f-body); }
+.wrap { max-width: 780px; margin: 0 auto; padding-inline: 20px; padding-block: 24px 60px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+.top a { color: var(--ink); text-decoration: none; font: 22px var(--f-display); }
+.lang { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.lang button { border: 0; background: none; padding: 5px 12px; font: 500 12px var(--f-mono); cursor: pointer; color: var(--muted); }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--card); }
+h1 { font: 400 clamp(30px, 5vw, 44px)/1.1 var(--f-display); margin: 0 0 6px; text-wrap: balance; }
+.upd { font: 500 12px var(--f-mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+article { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 28px clamp(18px, 4vw, 40px); margin-top: 22px; }
+h2 { font: 700 18px/1.3 var(--f-body); margin: 28px 0 8px; } h2:first-child { margin-top: 0; }
+p, li { max-width: 68ch; } ul { padding-left: 20px; } li { margin: 4px 0; }
+a { color: var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; margin: 8px 0; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tbl { overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a href="/">← {{BRAND}}</a>
+    <div class="lang" role="group" aria-label="Language"><button type="button" data-l="ru">RU</button><button type="button" data-l="en">EN</button></div>
+  </div>
+
+  <!-- ===================== RU ===================== -->
+  <div lang="ru" data-lang="ru">
+    <h1>Политика конфиденциальности</h1>
+    <div class="upd">Обновлено: {{UPDATED}}</div>
+    <article>
+      <h2>1. Кто мы</h2>
+      <p>Сайт {{SITE}} («{{BRAND}}») — онлайн-сервис, который создаёт портреты из фотографий пользователя с помощью нейросетей. Ответственный за обработку данных: <b>{{LEGAL}}</b>. Связаться с нами: <a href="mailto:{{CONTACT}}">{{CONTACT}}</a>.</p>
+
+      <h2>2. Какие данные мы обрабатываем</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Данные</th><th>Зачем</th><th>Основание (GDPR)</th></tr></thead>
+        <tbody>
+          <tr><td>Фотографии, которые вы загружаете</td><td>Создание портретов по вашему запросу</td><td>Исполнение договора, ст. 6(1)(b)</td></tr>
+          <tr><td>Готовые портреты и описание образа</td><td>Показ результатов и истории по вашему коду</td><td>Исполнение договора, ст. 6(1)(b)</td></tr>
+          <tr><td>Email, сумма и дата оплаты, личный код</td><td>Оплата, начисление кредитов, отправка кода, бухгалтерский учёт</td><td>Договор и требования закона, ст. 6(1)(b), (c)</td></tr>
+          <tr><td>Данные о посещениях (Google Analytics)</td><td>Статистика и улучшение сайта</td><td>Ваше согласие, ст. 6(1)(a)</td></tr>
+        </tbody>
+      </table></div>
+      <p>Мы не используем ваши фотографии для распознавания или идентификации личности, для рекламы и не продаём их третьим лицам.</p>
+
+      <h2>3. Как обрабатываются фотографии</h2>
+      <ul>
+        <li><b>Обычные портреты.</b> Фото передаются нейросети только на время создания портрета и не сохраняются на нашем сервере.</li>
+        <li><b>Персональная модель.</b> Фото временно хранятся в виде архива, пока модель обучается, и удаляются сразу после окончания обучения. Обученная модель хранится у обработчика fal.ai и доступна только по вашему коду.</li>
+        <li><b>Готовые портреты</b> хранятся у fal.ai по ссылкам, связанным с вашим кодом.</li>
+        <li><b>Витрина на сайте.</b> Портреты клиентов показываются на главной странице только с их согласия.</li>
+      </ul>
+
+      <h2>4. Кому передаются данные</h2>
+      <ul>
+        <li><b>fal.ai</b> (Features & Labels Inc., США) — обработка изображений нейросетями.</li>
+        <li><b>Stripe</b> (Stripe Payments Europe Ltd.) — приём платежей. Данные карты мы не получаем и не храним.</li>
+        <li><b>Railway</b> (Railway Corporation, США) — хостинг сайта и базы данных.</li>
+        <li><b>Google Analytics</b> (Google Ireland Ltd.) — статистика посещений, только с вашего согласия.</li>
+        <li><b>Resend</b> (США) — отправка писем с кодом, если вы указали email при оплате.</li>
+      </ul>
+      <p>Если данные передаются за пределы ЕЭЗ, передача происходит на основании стандартных договорных условий Еврокомиссии или решения о достаточности защиты (EU-US Data Privacy Framework).</p>
+
+      <h2>5. Cookie и хранилище браузера</h2>
+      <ul>
+        <li><b>Необходимые:</b> ваш личный код, выбранный язык, выбор по cookie. Хранятся в вашем браузере (localStorage) и нужны для работы сайта.</li>
+        <li><b>Аналитика:</b> cookie Google Analytics (_ga, _ga_*) устанавливаются только после нажатия «Принять» в баннере. Отозвать согласие можно, очистив данные сайта в браузере: баннер появится снова.</li>
+      </ul>
+
+      <h2>6. Сколько мы храним данные</h2>
+      <ul>
+        <li>Исходные фото для портретов: не хранятся. Фото для персональной модели: до окончания обучения.</li>
+        <li>Код, баланс, история портретов: пока вы пользуетесь сервисом или до вашего запроса на удаление.</li>
+        <li>Данные о платежах: в течение срока, установленного налоговым законодательством.</li>
+      </ul>
+
+      <h2>7. Ваши права</h2>
+      <p>Вы можете запросить доступ к своим данным, их исправление, удаление, ограничение обработки, перенос, а также возразить против обработки и отозвать согласие. Напишите на <a href="mailto:{{CONTACT}}">{{CONTACT}}</a> и укажите свой код: мы ответим в течение 30 дней. Вы также можете подать жалобу в надзорный орган, в Испании это Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>).</p>
+
+      <h2>8. Возраст</h2>
+      <p>Сервис предназначен для лиц старше 16 лет. Не загружайте фотографии других людей без их согласия.</p>
+
+      <h2>9. Изменения</h2>
+      <p>Мы можем обновлять эту политику. Актуальная версия всегда доступна на этой странице, дата обновления указана вверху.</p>
+    </article>
+  </div>
+
+  <!-- ===================== EN ===================== -->
+  <div lang="en" data-lang="en" hidden>
+    <h1>Privacy policy</h1>
+    <div class="upd">Last updated: {{UPDATED}}</div>
+    <article>
+      <h2>1. Who we are</h2>
+      <p>{{SITE}} ("{{BRAND}}") is an online service that creates portraits from users' photos using AI. Data controller: <b>{{LEGAL}}</b>. Contact: <a href="mailto:{{CONTACT}}">{{CONTACT}}</a>.</p>
+
+      <h2>2. What data we process</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Data</th><th>Purpose</th><th>Legal basis (GDPR)</th></tr></thead>
+        <tbody>
+          <tr><td>Photos you upload</td><td>Creating portraits at your request</td><td>Performance of contract, Art. 6(1)(b)</td></tr>
+          <tr><td>Finished portraits and look descriptions</td><td>Showing results and history for your code</td><td>Performance of contract, Art. 6(1)(b)</td></tr>
+          <tr><td>Email, payment amount and date, personal code</td><td>Payment, crediting your balance, sending your code, accounting</td><td>Contract and legal obligation, Art. 6(1)(b), (c)</td></tr>
+          <tr><td>Visit data (Google Analytics)</td><td>Statistics and improving the site</td><td>Your consent, Art. 6(1)(a)</td></tr>
+        </tbody>
+      </table></div>
+      <p>We do not use your photos to recognise or identify people, for advertising, and we do not sell them to third parties.</p>
+
+      <h2>3. How photos are handled</h2>
+      <ul>
+        <li><b>Regular portraits.</b> Photos are sent to the AI only while your portrait is being created and are not stored on our server.</li>
+        <li><b>Personal model.</b> Photos are stored temporarily as an archive while the model trains and are deleted as soon as training ends. The trained model is stored by our processor fal.ai and is accessible only with your code.</li>
+        <li><b>Finished portraits</b> are stored by fal.ai at links associated with your code.</li>
+        <li><b>Showcase.</b> Customer portraits appear on the home page only with the customer's consent.</li>
+      </ul>
+
+      <h2>4. Who receives data</h2>
+      <ul>
+        <li><b>fal.ai</b> (Features & Labels Inc., USA) — AI image processing.</li>
+        <li><b>Stripe</b> (Stripe Payments Europe Ltd.) — payment processing. We never receive or store card details.</li>
+        <li><b>Railway</b> (Railway Corporation, USA) — website and database hosting.</li>
+        <li><b>Google Analytics</b> (Google Ireland Ltd.) — visit statistics, only with your consent.</li>
+        <li><b>Resend</b> (USA) — sending your code by email, if you provided an email at checkout.</li>
+      </ul>
+      <p>Where data is transferred outside the EEA, transfers rely on the European Commission's Standard Contractual Clauses or an adequacy decision (EU-US Data Privacy Framework).</p>
+
+      <h2>5. Cookies and browser storage</h2>
+      <ul>
+        <li><b>Necessary:</b> your personal code, chosen language and cookie choice, stored in your browser (localStorage) so the site works.</li>
+        <li><b>Analytics:</b> Google Analytics cookies (_ga, _ga_*) are set only after you click "Accept" in the banner. To withdraw consent, clear this site's data in your browser and the banner will appear again.</li>
+      </ul>
+
+      <h2>6. How long we keep data</h2>
+      <ul>
+        <li>Source photos for portraits: not stored. Photos for a personal model: until training ends.</li>
+        <li>Code, balance and portrait history: while you use the service or until you ask us to delete them.</li>
+        <li>Payment records: for the period required by tax law.</li>
+      </ul>
+
+      <h2>7. Your rights</h2>
+      <p>You can request access to, correction, deletion, restriction or portability of your data, object to processing and withdraw consent. Email <a href="mailto:{{CONTACT}}">{{CONTACT}}</a> with your code and we will reply within 30 days. You can also complain to a supervisory authority; in Spain this is the Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>).</p>
+
+      <h2>8. Age</h2>
+      <p>The service is intended for people aged 16 and over. Do not upload photos of other people without their consent.</p>
+
+      <h2>9. Changes</h2>
+      <p>We may update this policy. The current version is always on this page, with the date of the last update at the top.</p>
+    </article>
+  </div>
+</div>
+<script>
+(() => {
+  let L = "ru";
+  try { L = localStorage.getItem("pt_lang") || ((navigator.language || "ru").startsWith("ru") ? "ru" : "en"); } catch {}
+  const set = (l) => {
+    L = l; document.documentElement.lang = l;
+    document.querySelectorAll("[data-lang]").forEach(el => el.hidden = el.dataset.lang !== l);
+    document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.l === l)));
+    document.title = document.title.replace(/— .*/, "— " + (l === "en" ? "Privacy policy" : "Политика конфиденциальности"));
+    try { localStorage.setItem("pt_lang", l); } catch {}
+  };
+  document.querySelectorAll(".lang button").forEach(b => b.onclick = () => set(b.dataset.l));
+  set(L);
+})();
+</script>
+</body>
+</html>
