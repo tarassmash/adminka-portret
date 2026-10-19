@@ -166,13 +166,14 @@ h2.title { font: 400 clamp(30px, 4.4vw, 48px)/1.08 var(--f-display); margin: 8px
 
 /* Studio */
 .studio { display: grid; gap: 16px; }
-.station { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 28px; display: grid; gap: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+.station { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 24px; display: grid; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.04); min-width: 0; }
+@media (max-width: 600px) { .station { padding: 18px 16px; border-radius: 16px; gap: 14px; } .station h3 { font-size: 21px; } }
 .station h3 { margin: 0; font: 400 24px/1.2 var(--f-display); display: flex; align-items: baseline; gap: 12px; }
 .station h3 .n { font: 500 12px var(--f-mono); color: var(--muted); letter-spacing: .08em; }
 .station .sub { margin: -8px 0 0; color: var(--muted); font-size: 14.5px; }
 .upload { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 22px; }
 @media (max-width: 820px) { .upload { grid-template-columns: minmax(0, 1fr); } }
-.drop { border: 1.5px dashed var(--line); border-radius: 16px; min-height: 200px; padding: 24px; display: grid; place-items: center; text-align: center; cursor: pointer; background: var(--paper); transition: all .15s ease; }
+.drop { border: 1.5px dashed var(--line); border-radius: 16px; min-height: 132px; padding: 18px; display: grid; place-items: center; text-align: center; cursor: pointer; background: var(--paper); transition: all .15s ease; }
 .drop:hover, .drop.over { border-color: var(--lamp); }
 .drop b { display: block; font-size: 17px; margin-bottom: 4px; }
 .drop span { color: var(--muted); font-size: 14px; }
@@ -182,33 +183,36 @@ h2.title { font: 400 clamp(30px, 4.4vw, 48px)/1.08 var(--f-display); margin: 8px
 .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .photo .rm { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(12,16,20,.7); color: #fff; cursor: pointer; font-size: 16px; line-height: 1; }
 .photo .tag { position: absolute; left: 6px; bottom: 6px; font: 500 10.5px var(--f-mono); background: rgba(12,16,20,.7); color: #fff; padding: 2px 7px; border-radius: 4px; }
-.tips { display: grid; gap: 10px; align-content: start; font-size: 14.5px; }
+.tips { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 20px; align-content: start; font-size: 14px; padding-top: 10px; }
 .tips h4 { margin: 0; font: 500 11px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .tips ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
 .tips li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; }
 .tips li::before { content: "+"; font: 600 14px var(--f-mono); color: var(--ok); }
 .tips li.no::before { content: "–"; color: var(--err); }
 
-.looks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-@media (max-width: 980px) { .looks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 10px; }
+
+@media (max-width: 980px) { .looks { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); } }
+@media (max-width: 600px) { .looks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } }
 .look { position: relative; display: grid; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; cursor: pointer; background: var(--card); transition: all .15s ease; }
 .look:hover { transform: translateY(-2px); }
 .look input { position: absolute; opacity: 0; pointer-events: none; }
 .look:has(input:checked) { border-color: var(--lamp); box-shadow: 0 0 0 2px var(--lamp); }
 .look:has(input:focus-visible) { outline: 2px solid var(--lamp); outline-offset: 2px; }
-.look .sw { aspect-ratio: 4 / 3.2; position: relative; overflow: hidden; }
+.look .sw { aspect-ratio: 1 / 1; position: relative; overflow: hidden; }
 .look .sw img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .look .sw svg { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); height: 86%; opacity: .78; }
-.look .check { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: var(--lamp); color: var(--lamp-ink); display: none; place-items: center; font-weight: 700; font-size: 13px; }
+.look .check { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; background: var(--lamp); color: var(--lamp-ink); display: none; place-items: center; font-weight: 700; font-size: 13px; }
 .look:has(input:checked) .check { display: grid; }
-.look .txt { padding: 12px 13px 14px; display: grid; gap: 4px; }
-.look b { font-size: 15.5px; font-weight: 700; }
+.look .txt { padding: 7px 8px 9px; display: grid; gap: 2px; }
+.look b { font-size: 13px; font-weight: 700; line-height: 1.25; }
+.look .d, .look .l { display: none; }
 .look .d { font-size: 13px; color: var(--muted); line-height: 1.4; }
 .look .l { font: 11px var(--f-mono); color: var(--muted); margin-top: 4px; }
 @media (prefers-reduced-motion: reduce) { .look, .look:hover { transition: none; transform: none; } }
 
-.descbox { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; }
-.descbox label { font-weight: 700; font-size: 16px; }
+.descbox[open] { display: grid; gap: 10px; }
+
 .descbox .hint { color: var(--muted); font-size: 14px; margin: -4px 0 0; }
 .descbox textarea { min-height: 96px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -216,20 +220,28 @@ h2.title { font: 400 clamp(30px, 4.4vw, 48px)/1.08 var(--f-display); margin: 8px
 .chip:hover { border-color: var(--lamp); }
 .chip::before { content: "+ "; color: var(--muted); }
 .desccount { font: 12px var(--f-mono); color: var(--muted); text-align: right; }
-.look.custom { grid-column: 1 / -1; grid-template-columns: minmax(110px, 180px) minmax(0, 1fr); border-style: dashed; }
-.look.custom .sw { display: grid; place-items: center; aspect-ratio: auto; min-height: 100px; }
-.look.custom .sw span { font: 400 40px/1 var(--f-display); color: #3a4550; }
+.look.custom { border-style: dashed; }
+.look.custom .sw { display: grid; place-items: center; }
+.look.custom .sw span { font: 400 30px/1 var(--f-display); color: #3a4550; }
 .look.custom .txt { align-content: center; }
 .look .l:empty { display: none; }
-.models { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
-.model { border: 1.5px solid var(--line); background: var(--paper); border-radius: 12px; padding: 12px 14px; cursor: pointer; text-align: left; display: grid; gap: 4px; }
+.models { display: grid; gap: 6px; }
+.model { border: 1.5px solid var(--line); background: var(--paper); border-radius: 10px; padding: 9px 12px; cursor: pointer; text-align: left; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.model span { display: none; }
 .model[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); background: var(--card); }
 .model b { font-size: 15px; } .model span { font-size: 13px; color: var(--muted); line-height: 1.4; } .model em { font: normal 11.5px var(--f-mono); color: var(--muted); }
-.likeness { display: grid; gap: 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.likeness { display: grid; gap: 10px; }
 .likeness label.sw { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-weight: 700; }
 .likeness label.sw input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--lamp); }
 .likeness p { margin: 0; color: var(--muted); font-size: 13.5px; font-weight: 400; }
-.details { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+.details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px 18px; }
+/* свёрнутые блоки: советы, описание, дополнительные настройки */
+.more { border-top: 1px solid var(--line); padding-top: 12px; }
+.more > summary { cursor: pointer; font-weight: 600; font-size: 15px; list-style: none; display: flex; align-items: center; gap: 8px; }
+.more > summary::-webkit-details-marker { display: none; }
+.more > summary::before { content: "+"; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font: 600 14px var(--f-mono); color: var(--muted); flex: none; }
+.more[open] > summary::before { content: "–"; }
+.adv { display: grid; gap: 14px; padding-top: 12px; }
 .fld { display: grid; gap: 8px; align-content: start; min-width: 0; }
 .fld label, .fld .lbl { font: 500 11px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .seg { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -277,6 +289,15 @@ textarea { min-height: 76px; resize: vertical; }
 .trial-modal .row .btn { flex: 1 1 140px; justify-content: center; }
 .upsell { border: 1px solid color-mix(in srgb, var(--lamp) 55%, var(--line)); background: color-mix(in srgb, var(--lamp) 12%, var(--card)); border-radius: 14px; padding: 16px 18px; display: grid; gap: 8px; justify-items: start; }
 .upsell p { margin: 0; color: var(--muted); }
+
+/* Before/after examples: swipe on phones */
+@media (max-width: 700px) {
+  .ba-grid { display: grid; grid-auto-flow: column; grid-auto-columns: 82%; grid-template-columns: none; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; padding-bottom: 6px; scrollbar-width: none; }
+  .ba-grid::-webkit-scrollbar { display: none; }
+  .ba-grid > * { scroll-snap-align: start; }
+}
+/* How it works: compact on phones */
+@media (max-width: 760px) { .how > div { padding: 14px 16px; } .how p { margin: 4px 0 0; font-size: 14px; } }
 
 /* My orders */
 .orders-btn { padding: 7px 12px; font-size: 14px; white-space: nowrap; }
@@ -438,7 +459,6 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
         <span class="t r">after</span>
       </div>
       <div class="hero-ba-cap" data-i18n="hero.cap">Your photo on the left · finished portrait on the right</div>
-      <button type="button" class="btn big solid" id="heroPlay" style="justify-self:center; margin-top:4px;">▶ Play</button>
     </div>
   </section>
 
@@ -461,48 +481,48 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     <div class="studio">
       <div class="station">
         <h3><span class="n">01</span><span data-i18n="s1.t">Ваше фото</span></h3>
-        <p class="sub" data-i18n="s1.sub">Чем лучше видно лицо, тем точнее сходство. Второе и третье фото с другого ракурса повышают точность.</p>
-        <div class="upload">
-          <div style="display:grid;gap:12px;min-width:0">
-            <div class="drop" id="drop" tabindex="0" role="button">
-              <div><div class="plus" aria-hidden="true">+</div><b data-i18n="s1.drop">Загрузите фото</b><span data-i18n="s1.dropHint">Перетащите сюда или нажмите · JPG или PNG · до 3 снимков</span></div>
-            </div>
-            <input id="file" type="file" accept="image/*" multiple hidden>
-            <div class="photos" id="photos"></div>
-          </div>
+        <div class="drop" id="drop" tabindex="0" role="button">
+          <div><div class="plus" aria-hidden="true">+</div><b data-i18n="s1.drop">Загрузите фото</b><span data-i18n="s1.dropHint">Перетащите сюда или нажмите · JPG или PNG · до 3 снимков</span></div>
+        </div>
+        <input id="file" type="file" accept="image/*" multiple hidden>
+        <div class="photos" id="photos"></div>
+        <details class="more">
+          <summary data-i18n="tips.sum">Советы для лучшего сходства</summary>
           <div class="tips">
-            <h4 data-i18n="tips.good">Подойдёт</h4>
             <ul><li data-i18n="tips.g1">Лицо анфас или в три четверти, крупно</li><li data-i18n="tips.g2">Ровный дневной свет, резкий кадр</li><li data-i18n="tips.g3">Один человек в кадре</li></ul>
-            <h4 data-i18n="tips.bad">Хуже получится</h4>
             <ul><li class="no" data-i18n="tips.b1">Тёмные очки, маски, сильные тени</li><li class="no" data-i18n="tips.b2">Групповые фото и сильные фильтры</li><li class="no" data-i18n="tips.b3">Размытые или очень маленькие снимки</li></ul>
           </div>
-        </div>
+        </details>
       </div>
 
       <div class="station" id="styles">
-        <h3><span class="n">02</span><span data-i18n="s2.t">Образ и описание</span></h3>
-        <p class="sub" data-i18n="s2.sub">Выберите готовый образ и при желании опишите детали словами. Или выберите «Свой образ» и опишите портрет целиком.</p>
+        <h3><span class="n">02</span><span data-i18n="s2.t2">Образ</span></h3>
         <div class="looks" id="looks" role="radiogroup"></div>
-        <div class="descbox">
-          <label for="wishes" id="descLabel"></label>
+        <details class="more descbox" id="descBox">
+          <summary id="descLabel" data-i18n="desc.label">Добавить описание (необязательно)</summary>
           <p class="hint" id="descHint"></p>
-          <textarea id="wishes" maxlength="600"></textarea>
+          <textarea id="wishes" maxlength="600" aria-labelledby="descLabel"></textarea>
           <div class="chips" id="chips"></div>
           <div class="desccount" id="descCount">0 / 600</div>
-        </div>
+        </details>
       </div>
 
       <div class="station">
         <h3><span class="n">03</span><span data-i18n="s3.t">Детали</span></h3>
-        <div class="fld" id="modelFld" hidden><span class="lbl" data-i18n="s3.model">Нейросеть</span><div class="models" id="models"></div></div>
-        <div class="likeness" id="likeness" hidden>
-          <label class="sw"><input type="checkbox" id="swapOn" checked><span><span data-i18n="lk.t">Максимальное сходство</span><p data-i18n="lk.p">Второй проход: лицо с вашего фото переносится на готовый портрет. Портрет получается максимально похожим, добавляет 10–20 секунд.</p></span></label>
-          <div class="fld" id="genderFld"><span class="lbl" data-i18n="lk.who">Кто на фото</span><div class="seg" id="gender"></div></div>
-        </div>
         <div class="details">
           <div class="fld"><span class="lbl" data-i18n="s3.format">Формат</span><div class="seg" id="formats"></div></div>
           <div class="fld"><span class="lbl" data-i18n="s3.count">Сколько вариантов</span><div class="seg" id="counts"></div></div>
+          <div class="fld" id="genderFld"><span class="lbl" data-i18n="lk.who">Кто на фото</span><div class="seg" id="gender"></div></div>
         </div>
+        <details class="more" id="advanced">
+          <summary data-i18n="adv.t">Дополнительные настройки</summary>
+          <div class="adv">
+            <div class="fld" id="modelFld" hidden><span class="lbl" data-i18n="s3.model">Нейросеть</span><div class="models" id="models"></div></div>
+            <div class="likeness" id="likeness" hidden>
+              <label class="sw"><input type="checkbox" id="swapOn" checked><span><span data-i18n="lk.t">Максимальное сходство</span><p data-i18n="lk.p">Второй проход: лицо с вашего фото переносится на готовый портрет. Портрет получается максимально похожим, добавляет 10–20 секунд.</p></span></label>
+            </div>
+          </div>
+        </details>
         <div class="go">
           <button class="btn solid big" id="go" type="button" data-i18n="s3.go">Создать портреты</button>
           <span class="note" id="goNote"></span>
@@ -635,7 +655,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "tips.good": "Подойдёт", "tips.g1": "Лицо анфас или в три четверти, крупно", "tips.g2": "Ровный дневной свет, резкий кадр", "tips.g3": "Один человек в кадре",
       "tips.bad": "Хуже получится", "tips.b1": "Тёмные очки, маски, сильные тени", "tips.b2": "Групповые фото и сильные фильтры", "tips.b3": "Размытые или очень маленькие снимки",
       "s2.t": "Образ и описание", "s2.sub": "Выберите готовый образ и при желании опишите детали словами. Или выберите «Свой образ» и опишите портрет целиком.",
-      "desc.label": "Ваше описание (необязательно)", "desc.hint": "Уточните детали: одежда, место, выражение лица. Описание важнее выбранного образа.", "desc.ph": "Например: в тёмно-синем костюме без галстука, лёгкая улыбка, на фоне панорамных окон",
+      "desc.label": "Добавить описание (необязательно)", "desc.hint": "Уточните детали: одежда, место, выражение лица. Описание важнее выбранного образа.", "desc.ph": "Например: в тёмно-синем костюме без галстука, лёгкая улыбка, на фоне панорамных окон",
       "desc.labelC": "Опишите свой образ", "desc.hintC": "Где вы, во что одеты, какой свет и настроение. Можно на любом языке.", "desc.phC": "Например: я капитан яхты в белой форме на палубе, закатное солнце, ветер в волосах, тёплые тона",
       "err.desc": "Опишите свой образ хотя бы парой фраз.",
       "s3.t": "Детали", "s3.format": "Формат", "s3.count": "Сколько вариантов", "s3.go": "Создать портреты", "s3.model": "Нейросеть",
@@ -655,7 +675,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "err.photo": "Сначала загрузите фото.", "err.style": "Выберите образ.", "err.net": "Нет связи с сервером. Проверьте интернет.", "err.max": "Достаточно трёх фото.", "err.open": "Не удалось открыть фото. Сохраните его как JPG и попробуйте снова.", "err.long": "Слишком долго. Попробуйте ещё раз.",
       "sample": "образ", "collage.cap": "Примеры образов",
       "nav.ex": "До и после", "nav.blog": "Блог", "blog.eyebrow": "Блог", "blog.title": "Советы о портретах и фото", "blog.all": "Все статьи", "ba.eyebrow": "До и после", "ba.title": "Селфи → студийный портрет", "ba.lead": "Слева фото, которое загрузили, справа готовый портрет. Разделитель двигается сам.",
-      "orders.btn": "Мои заказы", "orders.title": "Мои заказы", "orders.sub": "Все портреты, созданные по вашему коду. Нажмите на снимок, чтобы открыть его крупно и скачать.", "orders.empty": "Здесь появятся ваши портреты, когда вы создадите первый.", "orders.go": "Создать портрет", "orders.all": "Все мои заказы →", "orders.n": "{n} фото", "res.sub2": "Готовые портреты этого заказа. Все прошлые заказы — в разделе «Мои заказы».", "orders.load": "Загружаем…", "tr.badge": "🎁 Бесплатная проба", "tr.title": "Попробуйте бесплатно", "tr.text": "Сделайте {n} портрета бесплатно — без оплаты и регистрации. Сравните с другими сервисами и убедитесь сами, что наши портреты лучше.", "tr.mark": "На пробных портретах будет водяной знак {m}.", "tr.try": "Попробовать бесплатно", "tr.later": "Позже", "tr.cta": "Попробовать бесплатно", "tr.hint": "{n} портрета бесплатно · без регистрации", "tr.go": "Сделать {n} портрета бесплатно", "tr.note": "Пробная версия: {n} портрета с водяным знаком {m}. Без оплаты.", "tr.count": "{n} портрета в пробе", "tr.upT": "Понравилось?", "tr.upP": "Купите пакет — и получайте портреты без водяного знака, в полном разрешении. Ваш код и пробные портреты сохранятся.", "tr.upB": "Выбрать пакет", "tr.used": "Бесплатная проба использована. Выберите пакет, чтобы продолжить.", "ba.ai": "вымышленный человек", "play": "Смотреть", "ba.zoom": "Крупнее", "ba.slider": "Сравнение до и после",
+      "orders.btn": "Мои заказы", "orders.title": "Мои заказы", "orders.sub": "Все портреты, созданные по вашему коду. Нажмите на снимок, чтобы открыть его крупно и скачать.", "orders.empty": "Здесь появятся ваши портреты, когда вы создадите первый.", "orders.go": "Создать портрет", "orders.all": "Все мои заказы →", "orders.n": "{n} фото", "res.sub2": "Готовые портреты этого заказа. Все прошлые заказы — в разделе «Мои заказы».", "orders.load": "Загружаем…", "tr.badge": "🎁 Бесплатная проба", "tr.title": "Попробуйте бесплатно", "tr.text": "Сделайте {n} портрета бесплатно — без оплаты и регистрации. Сравните с другими сервисами и убедитесь сами, что наши портреты лучше.", "tr.mark": "На пробных портретах будет водяной знак {m}.", "tr.try": "Попробовать бесплатно", "tr.later": "Позже", "tr.cta": "Попробовать бесплатно", "tr.hint": "{n} портрета бесплатно · без регистрации", "tr.go": "Сделать {n} портрета бесплатно", "tr.note": "Пробная версия: {n} портрета с водяным знаком {m}. Без оплаты.", "tr.count": "{n} портрета в пробе", "tr.upT": "Понравилось?", "tr.upP": "Купите пакет — и получайте портреты без водяного знака, в полном разрешении. Ваш код и пробные портреты сохранятся.", "tr.upB": "Выбрать пакет", "tr.used": "Бесплатная проба использована. Выберите пакет, чтобы продолжить.", "tips.sum": "Советы для лучшего сходства", "s2.t2": "Образ", "adv.t": "Дополнительные настройки: нейросеть и сходство", "ba.ai": "вымышленный человек", "play": "Смотреть", "ba.zoom": "Крупнее", "ba.slider": "Сравнение до и после",
     },
     en: {
       "nav.how": "How it works", "nav.styles": "Looks", "nav.pricing": "Pricing", "nav.faq": "FAQ", "nav.cta": "Create portrait",
@@ -673,7 +693,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "tips.good": "Works well", "tips.g1": "Face front-on or three-quarter, close up", "tips.g2": "Even daylight, sharp image", "tips.g3": "One person in the frame",
       "tips.bad": "Works worse", "tips.b1": "Sunglasses, masks, harsh shadows", "tips.b2": "Group photos and heavy filters", "tips.b3": "Blurry or very small images",
       "s2.t": "Look and description", "s2.sub": "Pick a ready-made look and add details in your own words if you like. Or choose “Your own idea” and describe the whole portrait.",
-      "desc.label": "Your description (optional)", "desc.hint": "Add details: outfit, place, expression. Your description takes priority over the look.", "desc.ph": "E.g. navy suit without a tie, soft smile, floor-to-ceiling windows behind",
+      "desc.label": "Add a description (optional)", "desc.hint": "Add details: outfit, place, expression. Your description takes priority over the look.", "desc.ph": "E.g. navy suit without a tie, soft smile, floor-to-ceiling windows behind",
       "desc.labelC": "Describe your idea", "desc.hintC": "Where you are, what you wear, the light and the mood. Any language works.", "desc.phC": "E.g. me as a yacht captain in a white uniform on deck, sunset light, wind in my hair, warm tones",
       "err.desc": "Describe your idea in a few words.",
       "s3.t": "Details", "s3.format": "Format", "s3.count": "Variants", "s3.go": "Create portraits", "s3.model": "AI model",
@@ -693,7 +713,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "err.photo": "Upload a photo first.", "err.style": "Pick a look.", "err.net": "Can't reach the server. Check your connection.", "err.max": "Three photos are enough.", "err.open": "Couldn't open this photo. Save it as JPG and try again.", "err.long": "This is taking too long. Please try again.",
       "sample": "look", "collage.cap": "Sample looks",
       "nav.ex": "Before & after", "nav.blog": "Blog", "blog.eyebrow": "Blog", "blog.title": "Portrait and photo tips", "blog.all": "All articles", "ba.eyebrow": "Before & after", "ba.title": "Selfie → studio portrait", "ba.lead": "On the left, the uploaded photo; on the right, the finished portrait. The divider moves on its own.",
-      "orders.btn": "My orders", "orders.title": "My orders", "orders.sub": "Every portrait created with your code. Tap a photo to open it full size and download.", "orders.empty": "Your portraits will appear here once you create the first one.", "orders.go": "Create a portrait", "orders.all": "All my orders →", "orders.n": "{n} photos", "res.sub2": "Portraits from this order. All earlier orders are in “My orders”.", "orders.load": "Loading…", "tr.badge": "🎁 Free trial", "tr.title": "Try it for free", "tr.text": "Create {n} portraits for free — no payment, no sign-up. Compare with other services and see for yourself that ours are better.", "tr.mark": "Trial portraits carry a {m} watermark.", "tr.try": "Try for free", "tr.later": "Later", "tr.cta": "Try for free", "tr.hint": "{n} free portraits · no sign-up", "tr.go": "Create {n} portraits for free", "tr.note": "Free trial: {n} portraits with a {m} watermark. No payment.", "tr.count": "{n} portraits in the trial", "tr.upT": "Like them?", "tr.upP": "Get a pack for portraits without the watermark, in full resolution. Your code and trial portraits stay with you.", "tr.upB": "Choose a pack", "tr.used": "Your free trial has been used. Choose a pack to continue.", "ba.ai": "fictional person", "play": "Play", "ba.zoom": "Enlarge", "ba.slider": "Before and after comparison",
+      "orders.btn": "My orders", "orders.title": "My orders", "orders.sub": "Every portrait created with your code. Tap a photo to open it full size and download.", "orders.empty": "Your portraits will appear here once you create the first one.", "orders.go": "Create a portrait", "orders.all": "All my orders →", "orders.n": "{n} photos", "res.sub2": "Portraits from this order. All earlier orders are in “My orders”.", "orders.load": "Loading…", "tr.badge": "🎁 Free trial", "tr.title": "Try it for free", "tr.text": "Create {n} portraits for free — no payment, no sign-up. Compare with other services and see for yourself that ours are better.", "tr.mark": "Trial portraits carry a {m} watermark.", "tr.try": "Try for free", "tr.later": "Later", "tr.cta": "Try for free", "tr.hint": "{n} free portraits · no sign-up", "tr.go": "Create {n} portraits for free", "tr.note": "Free trial: {n} portraits with a {m} watermark. No payment.", "tr.count": "{n} portraits in the trial", "tr.upT": "Like them?", "tr.upP": "Get a pack for portraits without the watermark, in full resolution. Your code and trial portraits stay with you.", "tr.upB": "Choose a pack", "tr.used": "Your free trial has been used. Choose a pack to continue.", "tips.sum": "Tips for the best likeness", "s2.t2": "Look", "adv.t": "More settings: AI model and likeness", "ba.ai": "fictional person", "play": "Play", "ba.zoom": "Enlarge", "ba.slider": "Before and after comparison",
     },
     es: {
       "nav.how": "Cómo funciona",
@@ -737,7 +757,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "tips.b3": "Fotos borrosas o muy pequeñas",
       "s2.t": "Estilo y descripción",
       "s2.sub": "Elige un estilo y, si quieres, añade detalles con tus palabras. O elige «Tu propia idea» y describe el retrato entero.",
-      "desc.label": "Tu descripción (opcional)",
+      "desc.label": "Añadir descripción (opcional)",
       "desc.hint": "Añade detalles: ropa, lugar, expresión. Tu descripción tiene prioridad sobre el estilo.",
       "desc.ph": "Ej.: traje azul marino sin corbata, sonrisa suave, ventanales de fondo",
       "desc.labelC": "Describe tu idea",
@@ -821,7 +841,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "ba.eyebrow": "Antes y después",
       "ba.title": "Selfie → retrato de estudio",
       "ba.lead": "A la izquierda, la foto subida; a la derecha, el retrato final. El divisor se mueve solo.",
-      "orders.btn": "Mis pedidos", "orders.title": "Mis pedidos", "orders.sub": "Todos los retratos creados con tu código. Pulsa una foto para verla en grande y descargarla.", "orders.empty": "Aquí aparecerán tus retratos cuando crees el primero.", "orders.go": "Crear un retrato", "orders.all": "Todos mis pedidos →", "orders.n": "{n} fotos", "res.sub2": "Retratos de este pedido. Los pedidos anteriores están en «Mis pedidos».", "orders.load": "Cargando…", "tr.badge": "🎁 Prueba gratis", "tr.title": "Pruébalo gratis", "tr.text": "Crea {n} retratos gratis, sin pagar ni registrarte. Compáralos con otros servicios y comprueba tú mismo que los nuestros son mejores.", "tr.mark": "Los retratos de prueba llevan la marca de agua {m}.", "tr.try": "Probar gratis", "tr.later": "Más tarde", "tr.cta": "Probar gratis", "tr.hint": "{n} retratos gratis · sin registro", "tr.go": "Crear {n} retratos gratis", "tr.note": "Prueba gratis: {n} retratos con marca de agua {m}. Sin pago.", "tr.count": "{n} retratos en la prueba", "tr.upT": "¿Te gustan?", "tr.upP": "Compra un paquete y obtén retratos sin marca de agua y en resolución completa. Tu código y tus retratos de prueba se conservan.", "tr.upB": "Elegir paquete", "tr.used": "Ya has usado la prueba gratis. Elige un paquete para continuar.", "ba.ai": "persona ficticia",
+      "orders.btn": "Mis pedidos", "orders.title": "Mis pedidos", "orders.sub": "Todos los retratos creados con tu código. Pulsa una foto para verla en grande y descargarla.", "orders.empty": "Aquí aparecerán tus retratos cuando crees el primero.", "orders.go": "Crear un retrato", "orders.all": "Todos mis pedidos →", "orders.n": "{n} fotos", "res.sub2": "Retratos de este pedido. Los pedidos anteriores están en «Mis pedidos».", "orders.load": "Cargando…", "tr.badge": "🎁 Prueba gratis", "tr.title": "Pruébalo gratis", "tr.text": "Crea {n} retratos gratis, sin pagar ni registrarte. Compáralos con otros servicios y comprueba tú mismo que los nuestros son mejores.", "tr.mark": "Los retratos de prueba llevan la marca de agua {m}.", "tr.try": "Probar gratis", "tr.later": "Más tarde", "tr.cta": "Probar gratis", "tr.hint": "{n} retratos gratis · sin registro", "tr.go": "Crear {n} retratos gratis", "tr.note": "Prueba gratis: {n} retratos con marca de agua {m}. Sin pago.", "tr.count": "{n} retratos en la prueba", "tr.upT": "¿Te gustan?", "tr.upP": "Compra un paquete y obtén retratos sin marca de agua y en resolución completa. Tu código y tus retratos de prueba se conservan.", "tr.upB": "Elegir paquete", "tr.used": "Ya has usado la prueba gratis. Elige un paquete para continuar.", "tips.sum": "Consejos para el mejor parecido", "s2.t2": "Estilo", "adv.t": "Más ajustes: modelo de IA y parecido", "ba.ai": "persona ficticia",
       "play": "Ver",
       "ba.zoom": "Ampliar",
       "ba.slider": "Comparación antes y después",
@@ -1055,10 +1075,11 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   function renderDesc() {
     const c = isCustom();
     $("descLabel").textContent = t(c ? "desc.labelC" : "desc.label");
+    if (c) $("descBox").open = true;
     $("descHint").textContent = t(c ? "desc.hintC" : "desc.hint");
     $("wishes").placeholder = t(c ? "desc.phC" : "desc.ph");
     const box = $("chips"); box.innerHTML = "";
-    CHIPS[L].forEach(txt => {
+    CHIPS[L].slice(0, 8).forEach(txt => {
       const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = txt;
       b.onclick = () => { const w = $("wishes"); const v = w.value.trim(); w.value = (v ? v.replace(/[,.\s]+$/, "") + ", " : "") + txt; w.dispatchEvent(new Event("input")); w.focus(); };
       box.appendChild(b);
@@ -1077,10 +1098,9 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       else { sw.style.background = s.swatch; sw.innerHTML = SILHOUETTE; }
       lab.querySelector(".check").style.zIndex = 2;
       lab.querySelector("b").textContent = tx(s.name);
-      lab.querySelector(".d").textContent = tx(s.desc);
-      lab.querySelector(".l").textContent = s.light;
+      lab.title = tx(s.desc);
       const inp = lab.querySelector("input");
-      inp.onchange = () => { style = s.id; renderDesc(); if (s.custom) $("wishes").focus(); };
+      inp.onchange = () => { style = s.id; renderDesc(); if (s.custom) { $("descBox").open = true; $("wishes").focus(); } };
       if ((style || cfg.styles[0].id) === s.id) { inp.checked = true; style = s.id; }
       box.appendChild(lab);
     });
@@ -1105,14 +1125,15 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       const b = document.createElement("button"); b.type = "button"; b.className = "model";
       b.setAttribute("aria-pressed", String(m.id === model));
       b.innerHTML = "<b></b><span></span><em></em>";
-      b.querySelector("b").textContent = tx(m.name); b.querySelector("span").textContent = tx(m.desc); b.querySelector("em").textContent = t("m.credits", { n: m.credits });
+      b.querySelector("b").textContent = tx(m.name); b.querySelector("span").textContent = tx(m.desc); b.title = tx(m.desc); b.querySelector("em").textContent = t("m.credits", { n: m.credits });
       b.onclick = () => { model = m.id; store.set("pt_model", model); renderModels(); renderCounts(); };
       box.appendChild(b);
     });
   }
   function renderLikeness() {
     $("likeness").hidden = !cfg.faceSwap;
-    $("genderFld").hidden = !$("swapOn").checked;
+    $("advanced").hidden = !cfg.faceSwap && (cfg.models || []).length < 2;
+    $("genderFld").hidden = !cfg.faceSwap || !$("swapOn").checked;
     seg($("gender"), [{ id: "female", label: t("g.female") }, { id: "male", label: t("g.male") }], gender, v => { gender = v; store.set("pt_gender", v); });
   }
   $("swapOn").onchange = renderLikeness;
@@ -1320,9 +1341,9 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     if (busy) return;
     if (!photos.length) { showMsg(t("err.photo"), true); drop.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
     if (!style) { showMsg(t("err.style"), true); return; }
-    if (isCustom() && $("wishes").value.trim().length < 8) { showMsg(t("err.desc"), true); $("wishes").focus(); return; }
+    if (isCustom() && $("wishes").value.trim().length < 8) { showMsg(t("err.desc"), true); $("descBox").open = true; $("wishes").focus(); return; }
     const swapOn = cfg.faceSwap && $("swapOn").checked;
-    if (swapOn && !gender) { showMsg(t("err.gender"), true); $("likeness").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    if (swapOn && !gender) { showMsg(t("err.gender"), true); $("genderFld").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
     const trial = trialMode();
     if (!trial && (!key || credits === 0)) { showMsg(key && cfg.trial ? t("tr.used") : t("note.nokey"), true); $("pricing").scrollIntoView({ behavior: "smooth" }); return; }
 
