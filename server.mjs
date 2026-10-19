@@ -447,7 +447,7 @@ function serveCover(res2, name) {
   const file = path2.join(COVER_DIR, name);
   if (!fs2.existsSync(file)) return false;
   const type = name.endsWith(".png") ? "image/png" : name.endsWith(".webp") ? "image/webp" : "image/jpeg";
-  res2.writeHead(200, { "content-type": type, "cache-control": "public, max-age=86400" });
+  res2.writeHead(200, { "content-type": type, "cache-control": "public, max-age=2592000" });
   fs2.createReadStream(file).pipe(res2);
   return true;
 }
@@ -928,7 +928,7 @@ function serve(res2, name) {
   const file = path3.join(EX_DIR, name);
   if (!fs3.existsSync(file)) return false;
   const type = name.endsWith(".png") ? "image/png" : name.endsWith(".webp") ? "image/webp" : "image/jpeg";
-  res2.writeHead(200, { "content-type": type, "cache-control": "public, max-age=86400" });
+  res2.writeHead(200, { "content-type": type, "cache-control": "public, max-age=2592000" });
   fs3.createReadStream(file).pipe(res2);
   return true;
 }
@@ -1926,6 +1926,12 @@ ${items.map((p) => `<item><title>${esc(p.title)}</title><link>${esc(origin2 + po
 function latestFor(lang2, n = 3) {
   return published(lang2).slice(0, n).map((p) => ({ url: postUrl(p), title: p.title, description: p.description, cover: p.cover || "", alt: p.coverAlt || p.title, date: fmtDate(p.publishedAt, lang2) }));
 }
+// первое фото «до/после» начинает грузиться вместе со страницей, до запуска скриптов
+function heroPreload() {
+  const ex = (typeof publicList === "function" ? publicList() : [])[0];
+  if (!ex) return [];
+  return [ex.after, ex.before].map((u) => `<link rel="preload" as="image" href="${esc(thumbUrl(u, 960))}"${u === ex.after ? ' fetchpriority="high"' : ""}>`);
+}
 function injectHome(html, req, { packs: packs2 = [], currency: currency2 = "eur", lang: lang2 = "ru" } = {}) {
   const origin2 = originOf(req);
   const ru = homeMeta("ru"), en = homeMeta("en");
@@ -1955,11 +1961,109 @@ function injectHome(html, req, { packs: packs2 = [], currency: currency2 = "eur"
     `<link rel="alternate" type="application/rss+xml" title="${esc(BRAND)}" href="${blogBase(lang2)}/rss.xml">`,
     ...jsonld.map(ld),
     `<script>window.__SEO=${JSON.stringify({ ru, en }).replace(/</g, "\\u003c")};</script>`,
+    ...heroPreload(),
+    `<script>window.__BOOT=${JSON.stringify({ cfg: publicConfig(), showcase: publicShowcase() }).replace(/</g, "\\u003c")};</script>`,
     headExtras()
   ].join("\n");
   const posts = latestFor(lang2);
   const cards = posts.map((p) => `<a class="post" href="${esc(p.url)}"><span class="ph">${p.cover ? `<img src="${esc(p.cover)}" alt="${esc(p.alt)}" loading="lazy">` : ""}</span><span class="tx"><span class="d">${esc(p.date)}</span><b>${esc(p.title)}</b><span class="s">${esc(p.description)}</span></span></a>`).join("");
   return html.replace('<html lang="ru">', `<html lang="${lang2}">`).replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(cur.title)}</title>`).replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(cur.description)}">`).replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(cur.title)}">`).replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(cur.description)}">`).replace("<!--SEO_HEAD-->", headAdd).replace("<!--LATEST_POSTS-->", cards).replace('<section class="sec" id="blogPosts" hidden>', posts.length ? '<section class="sec" id="blogPosts">' : '<section class="sec" id="blogPosts" hidden>');
+}
+
+// src/thumbs.mjs — быстрые картинки: уменьшенные WebP-копии на диске, кэш в браузере на год
+import zlib from "node:zlib";
+var THUMB_DIR = path5.join(DATA_DIR, "thumbs");
+fs5.mkdirSync(THUMB_DIR, { recursive: true });
+var sharp = null;
+try {
+  sharp = (await import("sharp")).default;
+  sharp.cache(false);
+  sharp.concurrency(1);
+} catch {
+  console.warn("sharp не установлен — картинки отдаются без сжатия");
+}
+var THUMB_W = [160, 320, 480, 640, 960, 1280];
+var LOCAL_IMG = { "/examples/": () => EX_DIR, "/covers/": () => COVER_DIR, "/blog-img/": () => IMG_DIR };
+var REMOTE_OK = /(^|\.)(fal\.media|fal\.ai|fal\.run)$/i;
+var inflight = new Map();
+function thumbSource(src) {
+  if (src.startsWith("/")) {
+    const pre = Object.keys(LOCAL_IMG).find((k) => src.startsWith(k));
+    if (!pre) return null;
+    const name = src.slice(pre.length).replace(/\?.*$/, "");
+    if (!/^[\w.-]+\.(jpe?g|png|webp)$/i.test(name)) return null;
+    const file = path5.join(LOCAL_IMG[pre](), name);
+    return fs5.existsSync(file) ? { file } : null;
+  }
+  try {
+    const u = new URL(src);
+    return u.protocol === "https:" && REMOTE_OK.test(u.hostname) ? { url: u.href } : null;
+  } catch {
+    return null;
+  }
+}
+async function makeThumb(src, w, out) {
+  const s = thumbSource(src);
+  if (!s) throw new Error("bad source");
+  let input = s.file;
+  if (s.url) {
+    const r = await fetch(s.url, { signal: AbortSignal.timeout(2e4) });
+    if (!r.ok) throw new Error("fetch " + r.status);
+    input = Buffer.from(await r.arrayBuffer());
+  }
+  const buf = await sharp(input, { failOn: "none" }).rotate().resize({ width: w, withoutEnlargement: true }).webp({ quality: w <= 320 ? 72 : 78, effort: 4 }).toBuffer();
+  fs5.writeFileSync(out + ".tmp", buf);
+  fs5.renameSync(out + ".tmp", out);
+}
+// /img/<ширина>/<адрес картинки в base64url> → WebP нужной ширины
+async function serveThumb(req, res2, pathname) {
+  const m = pathname.match(/^\/img\/(\d+)\/([A-Za-z0-9_-]+)$/);
+  if (!m) return false;
+  const w = THUMB_W.find((x) => x >= +m[1]) || THUMB_W[THUMB_W.length - 1];
+  const src = Buffer.from(m[2], "base64url").toString("utf8");
+  if (!thumbSource(src)) return res2.writeHead(404), res2.end(), true;
+  if (!sharp) return res2.writeHead(302, { location: src, "cache-control": "public, max-age=3600" }), res2.end(), true;
+  const out = path5.join(THUMB_DIR, crypto4.createHash("sha1").update(src + "|" + w).digest("hex") + ".webp");
+  if (!fs5.existsSync(out)) {
+    if (!inflight.has(out)) inflight.set(out, makeThumb(src, w, out).finally(() => inflight.delete(out)));
+    try {
+      await inflight.get(out);
+    } catch {
+      return res2.writeHead(302, { location: src, "cache-control": "no-cache" }), res2.end(), true;
+    }
+  }
+  const st = fs5.statSync(out);
+  res2.writeHead(200, { "content-type": "image/webp", "content-length": st.size, "cache-control": "public, max-age=31536000, immutable", "x-content-type-options": "nosniff" });
+  if (req.method === "HEAD") return res2.end(), true;
+  fs5.createReadStream(out).pipe(res2);
+  return true;
+}
+// заранее готовим копии для первого экрана и обложек, чтобы первый посетитель не ждал
+async function warmThumbs() {
+  if (!sharp) return;
+  const jobs = [];
+  for (const ex of (typeof publicList === "function" ? publicList() : []).slice(0, 4)) for (const u of [ex.after, ex.before]) for (const w of [480, 960]) jobs.push([u, w]);
+  for (const u of Object.values(db.settings.covers || {})) for (const w of [320, 480]) jobs.push([u, w]);
+  for (const [u, w] of jobs) {
+    if (!thumbSource(u)) continue;
+    const out = path5.join(THUMB_DIR, crypto4.createHash("sha1").update(u + "|" + w).digest("hex") + ".webp");
+    if (fs5.existsSync(out)) continue;
+    await makeThumb(u, w, out).catch(() => {});
+  }
+}
+setTimeout(() => warmThumbs().catch(() => {}), 3e3);
+setInterval(() => warmThumbs().catch(() => {}), 10 * 60e3);
+var thumbUrl = (src, w) => src && sharp && thumbSource(src) ? `/img/${w}/${Buffer.from(src).toString("base64url")}` : src;
+// сжатие HTML и JSON: страница становится в 4–5 раз легче
+function compressed(req, res2, status, headers, body) {
+  const buf = Buffer.isBuffer(body) ? body : Buffer.from(String(body));
+  if (buf.length > 1024 && /\bgzip\b/.test(req?.headers?.["accept-encoding"] || "")) {
+    const z = zlib.gzipSync(buf, { level: 6 });
+    res2.writeHead(status, { ...headers, "content-encoding": "gzip", vary: "Accept-Encoding", "content-length": z.length });
+    return res2.end(z);
+  }
+  res2.writeHead(status, { ...headers, "content-length": buf.length });
+  res2.end(buf);
 }
 
 // src/server.mjs
@@ -1981,10 +2085,7 @@ var MAX_VARIANTS = 4;
 var ROOT = path5.dirname(fileURLToPath(import.meta.url));
 var PUBLIC = fs5.existsSync(path5.join(ROOT, "public", "index.html")) ? path5.join(ROOT, "public") : ROOT;
 var PORT = process.env.PORT || 3e3;
-var json = (res2, data, status = 200) => {
-  res2.writeHead(status, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" });
-  res2.end(JSON.stringify(data));
-};
+var json = (res2, data, status = 200) => compressed(res2.req, res2, status, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }, JSON.stringify(data));
 async function readBody(req, limit = 8e6) {
   const chunks = [];
   let size2 = 0;
@@ -2063,8 +2164,8 @@ function refund(gen, reason) {
   gen.error = reason;
   save();
 }
-var routes = {
-  "GET /api/config": async (req, res2) => json(res2, {
+// настройки для страницы: отдаются и через /api/config, и прямо в HTML, чтобы картинки начинали грузиться сразу
+var publicConfig = () => ({
     brand: BRAND2,
     contact: CONTACT,
     currency: currency(),
@@ -2081,13 +2182,17 @@ var routes = {
     defaultModel: modelSettings().default,
     faceSwap: faceSwapSettings().enabled,
     examples: publicList(),
-    latest: { ru: latestFor("ru"), en: latestFor("en") }
-  }),
-  "GET /api/showcase": async (req, res2) => {
-    const items = [];
-    for (const g of db.gens) for (const url of g.showcase || []) items.push({ url, style: g.style, format: g.format });
-    json(res2, items.slice(0, 24));
-  },
+    latest: { ru: latestFor("ru"), en: latestFor("en") },
+    thumbs: !!sharp
+  });
+var publicShowcase = () => {
+  const items = [];
+  for (const g of db.gens) for (const url of g.showcase || []) items.push({ url, style: g.style, format: g.format });
+  return items.slice(0, 24);
+};
+var routes = {
+  "GET /api/config": async (req, res2) => json(res2, publicConfig()),
+  "GET /api/showcase": async (req, res2) => json(res2, publicShowcase()),
   "GET /api/balance": async (req, res2) => {
     const { key, rec } = clientKey(req);
     json(res2, { key, credits: rec.credits });
@@ -2507,10 +2612,7 @@ var routes = {
 };
 var TYPES = { ".html": "text/html; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".webp": "image/webp" };
 var PAGES = { "/": "index.html", "/admin": "admin.html", "/editor": "editor.html", "/seo": "seo.html" };
-var send = (res2, status, type, body, cache = "no-cache") => {
-  res2.writeHead(status, { "content-type": type, "cache-control": cache, "x-content-type-options": "nosniff" });
-  res2.end(body);
-};
+var send = (res2, status, type, body, cache = "no-cache") => compressed(res2.req, res2, status, { "content-type": type, "cache-control": cache, "x-content-type-options": "nosniff" }, body);
 var HTML = "text/html; charset=utf-8";
 function serveStatic(req, res2, pathname) {
   const page = PAGES[pathname];
@@ -2560,6 +2662,7 @@ http.createServer(async (req, res2) => {
   try {
     if (handler) return await handler(req, res2, url);
     if (url.pathname.startsWith("/api/")) return json(res2, { error: "\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E" }, 404);
+    if (url.pathname.startsWith("/img/") && await serveThumb(req, res2, url.pathname)) return;
     if (url.pathname.startsWith("/covers/") && serveCover(res2, url.pathname.slice(8))) return;
     if (url.pathname.startsWith("/examples/") && serve(res2, url.pathname.slice(10))) return;
     if (dynamic(req, res2, url)) return;

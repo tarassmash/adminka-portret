@@ -4,6 +4,13 @@
   "private": true,
   "type": "module",
   "description": "Portretto — AI-фотостудия: студийные портреты из селфи",
-  "scripts": { "start": "node server.mjs" },
-  "engines": { "node": ">=20" }
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
 }
