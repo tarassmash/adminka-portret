@@ -299,6 +299,20 @@ textarea { min-height: 76px; resize: vertical; }
 /* How it works: compact on phones */
 @media (max-width: 760px) { .how > div { padding: 14px 16px; } .how p { margin: 4px 0 0; font-size: 14px; } }
 
+/* Пошаговые подсказки */
+.coach { position: absolute; z-index: 40; max-width: min(320px, calc(100vw - 24px)); background: var(--ink); color: var(--card); border-radius: 14px; padding: 12px 38px 12px 14px; box-shadow: 0 12px 32px rgba(0,0,0,.28); font-size: 14.5px; line-height: 1.4; animation: coachIn .25s ease-out; }
+.coach p { margin: 0; }
+.coach-step { display: inline-block; font: 600 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; background: var(--lamp); color: var(--lamp-ink); border-radius: 999px; padding: 2px 8px; margin-bottom: 6px; }
+.coach-next { margin-top: 10px; border: 0; border-radius: 10px; background: var(--lamp); color: var(--lamp-ink); font: 600 14px var(--f-body); padding: 7px 14px; cursor: pointer; }
+.coach-x { position: absolute; top: 6px; right: 6px; width: 28px; height: 28px; border: 0; background: none; color: inherit; opacity: .7; cursor: pointer; font-size: 14px; }
+.coach::after { content: ""; position: absolute; left: var(--ax, 28px); width: 14px; height: 14px; background: var(--ink); transform: rotate(45deg); }
+.coach.below::after { top: -6px; }
+.coach.above::after { bottom: -6px; }
+@keyframes coachIn { from { opacity: 0; transform: translateY(6px); } }
+.need { outline: 3px solid var(--lamp) !important; outline-offset: 4px; border-radius: 14px; animation: needPulse 1.2s ease-in-out 3; }
+@keyframes needPulse { 50% { outline-color: transparent; } }
+@media (prefers-reduced-motion: reduce) { .coach, .need { animation: none; } }
+
 /* My orders */
 .orders-btn { padding: 7px 12px; font-size: 14px; white-space: nowrap; }
 @media (max-width: 480px) { .nav .lang { display: none; } .orders-btn { padding: 7px 10px; font-size: 13.5px; } }
@@ -586,6 +600,8 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   </div>
 </div>
 
+<div class="coach" id="coach" role="status" aria-live="polite" hidden><span class="coach-step" id="coachStep"></span><p id="coachText"></p><button type="button" class="coach-next" id="coachNext" hidden></button><button type="button" class="coach-x" id="coachX" aria-label="close">✕</button></div>
+
 <a class="btn solid sticky-cta" id="stickyCta" href="#studio" data-i18n="hero.cta">Create your portrait</a>
 
 <!-- Key modal -->
@@ -675,7 +691,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "err.photo": "Сначала загрузите фото.", "err.style": "Выберите образ.", "err.net": "Нет связи с сервером. Проверьте интернет.", "err.max": "Достаточно трёх фото.", "err.open": "Не удалось открыть фото. Сохраните его как JPG и попробуйте снова.", "err.long": "Слишком долго. Попробуйте ещё раз.",
       "sample": "образ", "collage.cap": "Примеры образов",
       "nav.ex": "До и после", "nav.blog": "Блог", "blog.eyebrow": "Блог", "blog.title": "Советы о портретах и фото", "blog.all": "Все статьи", "ba.eyebrow": "До и после", "ba.title": "Селфи → студийный портрет", "ba.lead": "Слева фото, которое загрузили, справа готовый портрет. Разделитель двигается сам.",
-      "orders.btn": "Мои заказы", "orders.title": "Мои заказы", "orders.sub": "Все портреты, созданные по вашему коду. Нажмите на снимок, чтобы открыть его крупно и скачать.", "orders.empty": "Здесь появятся ваши портреты, когда вы создадите первый.", "orders.go": "Создать портрет", "orders.all": "Все мои заказы →", "orders.n": "{n} фото", "res.sub2": "Готовые портреты этого заказа. Все прошлые заказы — в разделе «Мои заказы».", "orders.load": "Загружаем…", "tr.badge": "🎁 Бесплатная проба", "tr.title": "Попробуйте бесплатно", "tr.text": "Сделайте {n} портрета бесплатно — без оплаты и регистрации. Сравните с другими сервисами и убедитесь сами, что наши портреты лучше.", "tr.mark": "На пробных портретах будет водяной знак {m}.", "tr.try": "Попробовать бесплатно", "tr.later": "Позже", "tr.cta": "Попробовать бесплатно", "tr.hint": "{n} портрета бесплатно · без регистрации", "tr.go": "Сделать {n} портрета бесплатно", "tr.note": "Пробная версия: {n} портрета с водяным знаком {m}. Без оплаты.", "tr.count": "{n} портрета в пробе", "tr.upT": "Понравилось?", "tr.upP": "Купите пакет — и получайте портреты без водяного знака, в полном разрешении. Ваш код и пробные портреты сохранятся.", "tr.upB": "Выбрать пакет", "tr.used": "Бесплатная проба использована. Выберите пакет, чтобы продолжить.", "tips.sum": "Советы для лучшего сходства", "s2.t2": "Образ", "adv.t": "Дополнительные настройки: нейросеть и сходство", "ba.ai": "вымышленный человек", "play": "Смотреть", "ba.zoom": "Крупнее", "ba.slider": "Сравнение до и после",
+      "orders.btn": "Мои заказы", "orders.title": "Мои заказы", "orders.sub": "Все портреты, созданные по вашему коду. Нажмите на снимок, чтобы открыть его крупно и скачать.", "orders.empty": "Здесь появятся ваши портреты, когда вы создадите первый.", "orders.go": "Создать портрет", "orders.all": "Все мои заказы →", "orders.n": "{n} фото", "res.sub2": "Готовые портреты этого заказа. Все прошлые заказы — в разделе «Мои заказы».", "orders.load": "Загружаем…", "tr.badge": "🎁 Бесплатная проба", "tr.title": "Попробуйте бесплатно", "tr.text": "Сделайте {n} портрета бесплатно — без оплаты и регистрации. Сравните с другими сервисами и убедитесь сами, что наши портреты лучше.", "tr.mark": "На пробных портретах будет водяной знак {m}.", "tr.try": "Попробовать бесплатно", "tr.later": "Позже", "tr.cta": "Попробовать бесплатно", "tr.hint": "{n} портрета бесплатно · без регистрации", "tr.go": "Сделать {n} портрета бесплатно", "tr.note": "Пробная версия: {n} портрета с водяным знаком {m}. Без оплаты.", "tr.count": "{n} портрета в пробе", "tr.upT": "Понравилось?", "tr.upP": "Купите пакет — и получайте портреты без водяного знака, в полном разрешении. Ваш код и пробные портреты сохранятся.", "tr.upB": "Выбрать пакет", "tr.used": "Бесплатная проба использована. Выберите пакет, чтобы продолжить.", "tips.sum": "Советы для лучшего сходства", "s2.t2": "Образ", "adv.t": "Дополнительные настройки: нейросеть и сходство", "g.of": "Шаг {n} из {t}", "g.next": "Дальше →", "g.photo": "Загрузите селфи — фото, где хорошо видно лицо. Можно 1–3 снимка.", "g.look": "Выберите образ. Можно оставить «Деловой портрет» или нажать на любой другой.", "g.who": "Укажите, кто на фото, — так лицо получится максимально похожим.", "g.desc": "Для «Свой образ» опишите портрет парой фраз: место, одежда, настроение.", "g.go": "Всё готово! Нажмите, чтобы создать портреты.", "g.pay": "Чтобы создать портреты, выберите пакет или введите код.", "ba.ai": "вымышленный человек", "play": "Смотреть", "ba.zoom": "Крупнее", "ba.slider": "Сравнение до и после",
     },
     en: {
       "nav.how": "How it works", "nav.styles": "Looks", "nav.pricing": "Pricing", "nav.faq": "FAQ", "nav.cta": "Create portrait",
@@ -713,7 +729,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "err.photo": "Upload a photo first.", "err.style": "Pick a look.", "err.net": "Can't reach the server. Check your connection.", "err.max": "Three photos are enough.", "err.open": "Couldn't open this photo. Save it as JPG and try again.", "err.long": "This is taking too long. Please try again.",
       "sample": "look", "collage.cap": "Sample looks",
       "nav.ex": "Before & after", "nav.blog": "Blog", "blog.eyebrow": "Blog", "blog.title": "Portrait and photo tips", "blog.all": "All articles", "ba.eyebrow": "Before & after", "ba.title": "Selfie → studio portrait", "ba.lead": "On the left, the uploaded photo; on the right, the finished portrait. The divider moves on its own.",
-      "orders.btn": "My orders", "orders.title": "My orders", "orders.sub": "Every portrait created with your code. Tap a photo to open it full size and download.", "orders.empty": "Your portraits will appear here once you create the first one.", "orders.go": "Create a portrait", "orders.all": "All my orders →", "orders.n": "{n} photos", "res.sub2": "Portraits from this order. All earlier orders are in “My orders”.", "orders.load": "Loading…", "tr.badge": "🎁 Free trial", "tr.title": "Try it for free", "tr.text": "Create {n} portraits for free — no payment, no sign-up. Compare with other services and see for yourself that ours are better.", "tr.mark": "Trial portraits carry a {m} watermark.", "tr.try": "Try for free", "tr.later": "Later", "tr.cta": "Try for free", "tr.hint": "{n} free portraits · no sign-up", "tr.go": "Create {n} portraits for free", "tr.note": "Free trial: {n} portraits with a {m} watermark. No payment.", "tr.count": "{n} portraits in the trial", "tr.upT": "Like them?", "tr.upP": "Get a pack for portraits without the watermark, in full resolution. Your code and trial portraits stay with you.", "tr.upB": "Choose a pack", "tr.used": "Your free trial has been used. Choose a pack to continue.", "tips.sum": "Tips for the best likeness", "s2.t2": "Look", "adv.t": "More settings: AI model and likeness", "ba.ai": "fictional person", "play": "Play", "ba.zoom": "Enlarge", "ba.slider": "Before and after comparison",
+      "orders.btn": "My orders", "orders.title": "My orders", "orders.sub": "Every portrait created with your code. Tap a photo to open it full size and download.", "orders.empty": "Your portraits will appear here once you create the first one.", "orders.go": "Create a portrait", "orders.all": "All my orders →", "orders.n": "{n} photos", "res.sub2": "Portraits from this order. All earlier orders are in “My orders”.", "orders.load": "Loading…", "tr.badge": "🎁 Free trial", "tr.title": "Try it for free", "tr.text": "Create {n} portraits for free — no payment, no sign-up. Compare with other services and see for yourself that ours are better.", "tr.mark": "Trial portraits carry a {m} watermark.", "tr.try": "Try for free", "tr.later": "Later", "tr.cta": "Try for free", "tr.hint": "{n} free portraits · no sign-up", "tr.go": "Create {n} portraits for free", "tr.note": "Free trial: {n} portraits with a {m} watermark. No payment.", "tr.count": "{n} portraits in the trial", "tr.upT": "Like them?", "tr.upP": "Get a pack for portraits without the watermark, in full resolution. Your code and trial portraits stay with you.", "tr.upB": "Choose a pack", "tr.used": "Your free trial has been used. Choose a pack to continue.", "tips.sum": "Tips for the best likeness", "s2.t2": "Look", "adv.t": "More settings: AI model and likeness", "g.of": "Step {n} of {t}", "g.next": "Next →", "g.photo": "Upload a selfie — a photo where your face is clearly visible. 1–3 photos.", "g.look": "Pick a look. You can keep “Business headshot” or tap any other.", "g.who": "Tell us who is in the photo so the face comes out as close as possible.", "g.desc": "For “Your own idea”, describe the portrait in a few words: place, outfit, mood.", "g.go": "All set! Tap to create your portraits.", "g.pay": "To create portraits, choose a pack or enter a code.", "ba.ai": "fictional person", "play": "Play", "ba.zoom": "Enlarge", "ba.slider": "Before and after comparison",
     },
     es: {
       "nav.how": "Cómo funciona",
@@ -841,7 +857,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "ba.eyebrow": "Antes y después",
       "ba.title": "Selfie → retrato de estudio",
       "ba.lead": "A la izquierda, la foto subida; a la derecha, el retrato final. El divisor se mueve solo.",
-      "orders.btn": "Mis pedidos", "orders.title": "Mis pedidos", "orders.sub": "Todos los retratos creados con tu código. Pulsa una foto para verla en grande y descargarla.", "orders.empty": "Aquí aparecerán tus retratos cuando crees el primero.", "orders.go": "Crear un retrato", "orders.all": "Todos mis pedidos →", "orders.n": "{n} fotos", "res.sub2": "Retratos de este pedido. Los pedidos anteriores están en «Mis pedidos».", "orders.load": "Cargando…", "tr.badge": "🎁 Prueba gratis", "tr.title": "Pruébalo gratis", "tr.text": "Crea {n} retratos gratis, sin pagar ni registrarte. Compáralos con otros servicios y comprueba tú mismo que los nuestros son mejores.", "tr.mark": "Los retratos de prueba llevan la marca de agua {m}.", "tr.try": "Probar gratis", "tr.later": "Más tarde", "tr.cta": "Probar gratis", "tr.hint": "{n} retratos gratis · sin registro", "tr.go": "Crear {n} retratos gratis", "tr.note": "Prueba gratis: {n} retratos con marca de agua {m}. Sin pago.", "tr.count": "{n} retratos en la prueba", "tr.upT": "¿Te gustan?", "tr.upP": "Compra un paquete y obtén retratos sin marca de agua y en resolución completa. Tu código y tus retratos de prueba se conservan.", "tr.upB": "Elegir paquete", "tr.used": "Ya has usado la prueba gratis. Elige un paquete para continuar.", "tips.sum": "Consejos para el mejor parecido", "s2.t2": "Estilo", "adv.t": "Más ajustes: modelo de IA y parecido", "ba.ai": "persona ficticia",
+      "orders.btn": "Mis pedidos", "orders.title": "Mis pedidos", "orders.sub": "Todos los retratos creados con tu código. Pulsa una foto para verla en grande y descargarla.", "orders.empty": "Aquí aparecerán tus retratos cuando crees el primero.", "orders.go": "Crear un retrato", "orders.all": "Todos mis pedidos →", "orders.n": "{n} fotos", "res.sub2": "Retratos de este pedido. Los pedidos anteriores están en «Mis pedidos».", "orders.load": "Cargando…", "tr.badge": "🎁 Prueba gratis", "tr.title": "Pruébalo gratis", "tr.text": "Crea {n} retratos gratis, sin pagar ni registrarte. Compáralos con otros servicios y comprueba tú mismo que los nuestros son mejores.", "tr.mark": "Los retratos de prueba llevan la marca de agua {m}.", "tr.try": "Probar gratis", "tr.later": "Más tarde", "tr.cta": "Probar gratis", "tr.hint": "{n} retratos gratis · sin registro", "tr.go": "Crear {n} retratos gratis", "tr.note": "Prueba gratis: {n} retratos con marca de agua {m}. Sin pago.", "tr.count": "{n} retratos en la prueba", "tr.upT": "¿Te gustan?", "tr.upP": "Compra un paquete y obtén retratos sin marca de agua y en resolución completa. Tu código y tus retratos de prueba se conservan.", "tr.upB": "Elegir paquete", "tr.used": "Ya has usado la prueba gratis. Elige un paquete para continuar.", "tips.sum": "Consejos para el mejor parecido", "s2.t2": "Estilo", "adv.t": "Más ajustes: modelo de IA y parecido", "g.of": "Paso {n} de {t}", "g.next": "Siguiente →", "g.photo": "Sube un selfie: una foto en la que se vea bien tu cara. De 1 a 3 fotos.", "g.look": "Elige un estilo. Puedes dejar «Retrato profesional» o pulsar cualquier otro.", "g.who": "Indica quién sale en la foto para que la cara se parezca lo máximo posible.", "g.desc": "Para «Tu propia idea», describe el retrato en pocas palabras: lugar, ropa, ambiente.", "g.go": "¡Todo listo! Pulsa para crear tus retratos.", "g.pay": "Para crear retratos, elige un paquete o introduce un código.", "ba.ai": "persona ficticia",
       "play": "Ver",
       "ba.zoom": "Ampliar",
       "ba.slider": "Comparación antes y después",
@@ -1085,7 +1101,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       box.appendChild(b);
     });
   }
-  $("wishes").addEventListener("input", () => $("descCount").textContent = $("wishes").value.length + " / 600");
+  $("wishes").addEventListener("input", () => { $("descCount").textContent = $("wishes").value.length + " / 600"; if (coachOn && coachFor === "look" && $("wishes").value.trim().length >= 8) { lookSeen = true; advanceCoach(); } });
   function renderLooks() {
     const box = $("looks"); box.innerHTML = "";
     cfg.styles.forEach((s, i) => {
@@ -1100,7 +1116,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       lab.querySelector("b").textContent = tx(s.name);
       lab.title = tx(s.desc);
       const inp = lab.querySelector("input");
-      inp.onchange = () => { style = s.id; renderDesc(); if (s.custom) { $("descBox").open = true; $("wishes").focus(); } };
+      inp.onchange = () => { style = s.id; renderDesc(); if (s.custom) { $("descBox").open = true; $("wishes").focus(); } if (coachOn && !s.custom) { lookSeen = true; advanceCoach(); } else if (coachOn) { lookSeen = true; nextStep(false); } };
       if ((style || cfg.styles[0].id) === s.id) { inp.checked = true; style = s.id; }
       box.appendChild(lab);
     });
@@ -1134,7 +1150,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     $("likeness").hidden = !cfg.faceSwap;
     $("advanced").hidden = !cfg.faceSwap && (cfg.models || []).length < 2;
     $("genderFld").hidden = !cfg.faceSwap || !$("swapOn").checked;
-    seg($("gender"), [{ id: "female", label: t("g.female") }, { id: "male", label: t("g.male") }], gender, v => { gender = v; store.set("pt_gender", v); });
+    seg($("gender"), [{ id: "female", label: t("g.female") }, { id: "male", label: t("g.male") }], gender, v => { gender = v; store.set("pt_gender", v); advanceCoach(); });
   }
   $("swapOn").onchange = renderLikeness;
   function renderTrial() {
@@ -1311,6 +1327,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       try { photos.push(await toJpeg(f)); track("add_photo", { count: photos.length }, true); } catch (e) { showMsg(e.message, true); }
     }
     renderPhotos();
+    if (photos.length) advanceCoach();
   }
   function renderPhotos() {
     const box = $("photos"); box.innerHTML = "";
@@ -1337,15 +1354,84 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   const ratioCss = f => f.replace(":", " / ");
   const styleName = id => tx(cfg.styles.find(s => s.id === id)?.name);
 
+  // ================= Подсказки по шагам =================
+  // При первом заказе подсказка ведёт по шагам; если шаг пропущен — «Создать» возвращает к нему.
+  const needsWho = () => cfg?.faceSwap && $("swapOn").checked;
+  const STEPS = () => [
+    { id: "photo", el: $("drop"), ok: () => photos.length > 0, text: "g.photo" },
+    { id: "look", el: $("looks"), ok: () => !!style && (!isCustom() || $("wishes").value.trim().length >= 8), text: () => isCustom() ? "g.desc" : "g.look", elFn: () => isCustom() ? $("wishes") : $("looks") },
+    ...needsWho() ? [{ id: "who", el: $("genderFld"), ok: () => !!gender, text: "g.who" }] : [],
+    { id: "go", el: $("go"), ok: () => false, text: "g.go" },
+  ];
+  let coachOn = false, coachFor = null, lookSeen = false;
+  function placeCoach(el) {
+    const c = $("coach"), r = el.getBoundingClientRect(), cw = c.offsetWidth, ch = c.offsetHeight;
+    const left = Math.max(12, Math.min(scrollX + r.left + 8, scrollX + innerWidth - cw - 12));
+    const below = r.top > ch + 90 ? false : true; // помещается сверху — ставим сверху, иначе снизу
+    c.classList.toggle("below", below); c.classList.toggle("above", !below);
+    c.style.left = left + "px";
+    c.style.top = (below ? scrollY + r.bottom + 12 : scrollY + r.top - ch - 12) + "px";
+    c.style.setProperty("--ax", Math.max(16, Math.min(cw - 30, scrollX + r.left + Math.min(r.width / 2, 60) - left)) + "px");
+  }
+  function showCoach(step, idx, total, scroll = true) {
+    const el = step.elFn ? step.elFn() : step.el; if (!el) return;
+    coachFor = step.id;
+    $("coachStep").textContent = t("g.of", { n: idx + 1, t: total });
+    $("coachText").textContent = t(typeof step.text === "function" ? step.text() : step.text);
+    $("coachNext").hidden = !(coachOn && step.id === "look" && step.ok()); $("coachNext").textContent = t("g.next");
+    $("coach").hidden = false;
+    document.querySelectorAll(".need").forEach(x => x.classList.remove("need"));
+    el.classList.add("need"); setTimeout(() => el.classList.remove("need"), 3800);
+    if (scroll) el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+    const pos = () => { if (!$("coach").hidden && coachFor === step.id) placeCoach(el); };
+    pos(); setTimeout(pos, 450); setTimeout(pos, 900);
+  }
+  function hideCoach() { $("coach").hidden = true; coachFor = null; }
+  // следующий невыполненный шаг; в режиме первого заказа подсказка переходит дальше сама
+  function nextStep(scroll) {
+    // в первом заказе шаг «образ» ждёт подтверждения, даже если образ выбран по умолчанию
+    const st = STEPS(), i = st.findIndex(s => !(s.ok() && (s.id !== "look" || lookSeen)));
+    if (i < 0) return hideCoach();
+    showCoach(st[i], i, st.length, scroll);
+  }
+  function advanceCoach() { if (coachOn) setTimeout(() => nextStep(true), 250); }
+  $("coachNext").onclick = () => { lookSeen = true; advanceCoach(); };
+  $("coachX").onclick = () => { coachOn = false; store.set("pt_guide_done", "1"); hideCoach(); };
+  addEventListener("resize", () => { if (!$("coach").hidden) { const st = STEPS().find(s => s.id === coachFor); if (st) placeCoach(st.elFn ? st.elFn() : st.el); } });
+  // первый заход в студию — запускаем подсказки
+  if (!store.get("pt_guide_done") && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(es => {
+      if (!es.some(e => e.isIntersecting) || !$("orders").hidden || !$("trialModal").hidden) return;
+      io.disconnect(); coachOn = true; nextStep(false); track("guide_start", {}, true);
+    }, { rootMargin: "0px 0px -45% 0px" });
+    io.observe($("studio"));
+  }
+  // проверка перед созданием: возвращаем к первому пропущенному шагу по порядку
+  function firstMissing() {
+    const st = STEPS(), i = st.findIndex(s => s.id !== "go" && !s.ok());
+    return i < 0 ? null : { step: st[i], i, total: st.length };
+  }
+
   async function generate() {
     if (busy) return;
-    if (!photos.length) { showMsg(t("err.photo"), true); drop.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (!style) { showMsg(t("err.style"), true); return; }
-    if (isCustom() && $("wishes").value.trim().length < 8) { showMsg(t("err.desc"), true); $("descBox").open = true; $("wishes").focus(); return; }
-    const swapOn = cfg.faceSwap && $("swapOn").checked;
-    if (swapOn && !gender) { showMsg(t("err.gender"), true); $("genderFld").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    const miss = firstMissing();
+    if (miss) {
+      const err = { photo: "err.photo", look: isCustom() ? "err.desc" : "err.style", who: "err.gender" }[miss.step.id];
+      showMsg(t(err), true);
+      if (miss.step.id === "look" && isCustom()) $("descBox").open = true;
+      showCoach(miss.step, miss.i, miss.total);
+      track("step_missing", { step: miss.step.id });
+      return;
+    }
+    const swapOn = needsWho();
     const trial = trialMode();
-    if (!trial && (!key || credits === 0)) { showMsg(key && cfg.trial ? t("tr.used") : t("note.nokey"), true); $("pricing").scrollIntoView({ behavior: "smooth" }); return; }
+    if (!trial && (!key || credits === 0)) {
+      showMsg(key && cfg.trial ? t("tr.used") : t("note.nokey"), true);
+      $("pricing").scrollIntoView({ behavior: "smooth" });
+      coachFor = "pay"; $("coachStep").textContent = "💳"; $("coachText").textContent = t("g.pay"); $("coach").hidden = false; setTimeout(() => placeCoach($("prices")), 500);
+      return;
+    }
+    hideCoach(); if (coachOn) { coachOn = false; store.set("pt_guide_done", "1"); }
 
     busy = true; $("go").disabled = true; showMsg("");
     if (trial && !key) {
