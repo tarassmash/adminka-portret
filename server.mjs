@@ -1965,7 +1965,7 @@ function injectHome(html, req, { packs: packs2 = [], currency: currency2 = "eur"
     `<script>window.__BOOT=${JSON.stringify({ cfg: publicConfig(), showcase: publicShowcase() }).replace(/</g, "\\u003c")};</script>`,
     headExtras()
   ].join("\n");
-  const posts = latestFor(lang2);
+  const posts = [];
   const cards = posts.map((p) => `<a class="post" href="${esc(p.url)}"><span class="ph">${p.cover ? `<img src="${esc(p.cover)}" alt="${esc(p.alt)}" loading="lazy">` : ""}</span><span class="tx"><span class="d">${esc(p.date)}</span><b>${esc(p.title)}</b><span class="s">${esc(p.description)}</span></span></a>`).join("");
   return html.replace('<html lang="ru">', `<html lang="${lang2}">`).replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(cur.title)}</title>`).replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(cur.description)}">`).replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(cur.title)}">`).replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(cur.description)}">`).replace("<!--SEO_HEAD-->", headAdd).replace("<!--LATEST_POSTS-->", cards).replace('<section class="sec" id="blogPosts" hidden>', posts.length ? '<section class="sec" id="blogPosts">' : '<section class="sec" id="blogPosts" hidden>');
 }
@@ -2258,7 +2258,6 @@ var publicConfig = () => ({
     defaultModel: modelSettings().default,
     faceSwap: faceSwapSettings().enabled,
     examples: publicList(),
-    latest: { ru: latestFor("ru"), en: latestFor("en") },
     thumbs: !!sharp,
     trial: trialEnabled() ? { count: TRIAL_COUNT, mark: TRIAL_MARK } : null
   });
