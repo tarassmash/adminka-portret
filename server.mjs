@@ -287,8 +287,8 @@ function createCheckout({ pack, currency: currency2, key, origin: origin2, lang:
   return stripe("POST", "/v1/checkout/sessions", {
     mode: "payment",
     locale: ["en", "es", "ru"].includes(lang2) ? lang2 : "auto",
-    success_url: `${origin2}/?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin2}/#pricing`,
+    success_url: `${origin2}${lang2 === "en" ? "/en" : lang2 === "ru" ? "/ru" : "/"}?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin2}${lang2 === "en" ? "/en" : lang2 === "ru" ? "/ru" : "/"}#pricing`,
     allow_promotion_codes: "true",
     line_items: {
       0: {
@@ -1106,6 +1106,7 @@ S.autoCover ??= true;
 var seo = S;
 var DEFAULT_HOME = {
   ru: { title: `${BRAND} \u2014 AI-\u0444\u043E\u0442\u043E\u0441\u0442\u0443\u0434\u0438\u044F: \u0441\u0442\u0443\u0434\u0438\u0439\u043D\u044B\u0439 \u043F\u043E\u0440\u0442\u0440\u0435\u0442 \u0438\u0437 \u0441\u0435\u043B\u0444\u0438`, description: "\u041F\u0440\u043E\u0444\u0435\u0441\u0441\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0440\u0442\u0440\u0435\u0442 \u0438\u0437 \u043E\u0431\u044B\u0447\u043D\u043E\u0433\u043E \u0441\u0435\u043B\u0444\u0438: \u0434\u0435\u043B\u043E\u0432\u043E\u0439, \u0436\u0443\u0440\u043D\u0430\u043B\u044C\u043D\u044B\u0439, \u0447\u0451\u0440\u043D\u043E-\u0431\u0435\u043B\u044B\u0439 \u0438 \u0434\u0440\u0443\u0433\u0438\u0435 \u043E\u0431\u0440\u0430\u0437\u044B. \u0412\u0430\u0448\u0435 \u043B\u0438\u0446\u043E, \u0441\u0442\u0443\u0434\u0438\u0439\u043D\u044B\u0439 \u0441\u0432\u0435\u0442, \u0432\u044B\u0441\u043E\u043A\u043E\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u0435 \u0437\u0430 30\u201360 \u0441\u0435\u043A\u0443\u043D\u0434." },
+  es: { title: `${BRAND} \u2014 estudio de fotos con IA: retrato profesional desde un selfie`, description: "Convierte un selfie en un retrato profesional de estudio: foto de perfil para LinkedIn y CV, estilo revista, blanco y negro y más. Tu cara, luz de estudio, alta resolución en 30\u201360 segundos." },
   en: { title: `${BRAND} \u2014 AI photo studio: a studio portrait from a selfie`, description: "Turn an everyday selfie into a professional portrait: business, magazine, black-and-white and more. Your face, studio lighting, high resolution in 30\u201360 seconds." }
 };
 var homeMeta = (lang2) => ({ title: S.home[lang2]?.title || DEFAULT_HOME[lang2].title, description: S.home[lang2]?.description || DEFAULT_HOME[lang2].description });
@@ -1317,7 +1318,7 @@ async function indexNow(urls) {
   save();
   return S.lastIndexNow;
 }
-var allUrls = () => ["/", "/?lang=en", "/blog", "/en/blog", ...published().map(postUrl)];
+var allUrls = () => ["/", "/en", "/ru", "/blog", "/en/blog", ...published().map(postUrl)];
 function saveImage2(id, buf, type) {
   for (const f of fs4.readdirSync(IMG_DIR)) if (f.startsWith(id + ".")) fs4.rmSync(path4.join(IMG_DIR, f), { force: true });
   const ext = /png/.test(type) ? "png" : /webp/.test(type) ? "webp" : "jpg";
@@ -1613,7 +1614,7 @@ var code = (v) => {
   return clean(m ? m[1] : raw, 120).replace(/[^\w\-.:]/g, "");
 };
 function saveSettings(b) {
-  for (const l of ["ru", "en"]) S.home[l] = { title: clean(b.home?.[l]?.title, 120), description: clean(b.home?.[l]?.description, 300) };
+  for (const l of ["ru", "en", "es"]) S.home[l] = { title: clean(b.home?.[l]?.title, 120), description: clean(b.home?.[l]?.description, 300) };
   S.verify = { google: code(b.verify?.google), yandex: code(b.verify?.yandex), bing: code(b.verify?.bing), pinterest: code(b.verify?.pinterest) };
   const ga = clean(b.analytics?.ga4, 30).toUpperCase(), ym = clean(b.analytics?.metrika, 20);
   if (ga && !/^G-[A-Z0-9]{4,}$/.test(ga)) throw new UserError3("ID Google Analytics \u0432\u044B\u0433\u043B\u044F\u0434\u0438\u0442 \u0442\u0430\u043A: G-XXXXXXXXXX.");
@@ -1770,7 +1771,7 @@ footer{border-top:1px solid var(--line);margin-top:64px;padding-block:28px 40px;
 footer a{color:var(--muted)}`;
 function header(lang2, otherHref) {
   const t = T[lang2];
-  return `<body><header class="wrap bar"><a class="logo" href="${lang2 === "en" ? "/?lang=en" : "/"}"><i aria-hidden="true"></i><b>${esc(BRAND)}</b></a>
+  return `<body><header class="wrap bar"><a class="logo" href="${lang2 === "en" ? "/en" : "/ru"}"><i aria-hidden="true"></i><b>${esc(BRAND)}</b></a>
 <nav class="nav"><a href="${blogBase(lang2)}">${t.blog}</a>${otherHref ? `<a href="${otherHref}" hreflang="${lang2 === "en" ? "ru" : "en"}">${t.other}</a>` : ""}<a class="btn" href="/#studio">${t.create}</a></nav></header>`;
 }
 function footer(lang2) {
@@ -1881,8 +1882,7 @@ function notFound(req, lang2 = "ru") {
 function sitemap(req) {
   const origin2 = originOf(req);
   const urls = [
-    { loc: "/", lastmod: Date.now(), pr: "1.0", alt: [["ru", "/"], ["en", "/?lang=en"]] },
-    { loc: "/?lang=en", lastmod: Date.now(), pr: "0.9", alt: [["ru", "/"], ["en", "/?lang=en"]] },
+    ...HOME_LANGS.map((l) => ({ loc: HOME_PATH[l], lastmod: Date.now(), pr: l === "es" ? "1.0" : "0.9", img: publicList()[0]?.after, alt: [...HOME_LANGS.map((x) => [x, HOME_PATH[x]]), ["x-default", "/"]] })),
     { loc: "/blog", lastmod: published("ru")[0]?.updated, pr: "0.8", alt: [["ru", "/blog"], ["en", "/en/blog"]] },
     { loc: "/en/blog", lastmod: published("en")[0]?.updated, pr: "0.8", alt: [["ru", "/blog"], ["en", "/en/blog"]] }
   ];
@@ -1903,14 +1903,21 @@ ${urls.map((u) => `<url><loc>${x(u.loc)}</loc>${u.lastmod ? `<lastmod>${iso(u.la
 }
 function robots(req) {
   const origin2 = originOf(req);
-  return `User-agent: *
-Allow: /
+  const rules = `Allow: /
 Disallow: /admin
 Disallow: /editor
 Disallow: /seo
 Disallow: /api/
-
+Disallow: /trial/
+`;
+  // поисковики и ИИ-поисковики явно приглашены: Google, Bing, ChatGPT, Claude, Perplexity, Apple и др.
+  const bots = ["Googlebot", "Bingbot", "Google-Extended", "GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User", "PerplexityBot", "Perplexity-User", "Applebot", "Applebot-Extended", "DuckDuckBot", "YandexBot", "CCBot", "meta-externalagent"];
+  return `User-agent: *
+${rules}
+${bots.map((b) => `User-agent: ${b}`).join("\n")}
+${rules}
 Sitemap: ${origin2}/sitemap.xml
+# Описание сервиса для ИИ: ${origin2}/llms.txt
 `;
 }
 function rss(req, lang2) {
@@ -1934,33 +1941,40 @@ function heroPreload() {
 }
 function injectHome(html, req, { packs: packs2 = [], currency: currency2 = "eur", lang: lang2 = "ru" } = {}) {
   const origin2 = originOf(req);
-  const ru = homeMeta("ru"), en = homeMeta("en");
-  const cur = lang2 === "en" ? en : ru;
-  const self = lang2 === "en" ? "/?lang=en" : "/";
+  if (!HOME_LANGS.includes(lang2)) lang2 = "es";
+  const ru = homeMeta("ru"), en = homeMeta("en"), es = homeMeta("es");
+  const cur = homeMeta(lang2);
+  const self = HOME_PATH[lang2];
+  const { FAQ } = homeDict(html);
+  html = renderHomeLang(html, lang2);
   const prices = packs2.map((p) => p.price);
   const jsonld = [
     { "@context": "https://schema.org", ...orgLd(origin2) },
-    { "@context": "https://schema.org", "@type": "WebSite", "@id": origin2 + "/#site", name: BRAND, url: origin2 + "/", inLanguage: ["ru", "en"], publisher: { "@id": origin2 + "/#org" } },
+    { "@context": "https://schema.org", "@type": "WebSite", "@id": origin2 + "/#site", name: BRAND, url: origin2 + "/", inLanguage: ["es", "en", "ru"], publisher: { "@id": origin2 + "/#org" } },
     ...prices.length ? [{
       "@context": "https://schema.org",
       "@type": "Service",
-      name: ru.title,
+      name: cur.title,
+      description: cur.description,
       serviceType: "AI portrait photography",
       provider: { "@id": origin2 + "/#org" },
       areaServed: "Worldwide",
-      url: origin2 + "/",
-      offers: { "@type": "AggregateOffer", priceCurrency: currency2.toUpperCase(), lowPrice: Math.min(...prices), highPrice: Math.max(...prices), offerCount: prices.length }
-    }] : []
+      availableLanguage: ["es", "en", "ru"],
+      url: origin2 + self,
+      offers: { "@type": "AggregateOffer", priceCurrency: currency2.toUpperCase(), lowPrice: Math.min(...prices), highPrice: Math.max(...prices), offerCount: prices.length, offers: packs2.map((p) => ({ "@type": "Offer", name: `${locTx(p.name, lang2)} \u2014 ${p.credits}`, price: p.price, priceCurrency: currency2.toUpperCase(), url: origin2 + self + "#pricing", availability: "https://schema.org/InStock" })) }
+    }] : [],
+    { "@context": "https://schema.org", "@type": "FAQPage", inLanguage: lang2, mainEntity: (FAQ[lang2] || []).map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) }
   ];
-  const img = ogImageAbs(origin2, seo.ogImage);
+  const img = ogImageAbs(origin2, seo.ogImage || (publicList()[0]?.after ? thumbUrl(publicList()[0].after, 1280) : ""));
   const headAdd = [
     `<link rel="canonical" href="${esc(origin2 + self)}">`,
-    `<link rel="alternate" hreflang="ru" href="${esc(origin2)}/"><link rel="alternate" hreflang="en" href="${esc(origin2)}/?lang=en"><link rel="alternate" hreflang="x-default" href="${esc(origin2)}/">`,
-    `<meta property="og:type" content="website"><meta property="og:url" content="${esc(origin2 + self)}"><meta property="og:site_name" content="${esc(BRAND)}"><meta property="og:locale" content="${lang2 === "en" ? "en_US" : "ru_RU"}">`,
+    HOME_LANGS.map((x) => `<link rel="alternate" hreflang="${x}" href="${esc(origin2 + HOME_PATH[x])}">`).join("") + `<link rel="alternate" hreflang="x-default" href="${esc(origin2)}/">`,
+    `<meta property="og:type" content="website"><meta property="og:url" content="${esc(origin2 + self)}"><meta property="og:site_name" content="${esc(BRAND)}"><meta property="og:locale" content="${HOME_LOCALE[lang2]}">` + HOME_LANGS.filter((x) => x !== lang2).map((x) => `<meta property="og:locale:alternate" content="${HOME_LOCALE[x]}">`).join(""),
     img ? `<meta property="og:image" content="${esc(img)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${esc(img)}">` : `<meta name="twitter:card" content="summary">`,
-    `<link rel="alternate" type="application/rss+xml" title="${esc(BRAND)}" href="${blogBase(lang2)}/rss.xml">`,
+    `<link rel="alternate" type="application/rss+xml" title="${esc(BRAND)}" href="${blogBase(lang2 === "ru" ? "ru" : "en")}/rss.xml">`,
+    `<link rel="alternate" type="text/markdown" title="llms.txt" href="/llms.txt">`,
     ...jsonld.map(ld),
-    `<script>window.__SEO=${JSON.stringify({ ru, en }).replace(/</g, "\\u003c")};</script>`,
+    `<script>window.__SEO=${JSON.stringify({ ru, en, es }).replace(/</g, "\\u003c")};window.__PAGE_LANG=${JSON.stringify(lang2)};</script>`,
     ...heroPreload(),
     `<script>window.__BOOT=${JSON.stringify({ cfg: publicConfig(), showcase: publicShowcase() }).replace(/</g, "\\u003c")};</script>`,
     headExtras()
@@ -2139,6 +2153,100 @@ function serveTrial(res2, name) {
   res2.writeHead(200, { "content-type": "image/jpeg", "cache-control": "public, max-age=2592000", "x-content-type-options": "nosniff" });
   fs5.createReadStream(file).pipe(res2);
   return true;
+}
+
+// src/ssr.mjs — главная страница отдаётся уже переведённой: /, /en, /ru.
+// Поисковики и ИИ-боты (ChatGPT, Claude, Perplexity) не запускают JavaScript, поэтому весь текст,
+// образы, цены и вопросы должны быть в HTML сразу. Тексты берутся из словаря в index.html.
+var HOME_LANGS = ["es", "en", "ru"];
+var HOME_PATH = { es: "/", en: "/en", ru: "/ru" };
+var HOME_LOCALE = { es: "es_ES", en: "en_US", ru: "ru_RU" };
+var dictCache = null;
+function homeDict(html) {
+  if (dictCache && dictCache.len === html.length) return dictCache;
+  const grab = (start, end) => {
+    const a = html.indexOf(start), b = html.indexOf(end, a);
+    if (a < 0 || b < 0) throw new Error("нет словаря " + start);
+    return new Function("return " + html.slice(a + start.length - 1, b + 4))();
+  };
+  dictCache = { len: html.length, T: grab("const T = {", "\n  };\n  const FAQ"), FAQ: grab("const FAQ = {", "\n  };\n  const CHIPS") };
+  return dictCache;
+}
+var escT = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+var locTx = (o, l) => o ? o[l] ?? o.en ?? o.ru ?? "" : "";
+function moneyFmt(v, l) {
+  return new Intl.NumberFormat(l === "ru" ? "ru-RU" : l === "es" ? "es-ES" : "en-GB", { style: "currency", currency: currency().toUpperCase(), maximumFractionDigits: v % 1 ? 2 : 0 }).format(v);
+}
+function ssrLooks(l, tt) {
+  const covers = db.settings.covers || {};
+  return STYLES.map((s, i) => {
+    const name = escT(locTx(s.name, l)), cover = covers[s.id];
+    const sw = s.custom ? `<div class="sw" style="background:${escT(s.swatch)}"><span>Aa</span></div>` : cover ? `<div class="sw"><img src="${escT(thumbUrl(cover, 480))}" alt="${name} — ${escT(tt("sample"))}" loading="lazy" decoding="async"></div>` : `<div class="sw" style="background:${escT(s.swatch)}"></div>`;
+    return `<label class="look${s.custom ? " custom" : ""}"><input type="radio" name="look" value="${s.id}"${i === 0 ? " checked" : ""}>${sw}<span class="check">✓</span><div class="txt"><b>${name}</b><span class="d">${escT(locTx(s.desc, l))}</span><span class="l">${escT(s.light || "")}</span></div></label>`;
+  }).join("");
+}
+function ssrPrices(l, tt) {
+  const f = ["price.f1", "price.f2", "price.f3", "price.f4"].map((k) => `<li>${escT(tt(k))}</li>`).join("");
+  return (packs() || []).map((p) => `<div class="price${p.popular ? " pop" : ""}">${p.popular ? `<span class="badge">${escT(tt("price.popular"))}</span>` : ""}<h3>${escT(locTx(p.name, l))} · ${escT(tt("price.portraits", { n: p.credits }))}</h3><div><div class="amt">${escT(moneyFmt(p.price, l))}</div><div class="per">${escT(tt("price.per", { p: moneyFmt(Math.round(p.price / p.credits * 100) / 100, l) }))}</div></div><ul>${f}</ul><button class="btn ${p.popular ? "solid" : ""} big" type="button">${escT(tt("price.buy"))}</button></div>`).join("");
+}
+function renderHomeLang(html, l) {
+  const { T, FAQ } = homeDict(html);
+  const tt = (k, vars = {}) => String(T[l]?.[k] ?? T.en?.[k] ?? T.ru?.[k] ?? k).replace(/\{(\w+)\}/g, (_, v) => vars[v] ?? "");
+  let out = html;
+  // обычные тексты
+  out = out.replace(/(<([a-z0-9]+)\b[^>]*\bdata-i18n="([\w.]+)"[^>]*>)([^<]*)(<\/\2>)/g, (m, open, tag, k, _t, close) => open + escT(tt(k)) + close);
+  // заголовок с разметкой
+  out = out.replace(/(<([a-z0-9]+)\b[^>]*\bdata-i18n-html="([\w.]+)"[^>]*>)([\s\S]*?)(<\/\2>)/g, (m, open, tag, k, _t, close) => open + tt(k) + close);
+  out = out.replace(/(\bdata-i18n-ph="([\w.]+)"[^>]*?\bplaceholder=")[^"]*"/g, (m, a, k) => a + escT(tt(k)) + '"');
+  // вопросы и ответы
+  const faq = (FAQ[l] || FAQ.en || []).map(([q, a]) => `<details><summary>${escT(q)}</summary><p>${escT(a)}</p></details>`).join("");
+  out = out.replace(/(<div class="faq" id="faqList">)[\s\S]*?(<\/div>\n  <\/section>)/, `$1${faq}$2`);
+  // мелочи без data-i18n
+  out = out.replace('<span class="t l">before</span>', `<span class="t l">${escT(tt("lb.before"))}</span>`).replace('<span class="t r">after</span>', `<span class="t r">${escT(tt("lb.after"))}</span>`).replace(/(id="heroPlay"[^>]*>)▶ [^<]*/, `$1▶ ${escT(tt("play"))}`);
+  // образы и цены — сразу в HTML (скрипт потом перерисует их так же)
+  out = out.replace('<div class="looks" id="looks" role="radiogroup"></div>', `<div class="looks" id="looks" role="radiogroup">${ssrLooks(l, tt)}</div>`);
+  out = out.replace('<div class="prices" id="prices"></div>', `<div class="prices" id="prices">${ssrPrices(l, tt)}</div>`);
+  // переключатель языка: настоящие ссылки, чтобы поисковик видел все версии
+  out = out.replace(/<a href="[^"]*" hreflang="(es|en|ru)" data-lang="\1"([^>]*)>/g, (m, x, rest) => `<a href="${HOME_PATH[x]}" hreflang="${x}" data-lang="${x}"${x === l ? ' aria-current="page"' : ""}>`);
+  return out;
+}
+// ответы для ИИ-поисковиков: краткое описание сервиса простым текстом
+function llmsTxt(req, full = false) {
+  const o = originOf(req);
+  const { FAQ } = homeDict(fs5.readFileSync(path5.join(PUBLIC, "index.html"), "utf8"));
+  const lines = [
+    `# ${BRAND}`,
+    "",
+    `> ${BRAND} is an online AI photo studio: upload a regular selfie and get professional studio-quality portraits (business headshots, magazine, black-and-white and more) in 30–60 seconds. Pay per portrait, no subscription. Available in Spanish, English and Russian.`,
+    "",
+    "## Key facts",
+    `- Website: ${o}/ (Spanish), ${o}/en (English), ${o}/ru (Russian)`,
+    "- What it does: turns 1–3 selfies into studio portraits that keep the person's real face; optional second pass for maximum likeness.",
+    "- Speed: usually 30–60 seconds per order.",
+    "- Formats: portrait 4:5, square 1:1, story 9:16, landscape 3:2.",
+    trialEnabled() ? `- Free trial: new visitors can create ${TRIAL_COUNT} watermarked portraits for free, no sign-up.` : null,
+    "- Payment: one-time packs via Stripe, credits never expire, failed portraits are refunded automatically.",
+    "- Privacy: source selfies are sent to the AI only to create the portrait and are not stored on the server.",
+    "",
+    "## Looks",
+    ...STYLES.map((s) => `- ${locTx(s.name, "en")}: ${locTx(s.desc, "en")}`),
+    "",
+    "## Pricing",
+    ...(packs() || []).map((p) => `- ${locTx(p.name, "en")}: ${p.credits} portraits for ${moneyFmt(p.price, "en")} (${moneyFmt(Math.round(p.price / p.credits * 100) / 100, "en")} per portrait)`),
+    "",
+    "## FAQ",
+    ...(FAQ.en || []).flatMap(([q, a]) => [`### ${q}`, a, ""]),
+    "## Links",
+    `- [Create a portrait](${o}/en#studio)`,
+    `- [Pricing](${o}/en#pricing)`,
+    `- [Blog (English)](${o}/en/blog)`,
+    `- [Blog (Russian)](${o}/blog)`
+  ].filter((x) => x !== null);
+  if (full) {
+    lines.push("", "## Articles");
+    for (const p of published()) lines.push(`- [${p.title}](${o}${postUrl(p)}): ${p.description || ""}`);
+  }
+  return lines.join("\n") + "\n";
 }
 
 // src/server.mjs
@@ -2715,7 +2823,7 @@ function serveStatic(req, res2, pathname) {
   let name = page || pathname.replace(/^\/+/, "");
   const file = path5.join(PUBLIC, name);
   if ((page || /^[\w.-]+\.(png|jpe?g|svg|ico|webp)$/i.test(name)) && fs5.existsSync(file)) {
-    if (pathname === "/") return send(res2, 200, HTML, injectHome(fs5.readFileSync(file, "utf8"), req, { packs: packs(), currency: currency(), lang: new URL(req.url, "http://x").searchParams.get("lang") === "en" ? "en" : "ru" }));
+    if (pathname === "/") return send(res2, 200, HTML, injectHome(fs5.readFileSync(file, "utf8"), req, { packs: packs(), currency: currency(), lang: "es" }));
     if (page && page !== "index.html") res2.setHeader("x-robots-tag", "noindex, nofollow");
     res2.writeHead(200, { "content-type": TYPES[path5.extname(file).toLowerCase()] || "application/octet-stream", "x-content-type-options": "nosniff" });
     return fs5.createReadStream(file).pipe(res2);
@@ -2732,6 +2840,18 @@ function dynamic(req, res2, url) {
   }
   if (p === "/sitemap.xml") return send(res2, 200, "application/xml; charset=utf-8", sitemap(req)), true;
   if (p === "/robots.txt") return send(res2, 200, "text/plain; charset=utf-8", robots(req)), true;
+  if (p === "/llms.txt" || p === "/llms-full.txt") return send(res2, 200, "text/markdown; charset=utf-8", llmsTxt(req, p === "/llms-full.txt")), true;
+  // языковые версии главной: / (испанский), /en, /ru; старые адреса ?lang=… и /es ведут на новые
+  const ql = url.searchParams.get("lang");
+  if (p === "/" && ["en", "ru", "es"].includes(ql)) {
+    const q = new URLSearchParams(url.search); q.delete("lang");
+    res2.writeHead(301, { location: HOME_PATH[ql] + (q.toString() ? "?" + q : "") }); res2.end(); return true;
+  }
+  if (p === "/es") { res2.writeHead(301, { location: "/" + url.search }); res2.end(); return true; }
+  if (p === "/en" || p === "/ru") {
+    const file = path5.join(PUBLIC, "index.html");
+    return send(res2, 200, HTML, injectHome(fs5.readFileSync(file, "utf8"), req, { packs: packs(), currency: currency(), lang: p.slice(1) })), true;
+  }
   if (p === `/${seo.indexnowKey}.txt`) return send(res2, 200, "text/plain; charset=utf-8", seo.indexnowKey), true;
   if (p.startsWith("/blog-img/")) return serveImage(res2, p.slice(10));
   const m = p.match(/^(\/en)?\/blog(?:\/(rss\.xml|tag\/([^/]+)|([a-z0-9-]+)))?$/);
