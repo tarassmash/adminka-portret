@@ -151,6 +151,7 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
       <button role="tab" data-tab="models" aria-selected="false">Модели и сходство</button>
       <button role="tab" data-tab="examples" aria-selected="false">До / после</button>
       <button role="tab" data-tab="orders" aria-selected="false">Заказы</button>
+      <button role="tab" data-tab="reports" aria-selected="false">Жалобы <span class="pill failed" id="repN" hidden></span></button>
       <button role="tab" data-tab="keys" aria-selected="false">Коды клиентов</button>
       <button role="tab" data-tab="packs" aria-selected="false">Пакеты и цены</button>
       <button role="tab" data-tab="styles" aria-selected="false">Популярные образы</button>
@@ -232,6 +233,10 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
       <div class="msg" id="packMsg"></div>
     </section>
     <section class="card" data-panel="styles" hidden><div class="styles-rank" id="stylesRank"></div></section>
+    <section class="card" data-panel="reports" hidden>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:14px">Обращения со страницы «Пожаловаться» (<a href="/ru/report" target="_blank">/report</a>). Если заказ найден по ссылке, его портреты видны ниже, и «Удалить портреты» стирает их везде: у клиента, на витрине, пробные копии и миниатюры. Если заказ не нашёлся, найдите его во вкладке «Генерации» по e-mail или дате и вставьте его ID. Отвечайте человеку на указанный e-mail.</p>
+      <div id="reports"></div>
+    </section>
     <section class="card" data-panel="sys" hidden><div class="sys" id="sys"></div></section>
   </div>
 </div>
@@ -259,7 +264,7 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
   async function login() {
     pass = $("pass").value || pass;
     $("loginMsg").textContent = "";
-    try { stats = await api("/api/admin/stats"); ss.set("pt_admin", pass); $("login").hidden = true; $("app").hidden = false; renderAll(); loadTab(); }
+    try { stats = await api("/api/admin/stats"); ss.set("pt_admin", pass); $("login").hidden = true; $("app").hidden = false; renderAll(); loadTab(); api("/api/admin/reports").then(repBadge).catch(() => {}); }
     catch (e) { $("loginMsg").textContent = e.message; $("login").hidden = false; $("app").hidden = true; }
   }
   $("loginBtn").onclick = login;
@@ -345,6 +350,7 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
       if (tab === "models") renderModels(await api("/api/admin/models"));
       if (tab === "examples") await loadExamples();
       if (tab === "orders") renderOrders(await api("/api/admin/orders"));
+      if (tab === "reports") renderReports(await api("/api/admin/reports"));
       if (tab === "keys") { keys = await api("/api/admin/keys"); renderKeys(); }
       if (tab === "packs") renderPacks((await (await fetch("/api/config")).json()));
     } catch (e) { if (e.status === 401) { ss.del("pt_admin"); location.reload(); } }
@@ -360,7 +366,7 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
     items.slice(0, 200).forEach(({ g, u }) => {
       const d = document.createElement("div"); const on = u && (g.showcase || []).includes(u); d.className = "g" + (on ? " on" : "");
       d.innerHTML = u ? `<a href="${esc(u)}" target="_blank" rel="noopener"><img alt="" loading="lazy" src="${esc(u)}"></a>` : `<div style="aspect-ratio:4/5;display:grid;place-items:center;background:var(--soft)"><span class="pill ${g.status}">${g.status === "failed" ? "ошибка" : "в работе"}</span></div>`;
-      d.innerHTML += `<div class="m"><b>${esc(sname(g.style))}</b><span>${esc(g.model || "")}${g.swapOn ? " · сходство+" : ""}</span><span>${date(g.created)} · ${esc(g.email || g.key)}</span>${g.text ? `<span style="color:var(--ink);font-family:var(--f-body)">«${esc(g.text)}»</span>` : ""}${g.error ? `<span style="color:var(--bad)">${esc(g.error)}</span>` : ""}${u ? `<label><input type="checkbox" ${on ? "checked" : ""}> На витрину</label>` : ""}</div>`;
+      d.innerHTML += `<div class="m"><b>${esc(sname(g.style))}</b><span>${esc(g.model || "")}${g.swapOn ? " · сходство+" : ""}</span><span>${date(g.created)} · ${esc(g.email || g.key)}</span><span class="mono" style="font-size:11px">ID ${esc(g.id)}</span>${g.text ? `<span style="color:var(--ink);font-family:var(--f-body)">«${esc(g.text)}»</span>` : ""}${g.error ? `<span style="color:var(--bad)">${esc(g.error)}</span>` : ""}${u ? `<label><input type="checkbox" ${on ? "checked" : ""}> На витрину</label>` : ""}</div>`;
       if (u) d.querySelector("input").onchange = async e => { try { const r = await api("/api/admin/showcase", { gen: g.id, url: u, on: e.target.checked }); g.showcase = r.showcase; d.classList.toggle("on", e.target.checked); } catch (err) { e.target.checked = !e.target.checked; alertMsg(err.message); } };
       box.appendChild(d);
     });
@@ -544,6 +550,42 @@ td.mono { font-family: var(--f-mono); font-size: 12.5px; white-space: nowrap; }
     if (ok) { exImage = null; exImageAfter = null; $("exPrev").hidden = true; $("exPrevAfter").hidden = true; $("exText").value = ""; $("exCaption").value = ""; }
   };
 
+  const REP_REASON = { consent: "Без согласия", minor: "Несовершеннолетний", sexual: "Сексуальный / оскорбительный", delete: "Удалить мои данные", other: "Другое" };
+  const REP_ST = { new: ["новая", "failed"], removed: ["удалено", "done"], done: ["решено", "done"], rejected: ["отклонена", "queued"] };
+  function repBadge(list) { const n = list.filter(r => r.status === "new").length; $("repN").hidden = !n; $("repN").textContent = n; }
+  async function repAct(body) { try { await api("/api/admin/reports/action", body); renderReports(await api("/api/admin/reports")); } catch (e) { alertMsg(e.message); } }
+  function renderReports(list) {
+    repBadge(list);
+    const box = $("reports");
+    if (!list.length) { box.innerHTML = `<p style="color:var(--muted)">Жалоб нет.</p>`; return; }
+    box.innerHTML = "";
+    list.forEach(r => {
+      const d = document.createElement("div"); d.className = "card"; d.style.cssText = "margin-bottom:12px;background:var(--paper)";
+      const st = REP_ST[r.status] || [r.status, ""];
+      const g = r.g;
+      const imgs = g && g.images.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">${g.images.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="" loading="lazy" style="width:84px;height:105px;object-fit:cover;border-radius:8px"></a>`).join("")}</div>` : "";
+      const gline = g ? `<div style="font-size:13.5px">Заказ <span class="mono">${esc(g.id)}</span> · ${date(g.created)} · ${esc(g.email || "")}${g.showcase ? " · на витрине" : ""}${g.removed ? ` · <b style="color:var(--good)">удалён ${date(g.removed)}</b>` : g.expired ? " · уже удалён по сроку" : ""}</div>` : `<div style="font-size:13.5px;color:var(--muted)">Заказ по ссылке не найден.</div>`;
+      d.innerHTML = `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill ${st[1]}">${st[0]}</span><b>${esc(REP_REASON[r.reason] || r.reason)}</b><span class="mono" style="color:var(--muted)">${date(r.created)} · ${esc(r.lang)}</span></div>
+        <div style="margin-top:6px;word-break:break-all"><b>Ссылка:</b> ${esc(r.link)}</div>
+        <div><b>E-mail:</b> <a href="mailto:${esc(r.email)}">${esc(r.email)}</a></div>
+        ${r.details ? `<div style="margin-top:4px;white-space:pre-wrap">${esc(r.details)}</div>` : ""}
+        <div style="margin-top:8px">${gline}${imgs}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center">
+          ${g && !g.removed ? `<button class="btn solid sm" data-a="takedown">Удалить портреты</button>` : `<input class="mono" data-gid placeholder="ID заказа" style="width:190px" maxlength="16"><button class="btn sm" data-a="takedown-id">Удалить по ID</button>`}
+          ${r.status === "new" ? `<button class="btn sm" data-a="done">Решено</button><button class="btn sm" data-a="rejected">Отклонить</button>` : `<button class="btn sm" data-a="new">Вернуть в новые</button>`}
+        </div>`;
+      d.querySelectorAll("button").forEach(b => b.onclick = () => {
+        const a = b.dataset.a;
+        if (a === "takedown") { if (confirmDel()) repAct({ id: r.id, action: "takedown" }); }
+        else if (a === "takedown-id") { const gid = d.querySelector("[data-gid]").value.trim(); if (!/^[a-f0-9]{16}$/.test(gid)) return alertMsg("ID заказа — 16 символов из вкладки «Генерации»."); if (confirmDel()) repAct({ id: r.id, action: "takedown", gen: gid }); }
+        else repAct({ id: r.id, action: a });
+      });
+      box.appendChild(d);
+    });
+  }
+  // подтверждение без системного окна: второй клик в течение 4 секунд
+  let delArm = 0;
+  function confirmDel() { if (Date.now() - delArm < 4000) { delArm = 0; return true; } delArm = Date.now(); alertMsg("Нажмите ещё раз, чтобы удалить портреты безвозвратно."); return false; }
   function renderOrders(list) {
     $("ordersBody").innerHTML = list.length ? list.map(o => `<tr><td class="mono">${date(o.created)}</td><td>${esc(o.email)}</td><td>${esc(o.pack)}</td><td class="num">${num(o.credits)}</td><td class="num">${money(o.amount)}</td><td class="mono">${esc(o.key)}</td></tr>`).join("") : `<tr><td colspan="6" style="color:var(--muted)">Заказов пока нет.</td></tr>`;
   }

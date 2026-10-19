@@ -2228,7 +2228,7 @@ function llmsTxt(req, full = false) {
     "- Formats: portrait 4:5, square 1:1, story 9:16, landscape 3:2.",
     trialEnabled() ? `- Free trial: new visitors can create ${TRIAL_COUNT} watermarked portraits for free, no sign-up.` : null,
     "- Payment: one-time packs via Stripe, credits never expire, failed portraits are refunded automatically.",
-    "- Privacy: source selfies are sent to the AI only to create the portrait and are not stored on the server; finished portraits are deleted after 7 days.",
+    "- Privacy: source selfies are sent to the AI only to create the portrait and are not stored on the server; finished portraits are deleted after 7 days. Anyone can report a portrait made without consent or request removal at /report; reports are reviewed within 24–48 hours.",
     "",
     "## Looks",
     ...STYLES.map((s) => `- ${locTx(s.name, "en")}: ${locTx(s.desc, "en")}`),
@@ -2242,6 +2242,7 @@ function llmsTxt(req, full = false) {
     `- [Create a portrait](${o}/en#studio)`,
     `- [Pricing](${o}/en#pricing)`,
     `- [Blog (English)](${o}/en/blog)`,
+    `- [Report content or request removal](${o}/en/report)`,
     `- [Blog (Russian)](${o}/blog)`
   ].filter((x) => x !== null);
   if (full) {
@@ -2325,6 +2326,88 @@ function retention() {
 }
 setInterval(retention, 3600e3);
 setTimeout(retention, 60e3);
+
+// src/report.mjs — жалобы и удаление по запросу: /report, /en/report, /ru/report.
+// Любой человек может сообщить о портрете, сделанном без согласия, или о другом нарушении; жалоба попадает
+// в админку, где портреты удаляются одной кнопкой (EU AI Act / DSA, GDPR ст. 17, Take It Down Act, правила Stripe).
+db.reports ||= [];
+var REPORT_PATH = { es: "/report", en: "/en/report", ru: "/ru/report" };
+var REPORT_TXT = {
+  es: {
+    title: "Denunciar contenido o pedir su eliminación", back: "← Volver a Portretto",
+    intro: "Si un retrato de Portretto muestra a una persona sin su consentimiento, a un menor, o infringe la ley de otra forma, cuéntanoslo. Revisamos cada denuncia y eliminamos el contenido normalmente en 24–48 horas.",
+    link: "Enlace a la imagen (o dónde la viste) y una descripción", email: "Tu correo electrónico (para responderte)",
+    reason: "Motivo", reasons: { consent: "Soy yo y no di mi consentimiento", minor: "Aparece un menor", sexual: "Contenido sexual u ofensivo", delete: "Quiero que borren mis datos y retratos", other: "Otro" },
+    details: "Detalles (opcional)", send: "Enviar", ok: "Gracias. Hemos recibido tu solicitud y la revisaremos lo antes posible.", err: "No se pudo enviar. Revisa los campos e inténtalo de nuevo.",
+    owner: "Los retratos de los clientes se borran automáticamente a los 7 días y las fotos originales no se guardan."
+  },
+  en: {
+    title: "Report content or request removal", back: "← Back to Portretto",
+    intro: "If a Portretto portrait shows a person without their consent, shows a minor, or breaks the law in another way, tell us. We review every report and usually remove the content within 24–48 hours.",
+    link: "Link to the image (or where you saw it) and a description", email: "Your email (so we can reply)",
+    reason: "Reason", reasons: { consent: "It's me and I did not consent", minor: "A minor appears in it", sexual: "Sexual or offensive content", delete: "Delete my data and portraits", other: "Other" },
+    details: "Details (optional)", send: "Send", ok: "Thank you. We received your request and will review it as soon as possible.", err: "Couldn't send. Check the fields and try again.",
+    owner: "Client portraits are deleted automatically after 7 days, and source photos are never stored."
+  },
+  ru: {
+    title: "Пожаловаться или запросить удаление", back: "← Назад в Portretto",
+    intro: "Если портрет Portretto показывает человека без его согласия, несовершеннолетнего или иначе нарушает закон — напишите нам. Мы рассматриваем каждую жалобу и обычно удаляем контент в течение 24–48 часов.",
+    link: "Ссылка на изображение (или где вы его видели) и описание", email: "Ваш e-mail (чтобы ответить)",
+    reason: "Причина", reasons: { consent: "Это я, согласия не было", minor: "На фото несовершеннолетний", sexual: "Сексуальный или оскорбительный контент", delete: "Удалите мои данные и портреты", other: "Другое" },
+    details: "Подробности (необязательно)", send: "Отправить", ok: "Спасибо. Обращение получено, мы рассмотрим его как можно скорее.", err: "Не удалось отправить. Проверьте поля и попробуйте ещё раз.",
+    owner: "Портреты клиентов удаляются автоматически через 7 дней, исходные фото не хранятся."
+  }
+};
+var escR = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+function reportPage(req, l) {
+  const T2 = REPORT_TXT[l], o = originOf(req), home = HOME_PATH[l];
+  const alt = HOME_LANGS.map((x) => `<link rel="alternate" hreflang="${x}" href="${escR(o + REPORT_PATH[x])}">`).join("");
+  return `<!doctype html><html lang="${l}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escR(T2.title)} — ${escR(BRAND)}</title><meta name="description" content="${escR(T2.intro.slice(0, 155))}"><link rel="canonical" href="${escR(o + REPORT_PATH[l])}">${alt}<meta name="theme-color" content="#f7f8f9">
+<style>:root{--paper:#f7f8f9;--card:#fff;--ink:#18212b;--muted:#5d6975;--line:#dde2e7;--acc:#18212b;--good:#1f8a5b;--bad:#c23a3a}@media (prefers-color-scheme:dark){:root{--paper:#11161b;--card:#181f26;--ink:#e9edf0;--muted:#9aa6b1;--line:#2a343e;--acc:#e9edf0;--good:#5fd3a0;--bad:#ff7b7b}}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:640px;margin:0 auto;padding:28px 16px 60px}a{color:var(--ink)}h1{font:600 clamp(24px,5vw,32px)/1.15 Manrope,Georgia,serif;margin:18px 0 10px}p{color:var(--muted);margin:0 0 14px}form{display:grid;gap:14px;margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}label{display:grid;gap:6px;font-weight:600;font-size:14px}input,select,textarea{font:inherit;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}button{font:700 16px system-ui,sans-serif;background:var(--acc);color:var(--paper);border:0;border-radius:999px;padding:14px;cursor:pointer}button:disabled{opacity:.6}#msg{font-weight:600;margin:0}.ok{color:var(--good)}.err{color:var(--bad)}.small{font-size:14px}</style></head>
+<body><main><a href="${home}">${escR(T2.back)}</a><h1>${escR(T2.title)}</h1><p>${escR(T2.intro)}</p><p class="small">${escR(T2.owner)}</p>
+<form id="f"><label>${escR(T2.link)}<input name="link" required maxlength="500"></label><label>${escR(T2.email)}<input name="email" type="email" required maxlength="120" autocomplete="email"></label><label>${escR(T2.reason)}<select name="reason">${Object.entries(T2.reasons).map(([k, v]) => `<option value="${k}">${escR(v)}</option>`).join("")}</select></label><label>${escR(T2.details)}<textarea name="details" rows="4" maxlength="1500"></textarea></label><button>${escR(T2.send)}</button><p id="msg" role="status"></p></form>
+<script>document.getElementById("f").onsubmit=async e=>{e.preventDefault();const f=e.target,m=document.getElementById("msg"),b=f.querySelector("button");b.disabled=true;try{const r=await fetch("/api/report",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({...Object.fromEntries(new FormData(f)),lang:${JSON.stringify(l)}})});if(!r.ok)throw 0;f.reset();m.className="ok";m.textContent=${JSON.stringify(T2.ok)};}catch{m.className="err";m.textContent=${JSON.stringify(T2.err)};}b.disabled=false;};</script></main></body></html>`;
+}
+var reportIp = (req) => crypto4.createHash("sha256").update("pt-report|" + (String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket?.remoteAddress || "")).digest("hex").slice(0, 20);
+// находим заказ по ссылке: /trial/<id>-0.jpg, /showcase/sc-<id>-…, адрес картинки в fal.ai или код клиента
+function genFromLink(link) {
+  const m = link.match(/(?:trial\/|sc-)([a-f0-9]{16})/) || link.match(/\b([a-f0-9]{16})\b/);
+  if (m) { const g = db.gens.find((x) => x.id === m[1]); if (g) return g; }
+  return db.gens.find((g) => [...(g.images || []), ...(g.clean || []), ...(g.raw || [])].some((u) => u && link.includes(String(u).replace(/\?.*$/, "")))) || null;
+}
+function addReport(req, b) {
+  const link = String(b.link || "").trim().slice(0, 500), email = String(b.email || "").trim().slice(0, 120);
+  if (link.length < 3 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new UserError4("Проверьте ссылку и e-mail.");
+  const ip = reportIp(req), day = Date.now() - 864e5;
+  if (db.reports.filter((r) => r.ip === ip && r.created > day).length >= 5) throw new UserError4("Слишком много обращений с одного адреса.", 429);
+  const g = genFromLink(link);
+  const reasons = ["consent", "minor", "sexual", "delete", "other"];
+  const r = { id: newId(), created: Date.now(), link, email, reason: reasons.includes(b.reason) ? b.reason : "other", details: String(b.details || "").trim().slice(0, 1500), lang: HOME_LANGS.includes(b.lang) ? b.lang : "es", status: "new", ip, gen: g?.id || "" };
+  db.reports.unshift(r);
+  if (db.reports.length > 2000) db.reports.length = 2000;
+  save();
+  return r;
+}
+function dropThumbs(urls) {
+  for (const u of urls) for (const src of new Set([u, String(u).replace(/\?.*$/, "")])) for (const w of THUMB_W) fs5.rmSync(path5.join(THUMB_DIR, crypto4.createHash("sha1").update(src + "|" + w).digest("hex") + ".webp"), { force: true });
+}
+// удалить портреты заказа: пробные копии, витрина, миниатюры; заказ пропадает у клиента и на сайте
+function takedownGen(id) {
+  const g = db.gens.find((x) => x.id === id);
+  if (!g) throw new UserError4("Заказ не найден.", 404);
+  const urls = [...(g.images || []), ...(g.clean || []), ...(g.raw || []), ...Object.values(g.showcaseLocal || {})];
+  dropThumbs(urls);
+  for (const f of fs5.readdirSync(TRIAL_DIR)) if (f.startsWith(g.id + "-")) fs5.rmSync(path5.join(TRIAL_DIR, f), { force: true });
+  for (const p of Object.values(g.showcaseLocal || {})) fs5.rmSync(path5.join(SHOWCASE_DIR, path5.basename(p)), { force: true });
+  dropFace(g.id);
+  g.images = []; g.showcase = []; g.showcaseLocal = {};
+  delete g.clean; delete g.raw; delete g.jobs; delete g.swapJobs;
+  g.removed = Date.now();
+  g.expired ||= Date.now();
+  save();
+  return g;
+}
 
 // src/server.mjs
 function modelSettings() {
@@ -2453,6 +2536,33 @@ var publicShowcase = () => {
 };
 var routes = {
   "GET /api/config": async (req, res2) => json(res2, publicConfig()),
+  "POST /api/report": async (req, res2) => {
+    addReport(req, parse(await readBody(req, 2e4)));
+    json(res2, { ok: true });
+  },
+  "GET /api/admin/reports": async (req, res2) => {
+    isAdmin(req);
+    json(res2, db.reports.slice(0, 300).map(({ ip, ...r }) => {
+      const g = r.gen && db.gens.find((x) => x.id === r.gen);
+      return { ...r, g: g ? { id: g.id, created: g.created, style: g.style, images: g.removed ? [] : (g.images || []).slice(0, 4), showcase: (g.showcase || []).length, removed: g.removed || 0, expired: g.expired || 0, email: db.keys[g.key]?.email || "" } : null };
+    }));
+  },
+  "POST /api/admin/reports/action": async (req, res2) => {
+    isAdmin(req);
+    const b = parse(await readBody(req));
+    const r = b.id && db.reports.find((x) => x.id === b.id);
+    if (b.action === "takedown") {
+      const gid = String(b.gen || r?.gen || "").trim();
+      takedownGen(gid);
+      if (r) { r.gen = gid; r.status = "removed"; r.handled = Date.now(); }
+    } else {
+      if (!r) throw new UserError4("Жалоба не найдена.", 404);
+      if (!["new", "done", "rejected"].includes(b.action)) throw new UserError4("Неизвестное действие.");
+      r.status = b.action; r.handled = Date.now();
+    }
+    save();
+    json(res2, { ok: true });
+  },
   "GET /api/showcase": async (req, res2) => json(res2, publicShowcase()),
   "GET /api/balance": async (req, res2) => {
     const { key, rec } = clientKey(req);
@@ -2931,6 +3041,7 @@ function dynamic(req, res2, url) {
     const q = new URLSearchParams(url.search); q.delete("lang");
     res2.writeHead(301, { location: HOME_PATH[ql] + (q.toString() ? "?" + q : "") }); res2.end(); return true;
   }
+  if (p === "/report" || p === "/en/report" || p === "/ru/report") return send(res2, 200, HTML, reportPage(req, p === "/report" ? "es" : p.slice(1, 3))), true;
   if (p === "/es") { res2.writeHead(301, { location: "/" + url.search }); res2.end(); return true; }
   if (p === "/en" || p === "/ru") {
     const file = path5.join(PUBLIC, "index.html");
