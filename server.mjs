@@ -2182,7 +2182,7 @@ function ssrLooks(l, tt) {
   return STYLES.map((s, i) => {
     const name = escT(locTx(s.name, l)), cover = covers[s.id];
     const sw = s.custom ? `<div class="sw" style="background:${escT(s.swatch)}"><span>Aa</span></div>` : cover ? `<div class="sw"><img src="${escT(thumbUrl(cover, 480))}" alt="${name} — ${escT(tt("sample"))}" loading="lazy" decoding="async"></div>` : `<div class="sw" style="background:${escT(s.swatch)}"></div>`;
-    return `<label class="look${s.custom ? " custom" : ""}"><input type="radio" name="look" value="${s.id}"${i === 0 ? " checked" : ""}>${sw}<span class="check">✓</span><div class="txt"><b>${name}</b><span class="d">${escT(locTx(s.desc, l))}</span><span class="l">${escT(s.light || "")}</span></div></label>`;
+    return `<label class="look${s.custom ? " custom" : ""}" title="${escT(locTx(s.desc, l))}"><input type="radio" name="look" value="${s.id}"${i === 0 ? " checked" : ""}>${sw}<span class="check">✓</span><div class="txt"><b>${name}</b></div></label>`;
   }).join("");
 }
 function ssrPrices(l, tt) {
