@@ -264,6 +264,20 @@ textarea { min-height: 76px; resize: vertical; }
 @media (max-width: 700px) { .sticky-cta { display: flex; } footer { padding-bottom: 84px; } }
 @media (prefers-reduced-motion: reduce) { .sticky-cta { transition: none; } }
 
+/* Free trial */
+.trial-pill { display: inline-flex; margin-top: 18px; padding: 6px 12px; border-radius: 999px; background: color-mix(in srgb, var(--lamp) 22%, var(--card)); border: 1px solid color-mix(in srgb, var(--lamp) 55%, var(--line)); font-size: 14px; font-weight: 600; }
+.trial-modal { align-items: end; }
+@media (min-width: 640px) { .trial-modal { align-items: center; } }
+.trial-modal .box { max-width: 460px; width: 100%; display: grid; gap: 10px; }
+.trial-modal h3 { font: 400 30px/1.1 var(--f-display); margin: 0; }
+.trial-modal p { margin: 0; }
+.trial-badge { justify-self: start; font: 600 12px var(--f-mono); letter-spacing: .04em; padding: 5px 10px; border-radius: 999px; background: var(--lamp); color: var(--lamp-ink); }
+.trial-mark { font-size: 13.5px; color: var(--muted); }
+.trial-modal .row { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 6px; }
+.trial-modal .row .btn { flex: 1 1 140px; justify-content: center; }
+.upsell { border: 1px solid color-mix(in srgb, var(--lamp) 55%, var(--line)); background: color-mix(in srgb, var(--lamp) 12%, var(--card)); border-radius: 14px; padding: 16px 18px; display: grid; gap: 8px; justify-items: start; }
+.upsell p { margin: 0; color: var(--muted); }
+
 /* My orders */
 .orders-btn { padding: 7px 12px; font-size: 14px; white-space: nowrap; }
 @media (max-width: 480px) { .nav .lang { display: none; } .orders-btn { padding: 7px 10px; font-size: 13.5px; } }
@@ -398,6 +412,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       <div class="eyebrow" data-i18n="hero.eyebrow">AI-фотостудия</div>
       <h1 data-i18n-html="hero.title">Studio portrait<br><em>from a selfie in 30 seconds</em></h1>
       <p class="lead" data-i18n="hero.lead">Real selfies → professional portraits. Your face stays yours. No photographer, no booking.</p>
+      <div class="trial-pill" id="trialPill" hidden></div>
       <div class="ctas">
         <a class="btn solid big" href="#studio" data-i18n="hero.cta">Create your portrait</a>
         <a class="btn big" href="#pricing" data-i18n="hero.prices">See pricing</a>
@@ -504,6 +519,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
         <h3><span class="n">—</span><span data-i18n="res.t">Ваши портреты</span></h3>
         <p class="sub" data-i18n="res.sub2">Готовые портреты этого заказа. Все прошлые заказы — в разделе «Мои заказы».</p>
         <div class="sheet" id="sheet"></div>
+        <div class="upsell" id="upsell" hidden><b id="upT"></b><p id="upP"></p><a class="btn solid" href="#pricing" id="upB"></a></div>
         <p style="margin:4px 0 0"><button class="btn" type="button" id="toOrders" data-i18n="orders.all">Все мои заказы →</button></p>
       </div>
     </div>
@@ -542,6 +558,19 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     </span>
   </footer>
 </main>
+
+<div class="modal trial-modal" id="trialModal" hidden role="dialog" aria-modal="true" aria-labelledby="trTitle">
+  <div class="box">
+    <div class="trial-badge" id="trBadge"></div>
+    <h3 id="trTitle"></h3>
+    <p id="trText"></p>
+    <p class="trial-mark" id="trMark"></p>
+    <div class="row">
+      <button class="btn" type="button" id="trLater"></button>
+      <button class="btn solid" type="button" id="trTry"></button>
+    </div>
+  </div>
+</div>
 
 <a class="btn solid sticky-cta" id="stickyCta" href="#studio" data-i18n="hero.cta">Create your portrait</a>
 
@@ -632,7 +661,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "err.photo": "Сначала загрузите фото.", "err.style": "Выберите образ.", "err.net": "Нет связи с сервером. Проверьте интернет.", "err.max": "Достаточно трёх фото.", "err.open": "Не удалось открыть фото. Сохраните его как JPG и попробуйте снова.", "err.long": "Слишком долго. Попробуйте ещё раз.",
       "sample": "образ", "collage.cap": "Примеры образов",
       "nav.ex": "До и после", "nav.blog": "Блог", "blog.eyebrow": "Блог", "blog.title": "Советы о портретах и фото", "blog.all": "Все статьи", "ba.eyebrow": "До и после", "ba.title": "Селфи → студийный портрет", "ba.lead": "Слева фото, которое загрузили, справа готовый портрет. Разделитель двигается сам.",
-      "orders.btn": "Мои заказы", "orders.title": "Мои заказы", "orders.sub": "Все портреты, созданные по вашему коду. Нажмите на снимок, чтобы открыть его крупно и скачать.", "orders.empty": "Здесь появятся ваши портреты, когда вы создадите первый.", "orders.go": "Создать портрет", "orders.all": "Все мои заказы →", "orders.n": "{n} фото", "res.sub2": "Готовые портреты этого заказа. Все прошлые заказы — в разделе «Мои заказы».", "orders.load": "Загружаем…", "ba.ai": "вымышленный человек", "play": "Смотреть", "ba.zoom": "Крупнее", "ba.slider": "Сравнение до и после",
+      "orders.btn": "Мои заказы", "orders.title": "Мои заказы", "orders.sub": "Все портреты, созданные по вашему коду. Нажмите на снимок, чтобы открыть его крупно и скачать.", "orders.empty": "Здесь появятся ваши портреты, когда вы создадите первый.", "orders.go": "Создать портрет", "orders.all": "Все мои заказы →", "orders.n": "{n} фото", "res.sub2": "Готовые портреты этого заказа. Все прошлые заказы — в разделе «Мои заказы».", "orders.load": "Загружаем…", "tr.badge": "🎁 Бесплатная проба", "tr.title": "Попробуйте бесплатно", "tr.text": "Сделайте {n} портрета бесплатно — без оплаты и регистрации. Сравните с другими сервисами и убедитесь сами, что наши портреты лучше.", "tr.mark": "На пробных портретах будет водяной знак {m}.", "tr.try": "Попробовать бесплатно", "tr.later": "Позже", "tr.cta": "Попробовать бесплатно", "tr.hint": "{n} портрета бесплатно · без регистрации", "tr.go": "Сделать {n} портрета бесплатно", "tr.note": "Пробная версия: {n} портрета с водяным знаком {m}. Без оплаты.", "tr.count": "{n} портрета в пробе", "tr.upT": "Понравилось?", "tr.upP": "Купите пакет — и получайте портреты без водяного знака, в полном разрешении. Ваш код и пробные портреты сохранятся.", "tr.upB": "Выбрать пакет", "tr.used": "Бесплатная проба использована. Выберите пакет, чтобы продолжить.", "ba.ai": "вымышленный человек", "play": "Смотреть", "ba.zoom": "Крупнее", "ba.slider": "Сравнение до и после",
     },
     en: {
       "nav.how": "How it works", "nav.styles": "Looks", "nav.pricing": "Pricing", "nav.faq": "FAQ", "nav.cta": "Create portrait",
@@ -670,7 +699,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "err.photo": "Upload a photo first.", "err.style": "Pick a look.", "err.net": "Can't reach the server. Check your connection.", "err.max": "Three photos are enough.", "err.open": "Couldn't open this photo. Save it as JPG and try again.", "err.long": "This is taking too long. Please try again.",
       "sample": "look", "collage.cap": "Sample looks",
       "nav.ex": "Before & after", "nav.blog": "Blog", "blog.eyebrow": "Blog", "blog.title": "Portrait and photo tips", "blog.all": "All articles", "ba.eyebrow": "Before & after", "ba.title": "Selfie → studio portrait", "ba.lead": "On the left, the uploaded photo; on the right, the finished portrait. The divider moves on its own.",
-      "orders.btn": "My orders", "orders.title": "My orders", "orders.sub": "Every portrait created with your code. Tap a photo to open it full size and download.", "orders.empty": "Your portraits will appear here once you create the first one.", "orders.go": "Create a portrait", "orders.all": "All my orders →", "orders.n": "{n} photos", "res.sub2": "Portraits from this order. All earlier orders are in “My orders”.", "orders.load": "Loading…", "ba.ai": "fictional person", "play": "Play", "ba.zoom": "Enlarge", "ba.slider": "Before and after comparison",
+      "orders.btn": "My orders", "orders.title": "My orders", "orders.sub": "Every portrait created with your code. Tap a photo to open it full size and download.", "orders.empty": "Your portraits will appear here once you create the first one.", "orders.go": "Create a portrait", "orders.all": "All my orders →", "orders.n": "{n} photos", "res.sub2": "Portraits from this order. All earlier orders are in “My orders”.", "orders.load": "Loading…", "tr.badge": "🎁 Free trial", "tr.title": "Try it for free", "tr.text": "Create {n} portraits for free — no payment, no sign-up. Compare with other services and see for yourself that ours are better.", "tr.mark": "Trial portraits carry a {m} watermark.", "tr.try": "Try for free", "tr.later": "Later", "tr.cta": "Try for free", "tr.hint": "{n} free portraits · no sign-up", "tr.go": "Create {n} portraits for free", "tr.note": "Free trial: {n} portraits with a {m} watermark. No payment.", "tr.count": "{n} portraits in the trial", "tr.upT": "Like them?", "tr.upP": "Get a pack for portraits without the watermark, in full resolution. Your code and trial portraits stay with you.", "tr.upB": "Choose a pack", "tr.used": "Your free trial has been used. Choose a pack to continue.", "ba.ai": "fictional person", "play": "Play", "ba.zoom": "Enlarge", "ba.slider": "Before and after comparison",
     },
     es: {
       "nav.how": "Cómo funciona",
@@ -798,7 +827,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "ba.eyebrow": "Antes y después",
       "ba.title": "Selfie → retrato de estudio",
       "ba.lead": "A la izquierda, la foto subida; a la derecha, el retrato final. El divisor se mueve solo.",
-      "orders.btn": "Mis pedidos", "orders.title": "Mis pedidos", "orders.sub": "Todos los retratos creados con tu código. Pulsa una foto para verla en grande y descargarla.", "orders.empty": "Aquí aparecerán tus retratos cuando crees el primero.", "orders.go": "Crear un retrato", "orders.all": "Todos mis pedidos →", "orders.n": "{n} fotos", "res.sub2": "Retratos de este pedido. Los pedidos anteriores están en «Mis pedidos».", "orders.load": "Cargando…", "ba.ai": "persona ficticia",
+      "orders.btn": "Mis pedidos", "orders.title": "Mis pedidos", "orders.sub": "Todos los retratos creados con tu código. Pulsa una foto para verla en grande y descargarla.", "orders.empty": "Aquí aparecerán tus retratos cuando crees el primero.", "orders.go": "Crear un retrato", "orders.all": "Todos mis pedidos →", "orders.n": "{n} fotos", "res.sub2": "Retratos de este pedido. Los pedidos anteriores están en «Mis pedidos».", "orders.load": "Cargando…", "tr.badge": "🎁 Prueba gratis", "tr.title": "Pruébalo gratis", "tr.text": "Crea {n} retratos gratis, sin pagar ni registrarte. Compáralos con otros servicios y comprueba tú mismo que los nuestros son mejores.", "tr.mark": "Los retratos de prueba llevan la marca de agua {m}.", "tr.try": "Probar gratis", "tr.later": "Más tarde", "tr.cta": "Probar gratis", "tr.hint": "{n} retratos gratis · sin registro", "tr.go": "Crear {n} retratos gratis", "tr.note": "Prueba gratis: {n} retratos con marca de agua {m}. Sin pago.", "tr.count": "{n} retratos en la prueba", "tr.upT": "¿Te gustan?", "tr.upP": "Compra un paquete y obtén retratos sin marca de agua y en resolución completa. Tu código y tus retratos de prueba se conservan.", "tr.upB": "Elegir paquete", "tr.used": "Ya has usado la prueba gratis. Elige un paquete para continuar.", "ba.ai": "persona ficticia",
       "play": "Ver",
       "ba.zoom": "Ampliar",
       "ba.slider": "Comparación antes y después",
@@ -890,12 +919,14 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   const tx = (o) => o ? (o[L] ?? o.en ?? o.ru ?? "") : "";
   // уменьшенные WebP-копии с сервера: картинка нужной ширины вместо оригинала в 2–5 МБ
   const b64u = (x) => btoa(unescape(encodeURIComponent(x))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  const THUMBABLE = /^(\/(examples|covers|blog-img)\/|https:\/\/([\w-]+\.)*fal\.(media|ai|run)\/)/;
+  const THUMBABLE = /^(\/(examples|covers|blog-img|trial)\/|https:\/\/([\w-]+\.)*fal\.(media|ai|run)\/)/;
   const thumb = (src, w) => src && cfg?.thumbs && THUMBABLE.test(src) ? `/img/${w}/${b64u(src)}` : src;
   const dprW = (css) => Math.ceil(css * Math.min(window.devicePixelRatio || 1, 2));
 
   let cfg = null, showcase = [];
-  let key = store.get("pt_key") || "", credits = null;
+  let key = store.get("pt_key") || "", credits = null, trialLeft = 0;
+  // режим пробы: новый посетитель без кода или код, у которого проба ещё не использована
+  const trialMode = () => !!cfg?.trial && (!key || (trialLeft > 0 && !credits));
   let photos = [], style = null, format = "4:5", count = 2, busy = false;
   let model = null, gender = store.get("pt_gender") || "";
   const unit = () => cfg?.models?.find(m => m.id === model)?.credits || 1;
@@ -1080,12 +1111,34 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     seg($("gender"), [{ id: "female", label: t("g.female") }, { id: "male", label: t("g.male") }], gender, v => { gender = v; store.set("pt_gender", v); });
   }
   $("swapOn").onchange = renderLikeness;
+  function renderTrial() {
+    const on = trialMode(), n = cfg?.trial?.count || 3, m = cfg?.trial?.mark || "";
+    $("trialPill").hidden = !on; $("trialPill").textContent = t("tr.hint", { n });
+    document.querySelectorAll('[data-i18n="hero.cta"]').forEach(a => a.textContent = on ? t("tr.cta") : t("hero.cta"));
+    $("go").textContent = on ? t("tr.go", { n }) : t("s3.go");
+  }
+  function showTrialOffer(force = false) {
+    if (!cfg?.trial || key || (!force && store.get("pt_trial_seen"))) return;
+    const n = cfg.trial.count, m = cfg.trial.mark;
+    $("trBadge").textContent = t("tr.badge"); $("trTitle").textContent = t("tr.title");
+    $("trText").textContent = t("tr.text", { n }); $("trMark").textContent = t("tr.mark", { m });
+    $("trTry").textContent = t("tr.try"); $("trLater").textContent = t("tr.later");
+    $("trialModal").hidden = false; store.set("pt_trial_seen", "1"); track("trial_offer_shown", {}, true);
+  }
+  $("trTry").onclick = () => { $("trialModal").hidden = true; track("trial_offer_accept", {}, true); $("studio").scrollIntoView({ behavior: "smooth" }); };
+  $("trLater").onclick = () => { $("trialModal").hidden = true; };
+  $("trialModal").addEventListener("click", e => { if (e.target.id === "trialModal") e.target.hidden = true; });
   function renderCounts() {
+    if (trialMode()) {
+      const n = cfg.trial.count; count = n;
+      seg($("counts"), [{ id: n, label: t("tr.count", { n }) }], n, () => {});
+      updateNote(); renderTrial(); return;
+    }
     const n = cfg.maxVariants || 4;
     const u = unit();
     if (credits !== null && credits >= u) count = Math.max(1, Math.min(count, Math.floor(credits / u)));
     seg($("counts"), Array.from({ length: n }, (_, i) => ({ id: i + 1, label: String(i + 1) })), count, v => { count = v; updateNote(); }, id => credits !== null && credits >= u && id * u > credits);
-    updateNote();
+    updateNote(); renderTrial();
   }
   function renderPrices() {
     const box = $("prices"); box.innerHTML = "";
@@ -1111,13 +1164,13 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   }
   function updateNote() {
     const el = $("goNote"); if (!el) return;
-    el.textContent = !key ? t("note.nokey") : credits !== null ? `${t("note.cost", { n: count * unit(), b: credits })} · ${t("note.time")}` : t("note.time");
+    el.textContent = trialMode() ? t("tr.note", { n: cfg.trial.count, m: cfg.trial.mark }) : !key ? t("note.nokey") : credits !== null ? `${t("note.cost", { n: count * unit(), b: credits })} · ${t("note.time")}` : t("note.time");
   }
 
   // ================= Key / balance =================
   async function refreshBalance() {
     if (!key) { credits = null; renderBalance(); updateNote(); return; }
-    try { const r = await api("/api/balance"); credits = r.credits; }
+    try { const r = await api("/api/balance"); credits = r.credits; trialLeft = r.trialLeft || 0; }
     catch (e) { if (e.status === 401) { key = ""; store.del("pt_key"); credits = null; } }
     renderBalance(); if (cfg) renderCounts(); updateNote();
   }
@@ -1181,7 +1234,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     const k = $("kmInput").value.trim().toUpperCase();
     if (!k) return;
     const prev = key; key = k;
-    try { const r = await api("/api/balance"); credits = r.credits; store.set("pt_key", key); $("keyModal").hidden = true; renderBalance(); renderCounts(); loadMine(); toast(t("bal", { n: credits })); }
+    try { const r = await api("/api/balance"); credits = r.credits; trialLeft = r.trialLeft || 0; store.set("pt_key", key); $("keyModal").hidden = true; renderBalance(); renderCounts(); loadMine(); toast(t("bal", { n: credits })); }
     catch (e) { key = prev; $("kmErr").textContent = e.message; }
   };
   $("kmInput").addEventListener("keydown", e => { if (e.key === "Enter") $("kmOk").click(); });
@@ -1265,9 +1318,16 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     if (isCustom() && $("wishes").value.trim().length < 8) { showMsg(t("err.desc"), true); $("wishes").focus(); return; }
     const swapOn = cfg.faceSwap && $("swapOn").checked;
     if (swapOn && !gender) { showMsg(t("err.gender"), true); $("likeness").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (!key || credits === 0) { showMsg(t("note.nokey"), true); $("pricing").scrollIntoView({ behavior: "smooth" }); return; }
+    const trial = trialMode();
+    if (!trial && (!key || credits === 0)) { showMsg(key && cfg.trial ? t("tr.used") : t("note.nokey"), true); $("pricing").scrollIntoView({ behavior: "smooth" }); return; }
 
     busy = true; $("go").disabled = true; showMsg("");
+    if (trial && !key) {
+      // новый клиент: сервер выдаёт личный код с одной бесплатной пробой
+      try { const r = await api("/api/trial", { method: "POST", body: "{}" }); key = r.key; credits = r.credits; trialLeft = 1; store.set("pt_key", key); renderBalance(); }
+      catch (e) { busy = false; $("go").disabled = false; showMsg(e.message, true); if (e.status === 429) { cfg.trial = null; renderCounts(); } return; }
+    }
+    if (trial) track("trial_start", { count: cfg.trial.count });
     track("generate", { item_id: style || "", count });
     const source = photos[0], fmt = format, sname = styleName(style), n = count;
     $("results").hidden = false;
@@ -1279,7 +1339,8 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     const tick = setInterval(() => { const s = (Date.now() - t0) / 1000; $("timer").textContent = Math.round(s) + " s"; $("fill").style.width = (Math.min(.95, 1 - Math.exp(-s / 28)) * 100).toFixed(1) + "%"; }, 400);
     try {
       setPhase(t("ph.send"));
-      const job = await api("/api/generate", { method: "POST", body: JSON.stringify({ photos, style, format: fmt, count: n, wishes: $("wishes").value, model, swap: swapOn, gender }) });
+      const job = await api("/api/generate", { method: "POST", body: JSON.stringify({ photos, style, format: fmt, count: n, wishes: $("wishes").value, model, swap: swapOn, gender, trial }) });
+      if (trial) trialLeft = 0;
       credits = job.credits; renderBalance(); renderCounts();
       setPhase(t("ph.work"));
       let result = null;
@@ -1298,8 +1359,10 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       ph.forEach(p => p.remove());
       result.slice().reverse().forEach(url => $("sheet").prepend(makeShot(url, source, style, fmt)));
       renderCounts(); loadMine();
+      if (trial) { $("upT").textContent = t("tr.upT"); $("upP").textContent = t("tr.upP"); $("upB").textContent = t("tr.upB"); $("upsell").hidden = false; track("trial_done", {}, true); }
       $("results").scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (e) {
+      if (trial) refreshBalance();
       ph.forEach(p => p.remove());
       if (!$("sheet").children.length) $("results").hidden = true;
       showMsg(e instanceof TypeError ? t("err.net") : e.message, true);
@@ -1362,11 +1425,15 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   // кнопка внизу экрана: видна после первого экрана, прячется, когда студия или цены уже на экране
   (() => {
     const cta = $("stickyCta"), seen = new Set();
-    const upd = () => cta.classList.toggle("on", scrollY > innerHeight * 0.8 && !seen.size);
+    // прячем, когда на экране студия, цены, нижний баннер или подвал с политиками, и пока открыта клавиатура
+    let typing = false;
+    const upd = () => cta.classList.toggle("on", scrollY > innerHeight * 0.8 && !seen.size && !typing && $("orders").hidden);
     if ("IntersectionObserver" in window) {
-      const io = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? seen.add(e.target.id) : seen.delete(e.target.id)); upd(); }, { rootMargin: "0px 0px -20% 0px" });
-      ["studio", "pricing"].forEach(id => $(id) && io.observe($(id)));
+      const io = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)); upd(); }, { rootMargin: "0px 0px -10% 0px" });
+      [$("studio"), $("pricing"), document.querySelector(".cta-band"), document.querySelector("footer")].forEach(el => el && io.observe(el));
     }
+    document.addEventListener("focusin", e => { if (e.target.matches("input, textarea, select")) { typing = true; upd(); } });
+    document.addEventListener("focusout", () => { typing = false; setTimeout(upd, 50); });
     addEventListener("scroll", upd, { passive: true });
   })();
 
@@ -1394,6 +1461,9 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     await confirmPayment();
     await loadMine();
     if (location.hash === "#orders" && key) openOrders();
+    renderCounts();
+    // первый визит: предлагаем бесплатную пробу
+    if (!location.search.includes("session_id")) setTimeout(() => showTrialOffer(), 1200);
   })();
 })();
 </script>

@@ -1983,7 +1983,7 @@ try {
   console.warn("sharp не установлен — картинки отдаются без сжатия");
 }
 var THUMB_W = [160, 320, 480, 640, 960, 1280];
-var LOCAL_IMG = { "/examples/": () => EX_DIR, "/covers/": () => COVER_DIR, "/blog-img/": () => IMG_DIR };
+var LOCAL_IMG = { "/examples/": () => EX_DIR, "/covers/": () => COVER_DIR, "/blog-img/": () => IMG_DIR, "/trial/": () => TRIAL_DIR };
 var REMOTE_OK = /(^|\.)(fal\.media|fal\.ai|fal\.run)$/i;
 var inflight = new Map();
 function thumbSource(src) {
@@ -2064,6 +2064,81 @@ function compressed(req, res2, status, headers, body) {
   }
   res2.writeHead(status, { ...headers, "content-length": buf.length });
   res2.end(buf);
+}
+
+// src/trial.mjs — бесплатная проба: 3 портрета с водяным знаком для нового клиента
+// TRIAL=off — выключить, TRIAL_DAILY_LIMIT — сколько проб в сутки на весь сайт (по умолчанию 100),
+// TRIAL_COUNT — сколько портретов в пробе (по умолчанию 3), TRIAL_WATERMARK — текст знака.
+var TRIAL_ON = !/^(off|0|false|no)$/i.test(process.env.TRIAL || "");
+var TRIAL_COUNT = Math.min(4, Math.max(1, parseInt(process.env.TRIAL_COUNT, 10) || 3));
+var TRIAL_DAILY = Math.max(0, parseInt(process.env.TRIAL_DAILY_LIMIT, 10) || 100);
+var TRIAL_MARK = (process.env.TRIAL_WATERMARK || "Portretto.app").slice(0, 40);
+var TRIAL_DIR = path5.join(DATA_DIR, "trial");
+fs5.mkdirSync(TRIAL_DIR, { recursive: true });
+db.trials ||= { ips: {}, days: {} };
+var trialEnabled = () => TRIAL_ON && !!sharp;
+var clientIp = (req) => String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket?.remoteAddress || "";
+var ipHash = (req) => crypto4.createHash("sha256").update("pt-trial|" + clientIp(req)).digest("hex").slice(0, 24);
+function trialCheck(req) {
+  if (!trialEnabled()) throw new UserError4("Бесплатная проба сейчас недоступна.", 403);
+  const today = day(), ih = ipHash(req), t = db.trials;
+  // один пробный заказ с одного адреса раз в 30 дней
+  if (t.ips[ih] && Date.now() - t.ips[ih] < 30 * 864e5) throw new UserError4("Бесплатная проба уже использована. Выберите пакет, чтобы продолжить.", 429);
+  if ((t.days[today] || 0) >= TRIAL_DAILY) throw new UserError4("Пробные портреты на сегодня закончились. Загляните завтра или выберите пакет.", 429);
+  return { ih, today };
+}
+function trialMark(req, { ih, today }) {
+  const t = db.trials;
+  t.ips[ih] = Date.now();
+  t.days[today] = (t.days[today] || 0) + 1;
+  // чистим старые записи
+  for (const [k, ts] of Object.entries(t.ips)) if (Date.now() - ts > 31 * 864e5) delete t.ips[k];
+  const days = Object.keys(t.days).sort();
+  for (const d of days.slice(0, Math.max(0, days.length - 60))) delete t.days[d];
+}
+// водяной знак: повторяющаяся диагональная надпись + плашка внизу; сам файл уменьшен до 1080 px.
+// Шрифт лежит в проекте (fonts/), поэтому знак рисуется одинаково на любом сервере.
+var WM_FONT = () => path5.join(path5.dirname(fileURLToPath(import.meta.url)), "fonts", "DejaVuSans-Bold.ttf");
+var escXml = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" })[c]);
+var textImg = (txt, px, alpha) => sharp({ text: { text: `<span foreground="#FFFFFF" alpha="${alpha}%">${escXml(txt)}</span>`, font: `DejaVu Sans Bold ${px}`, fontfile: WM_FONT(), rgba: true, dpi: 72 } }).png().toBuffer({ resolveWithObject: true });
+async function watermark(input) {
+  const { data, info } = await sharp(input, { failOn: "none" }).rotate().resize({ width: 1080, height: 1350, fit: "inside", withoutEnlargement: true }).jpeg({ quality: 92 }).toBuffer({ resolveWithObject: true });
+  const w = info.width, h = info.height, px = Math.round(w / 14);
+  // плитка с надписью: поля по краям задают расстояние между повторами, потом поворот
+  const word = await textImg(TRIAL_MARK, px, 32);
+  const tile = await sharp(word.data).extend({ top: Math.round(px * 0.5), bottom: Math.round(px * 0.5), left: Math.round(px * 0.3), right: Math.round(px * 0.3), background: { r: 0, g: 0, b: 0, alpha: 0 } }).rotate(-28, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
+  const bar = Math.round(h * 0.075);
+  const barText = await textImg(`${TRIAL_MARK} · free preview`, Math.round(bar * 0.4), 100);
+  const barBg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${bar}"><rect width="${w}" height="${bar}" fill="#000" fill-opacity="0.55"/></svg>`);
+  return sharp(data).composite([
+    { input: tile, tile: true, top: 0, left: 0 },
+    { input: barBg, top: h - bar, left: 0 },
+    { input: barText.data, top: h - bar + Math.round((bar - barText.info.height) / 2), left: Math.max(0, Math.round((w - barText.info.width) / 2)) }
+  ]).jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+}
+// заменяет картинки пробного заказа на версии со знаком; оригиналы остаются только на сервере
+async function watermarkGen(gen) {
+  if (!gen.trial || gen.marked) return;
+  const out = [];
+  for (let i = 0; i < gen.images.length; i++) {
+    const r = await fetch(gen.images[i], { signal: AbortSignal.timeout(3e4) });
+    if (!r.ok) throw new Error("не удалось скачать портрет " + r.status);
+    const buf = await watermark(Buffer.from(await r.arrayBuffer()));
+    const name = `${gen.id}-${i}.jpg`;
+    fs5.writeFileSync(path5.join(TRIAL_DIR, name), buf);
+    out.push(`/trial/${name}?v=${Date.now()}`);
+  }
+  gen.clean = gen.images;
+  gen.images = out;
+  gen.marked = true;
+}
+function serveTrial(res2, name) {
+  if (!/^[a-f0-9]{16}-\d\.jpg$/.test(name)) return false;
+  const file = path5.join(TRIAL_DIR, name);
+  if (!fs5.existsSync(file)) return false;
+  res2.writeHead(200, { "content-type": "image/jpeg", "cache-control": "public, max-age=2592000", "x-content-type-options": "nosniff" });
+  fs5.createReadStream(file).pipe(res2);
+  return true;
 }
 
 // src/server.mjs
@@ -2158,6 +2233,7 @@ function refund(gen, reason) {
     rec.credits += back;
     rec.spent = Math.max(0, (rec.spent || 0) - back);
   }
+  if (gen.trial && rec) rec.trialLeft = 1;
   dropFace(gen.id);
   gen.refunded = true;
   gen.status = "failed";
@@ -2183,7 +2259,8 @@ var publicConfig = () => ({
     faceSwap: faceSwapSettings().enabled,
     examples: publicList(),
     latest: { ru: latestFor("ru"), en: latestFor("en") },
-    thumbs: !!sharp
+    thumbs: !!sharp,
+    trial: trialEnabled() ? { count: TRIAL_COUNT, mark: TRIAL_MARK } : null
   });
 var publicShowcase = () => {
   const items = [];
@@ -2195,7 +2272,7 @@ var routes = {
   "GET /api/showcase": async (req, res2) => json(res2, publicShowcase()),
   "GET /api/balance": async (req, res2) => {
     const { key, rec } = clientKey(req);
-    json(res2, { key, credits: rec.credits });
+    json(res2, { key, credits: rec.credits, trialLeft: rec.trialLeft > 0 && trialEnabled() ? 1 : 0 });
   },
   "GET /api/my": async (req, res2) => {
     const { key } = clientKey(req);
@@ -2227,6 +2304,15 @@ var routes = {
     if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") fulfill(event.data.object);
     json(res2, { received: true });
   },
+  // новый клиент получает код без кредитов, но с одной бесплатной пробой
+  "POST /api/trial": async (req, res2) => {
+    const chk = trialCheck(req);
+    const key = newKey();
+    db.keys[key] = { credits: 0, spent: 0, email: "", created: Date.now(), source: "trial", note: "", trialLeft: 1 };
+    trialMark(req, chk);
+    save();
+    json(res2, { key, credits: 0, trial: { count: TRIAL_COUNT, mark: TRIAL_MARK } });
+  },
   "POST /api/generate": async (req, res2) => {
     const { key, rec } = clientKey(req);
     const body = parse(await readBody(req));
@@ -2236,13 +2322,15 @@ var routes = {
     const style = STYLES.find((s) => s.id === body.style);
     if (!style) throw new UserError4("\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043E\u0431\u0440\u0430\u0437.");
     const format = FORMATS.find((f) => f.id === body.format)?.id || "4:5";
-    const count = Math.min(MAX_VARIANTS, Math.max(1, parseInt(body.count, 10) || 1));
+    const trial = body.trial === true && rec.trialLeft > 0 && trialEnabled();
+    if (body.trial === true && !trial) throw new UserError4("\u0411\u0435\u0441\u043F\u043B\u0430\u0442\u043D\u0430\u044F \u043F\u0440\u043E\u0431\u0430 \u0443\u0436\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0430. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043F\u0430\u043A\u0435\u0442, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C.", 402);
+    const count = trial ? TRIAL_COUNT : Math.min(MAX_VARIANTS, Math.max(1, parseInt(body.count, 10) || 1));
     const wishes = typeof body.wishes === "string" ? body.wishes.trim().slice(0, 600) : "";
     if (style.custom && wishes.length < 8) throw new UserError4("\u041E\u043F\u0438\u0448\u0438\u0442\u0435 \u0441\u0432\u043E\u0439 \u043E\u0431\u0440\u0430\u0437 \u0445\u043E\u0442\u044F \u0431\u044B \u043F\u0430\u0440\u043E\u0439 \u0444\u0440\u0430\u0437.");
     const ms = modelSettings();
     const modelId = ms.enabled.includes(body.model) ? body.model : ms.default;
     const model = modelById(modelId);
-    const unit = ms.credits[modelId] ?? model.credits;
+    const unit = trial ? 0 : ms.credits[modelId] ?? model.credits;
     const fs_ = faceSwapSettings();
     const useSwap = fs_.enabled && body.swap !== false;
     const gender = ["male", "female", "non-binary"].includes(body.gender) ? body.gender : "";
@@ -2251,7 +2339,8 @@ var routes = {
     if (rec.credits < cost) throw new UserError4(rec.credits ? `\u041D\u0435\u0434\u043E\u0441\u0442\u0430\u0442\u043E\u0447\u043D\u043E \u043A\u0440\u0435\u0434\u0438\u0442\u043E\u0432: \u043D\u0443\u0436\u043D\u043E ${cost}, \u043E\u0441\u0442\u0430\u043B\u043E\u0441\u044C ${rec.credits}. \u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u043C\u0435\u043D\u044C\u0448\u0435 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u043E\u0432 \u0438\u043B\u0438 \u043F\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435 \u0431\u0430\u043B\u0430\u043D\u0441.` : "\u041A\u0440\u0435\u0434\u0438\u0442\u044B \u0437\u0430\u043A\u043E\u043D\u0447\u0438\u043B\u0438\u0441\u044C. \u041F\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435 \u0431\u0430\u043B\u0430\u043D\u0441.", 402);
     rec.credits -= cost;
     rec.spent = (rec.spent || 0) + cost;
-    const gen = { id: newId(), key, style: style.id, format, count, unit, model: modelId, swapOn: useSwap, text: wishes, status: "queued", images: [], created: Date.now(), showcase: [] };
+    if (trial) rec.trialLeft = 0;
+    const gen = { id: newId(), key, style: style.id, format, count, unit, model: modelId, swapOn: useSwap, text: wishes, status: "queued", images: [], created: Date.now(), showcase: [], ...trial ? { trial: true } : {} };
     db.gens.unshift(gen);
     if (db.gens.length > 5e3) db.gens.length = 5e3;
     save();
@@ -2280,6 +2369,14 @@ var routes = {
     if (r.state === "failed") {
       refund(gen, gen.error);
       return json(res2, { state: "failed", error: "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043F\u043E\u0440\u0442\u0440\u0435\u0442. \u041A\u0440\u0435\u0434\u0438\u0442\u044B \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0435\u043D\u044B, \u043F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437 \u0438\u043B\u0438 \u0432\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0434\u0440\u0443\u0433\u0443\u044E \u043C\u043E\u0434\u0435\u043B\u044C.", credits: credits() });
+    }
+    if (r.state === "done" && gen.trial && !gen.marked) {
+      try {
+        await watermarkGen(gen);
+      } catch (e) {
+        refund(gen, "\u0432\u043E\u0434\u044F\u043D\u043E\u0439 \u0437\u043D\u0430\u043A: " + e.message);
+        return json(res2, { state: "failed", error: "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u0438\u0442\u044C \u043F\u0440\u043E\u0431\u043D\u044B\u0435 \u043F\u043E\u0440\u0442\u0440\u0435\u0442\u044B. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437.", credits: credits() });
+      }
     }
     if (r.state === "done") {
       const missing = gen.count - gen.images.length;
@@ -2663,6 +2760,7 @@ http.createServer(async (req, res2) => {
     if (handler) return await handler(req, res2, url);
     if (url.pathname.startsWith("/api/")) return json(res2, { error: "\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E" }, 404);
     if (url.pathname.startsWith("/img/") && await serveThumb(req, res2, url.pathname)) return;
+    if (url.pathname.startsWith("/trial/") && serveTrial(res2, url.pathname.slice(7))) return;
     if (url.pathname.startsWith("/covers/") && serveCover(res2, url.pathname.slice(8))) return;
     if (url.pathname.startsWith("/examples/") && serve(res2, url.pathname.slice(10))) return;
     if (dynamic(req, res2, url)) return;
