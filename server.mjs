@@ -209,10 +209,12 @@ function falKey() {
   if (!k) throw new UserError("\u041D\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0435 \u043D\u0435 \u0437\u0430\u0434\u0430\u043D FAL_KEY. Railway \u2192 \u0441\u0435\u0440\u0432\u0438\u0441 \u2192 Variables.", 500);
   return k;
 }
+// результаты нейросети в облаке fal.ai удаляются сами через KEEP_DAYS дней
+var KEEP_DAYS = Math.max(1, parseInt(process.env.PORTRAIT_KEEP_DAYS, 10) || 7);
 async function falFetch(url, opts = {}) {
   const res2 = await fetch(url, {
     ...opts,
-    headers: { authorization: "Key " + falKey(), "content-type": "application/json", ...opts.headers || {} }
+    headers: { authorization: "Key " + falKey(), "content-type": "application/json", "X-Fal-Object-Lifecycle-Preference": JSON.stringify({ expiration_duration_seconds: KEEP_DAYS * 86400 }), ...opts.headers || {} }
   });
   const text = await res2.text();
   let data;
@@ -1997,7 +1999,7 @@ try {
   console.warn("sharp не установлен — картинки отдаются без сжатия");
 }
 var THUMB_W = [160, 320, 480, 640, 960, 1280];
-var LOCAL_IMG = { "/examples/": () => EX_DIR, "/covers/": () => COVER_DIR, "/blog-img/": () => IMG_DIR, "/trial/": () => TRIAL_DIR };
+var LOCAL_IMG = { "/examples/": () => EX_DIR, "/covers/": () => COVER_DIR, "/blog-img/": () => IMG_DIR, "/trial/": () => TRIAL_DIR, "/showcase/": () => SHOWCASE_DIR };
 var REMOTE_OK = /(^|\.)(fal\.media|fal\.ai|fal\.run)$/i;
 var inflight = new Map();
 function thumbSource(src) {
@@ -2226,7 +2228,7 @@ function llmsTxt(req, full = false) {
     "- Formats: portrait 4:5, square 1:1, story 9:16, landscape 3:2.",
     trialEnabled() ? `- Free trial: new visitors can create ${TRIAL_COUNT} watermarked portraits for free, no sign-up.` : null,
     "- Payment: one-time packs via Stripe, credits never expire, failed portraits are refunded automatically.",
-    "- Privacy: source selfies are sent to the AI only to create the portrait and are not stored on the server.",
+    "- Privacy: source selfies are sent to the AI only to create the portrait and are not stored on the server; finished portraits are deleted after 7 days.",
     "",
     "## Looks",
     ...STYLES.map((s) => `- ${locTx(s.name, "en")}: ${locTx(s.desc, "en")}`),
@@ -2277,6 +2279,52 @@ function autoLangRedirect(req, url, paths) {
   if (!want || want === "es" || !paths[want]) return "";
   return paths[want] + url.search;
 }
+
+// src/retention.mjs — сроки хранения: портреты клиентов KEEP_DAYS дней, витрина — постоянные локальные копии
+var SHOWCASE_DIR = path5.join(DATA_DIR, "showcase");
+fs5.mkdirSync(SHOWCASE_DIR, { recursive: true });
+async function keepShowcase(g, url) {
+  g.showcaseLocal ||= {};
+  if (g.showcaseLocal[url]) return;
+  const r = await fetch(url, { signal: AbortSignal.timeout(3e4) });
+  if (!r.ok) throw new UserError4("Не удалось сохранить снимок для витрины (файл уже удалён?).", 502);
+  const ext = /png/.test(r.headers.get("content-type") || "") ? "png" : /webp/.test(r.headers.get("content-type") || "") ? "webp" : "jpg";
+  const name = `sc-${g.id}-${(g.showcase || []).indexOf(url)}-${Date.now().toString(36)}.${ext}`;
+  fs5.writeFileSync(path5.join(SHOWCASE_DIR, name), Buffer.from(await r.arrayBuffer()));
+  g.showcaseLocal[url] = `/showcase/${name}`;
+}
+function serveShowcase(res2, name) {
+  if (!/^sc-[\w-]+\.(jpg|png|webp)$/.test(name)) return false;
+  const file = path5.join(SHOWCASE_DIR, name);
+  if (!fs5.existsSync(file)) return false;
+  res2.writeHead(200, { "content-type": name.endsWith(".png") ? "image/png" : name.endsWith(".webp") ? "image/webp" : "image/jpeg", "cache-control": "public, max-age=2592000", "x-content-type-options": "nosniff" });
+  fs5.createReadStream(file).pipe(res2);
+  return true;
+}
+// старые отметки витрины: копируем к себе, пока файлы ещё есть в fal.ai
+async function migrateShowcase() {
+  for (const g of db.gens) for (const url of g.showcase || []) if (!g.showcaseLocal?.[url]) { try { await keepShowcase(g, url); save(); } catch {} }
+}
+setTimeout(() => migrateShowcase().catch(() => {}), 5e3);
+// раз в час: удаляем портреты клиентов старше KEEP_DAYS дней, пробные копии со знаком и старые миниатюры
+function retention() {
+  const old = Date.now() - KEEP_DAYS * 864e5;
+  let changed = false;
+  for (const g of db.gens) {
+    if (g.expired || (g.done || g.created) >= old || g.status === "working" || g.status === "queued") continue;
+    for (const f of fs5.readdirSync(TRIAL_DIR)) if (f.startsWith(g.id + "-")) fs5.rmSync(path5.join(TRIAL_DIR, f), { force: true });
+    g.images = []; delete g.clean; delete g.raw; delete g.jobs; delete g.swapJobs;
+    g.expired = Date.now();
+    changed = true;
+  }
+  for (const f of fs5.readdirSync(THUMB_DIR)) {
+    const fp = path5.join(THUMB_DIR, f);
+    try { if (fs5.statSync(fp).mtimeMs < old) fs5.rmSync(fp, { force: true }); } catch {}
+  }
+  if (changed) save();
+}
+setInterval(retention, 3600e3);
+setTimeout(retention, 60e3);
 
 // src/server.mjs
 function modelSettings() {
@@ -2400,7 +2448,7 @@ var publicConfig = () => ({
   });
 var publicShowcase = () => {
   const items = [];
-  for (const g of db.gens) for (const url of g.showcase || []) items.push({ url, style: g.style, format: g.format });
+  for (const g of db.gens) for (const url of g.showcase || []) { const local = g.showcaseLocal?.[url]; if (local) items.push({ url: local, style: g.style, format: g.format }); }
   return items.slice(0, 24);
 };
 var routes = {
@@ -2412,7 +2460,7 @@ var routes = {
   },
   "GET /api/my": async (req, res2) => {
     const { key } = clientKey(req);
-    const list2 = db.gens.filter((g) => g.key === key && g.status === "done").slice(0, 60).map((g) => ({ id: g.id, style: g.style, format: g.format, images: g.images, created: g.created }));
+    const list2 = db.gens.filter((g) => g.key === key && g.status === "done" && !g.expired && g.images?.length).slice(0, 60).map((g) => ({ id: g.id, style: g.style, format: g.format, images: g.images, created: g.created, expires: (g.done || g.created) + KEEP_DAYS * 864e5 }));
     json(res2, list2);
   },
   "POST /api/checkout": async (req, res2) => {
@@ -2615,7 +2663,9 @@ var routes = {
     const g = db.gens.find((x) => x.id === id);
     if (!g || !g.images.includes(url)) throw new UserError4("\u0421\u043D\u0438\u043C\u043E\u043A \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.", 404);
     g.showcase = (g.showcase || []).filter((u) => u !== url);
-    if (on) g.showcase.push(url);
+    g.showcaseLocal ||= {};
+    if (on) { g.showcase.push(url); await keepShowcase(g, url); }
+    else { if (g.showcaseLocal[url]) fs5.rmSync(path5.join(SHOWCASE_DIR, path5.basename(g.showcaseLocal[url].replace(/\?.*$/, ""))), { force: true }); delete g.showcaseLocal[url]; }
     save();
     json(res2, { ok: true, showcase: g.showcase });
   },
@@ -2914,6 +2964,7 @@ http.createServer(async (req, res2) => {
     if (url.pathname.startsWith("/api/")) return json(res2, { error: "\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E" }, 404);
     if (url.pathname.startsWith("/img/") && await serveThumb(req, res2, url.pathname)) return;
     if (url.pathname.startsWith("/trial/") && serveTrial(res2, url.pathname.slice(7))) return;
+    if (url.pathname.startsWith("/showcase/") && serveShowcase(res2, url.pathname.slice(10))) return;
     if (url.pathname.startsWith("/covers/") && serveCover(res2, url.pathname.slice(8))) return;
     if (url.pathname.startsWith("/examples/") && serve(res2, url.pathname.slice(10))) return;
     if (dynamic(req, res2, url)) return;
