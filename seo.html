@@ -341,7 +341,10 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
         <div class="form">
           <div class="fld"><label class="label" for="aGa">Google Analytics 4</label><input type="text" id="aGa" placeholder="G-XXXXXXXXXX"></div>
           <div class="fld"><label class="label" for="aYm">Яндекс.Метрика</label><input type="text" id="aYm" placeholder="номер счётчика"></div>
+          <div class="fld"><label class="label" for="aTt">TikTok Pixel ID</label><input type="text" id="aTt" placeholder="DB8IOTJC77U2O9K0OUTG"></div>
+          <div class="fld"><label class="label" for="aFb">Meta (Facebook) Pixel ID</label><input type="text" id="aFb" placeholder="только цифры, например 1234567890"></div>
         </div>
+        <p class="hint">Сайт сам отправляет события воронки во все подключённые системы: просмотр, загрузка фото, начало оплаты, покупка. В Google Analytics посетитель считается вовлечённым через 10 секунд на странице.</p>
       </div>
       <div class="card stack">
         <div class="label">ИИ и индексация</div>
@@ -707,7 +710,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
     $("hRuT").value = s.home.ru?.title || ""; $("hRuD").value = s.home.ru?.description || ""; $("hEnT").value = s.home.en?.title || ""; $("hEnD").value = s.home.en?.description || "";
     $("hRuT").placeholder = s.defaults.ru.title; $("hRuD").placeholder = s.defaults.ru.description; $("hEnT").placeholder = s.defaults.en.title; $("hEnD").placeholder = s.defaults.en.description;
     $("vG").value = s.verify.google; $("vY").value = s.verify.yandex; $("vB").value = s.verify.bing; $("vP").value = s.verify.pinterest || "";
-    $("aGa").value = s.analytics.ga4; $("aYm").value = s.analytics.metrika;
+    $("aGa").value = s.analytics.ga4; $("aYm").value = s.analytics.metrika; $("aTt").value = s.analytics.tiktok || ""; $("aFb").value = s.analytics.meta || "";
     $("sLlm").innerHTML = D.llmModels.map(m => `<option value="${esc(m.id)}" ${m.id === s.llm ? "selected" : ""}>${esc(m.name)}</option>`).join("");
     $("sCover").checked = s.autoCover; $("sInow").checked = s.indexnow;
     $("ogPic").innerHTML = s.ogImage ? `<img src="${esc(s.ogImage)}" alt="">` : "нет";
@@ -722,7 +725,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
     try {
       await api("/api/admin/seo/settings", {
         home: { ru: { title: $("hRuT").value, description: $("hRuD").value }, en: { title: $("hEnT").value, description: $("hEnD").value } },
-        verify: { google: $("vG").value, yandex: $("vY").value, bing: $("vB").value, pinterest: $("vP").value }, analytics: { ga4: $("aGa").value, metrika: $("aYm").value },
+        verify: { google: $("vG").value, yandex: $("vY").value, bing: $("vB").value, pinterest: $("vP").value }, analytics: { ga4: $("aGa").value, metrika: $("aYm").value, tiktok: $("aTt").value, meta: $("aFb").value },
         llm: $("sLlm").value, autoCover: $("sCover").checked, indexnow: $("sInow").checked,
       });
       say("setMsg", "Сохранено", "ok"); load();
