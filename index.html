@@ -587,6 +587,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       <a href="#" id="openPrivacy">Privacy Policy</a>
       <a href="#" id="openTerms">Terms of Service</a>
       <a href="/blog" id="footBlog" data-i18n="nav.blog">Blog</a>
+      <a href="/report" id="footReport" data-i18n="foot.report">Report content</a>
     </span>
   </footer>
 </main>
@@ -688,7 +689,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "price.popular": "Выбор большинства", "price.portraits": "{n} портретов", "price.per": "{p} за портрет", "price.buy": "Купить", "price.f1": "Все образы и форматы", "price.f2": "Высокое разрешение", "price.f3": "Сравнение с оригиналом", "price.f4": "Кредиты не сгорают",
       "price.haveCode": "Уже есть код?", "price.enterCode": "Ввести код", "price.soon": "Оплата скоро появится. Код можно получить у студии.",
       "faq.eyebrow": "Вопросы", "faq.title": "Частые вопросы",
-      "band.t": "Ваш лучший портрет в одном клике", "foot.tag": "AI-фотостудия", "foot.privacy": "Исходные фото не хранятся на сервере.",
+      "band.t": "Ваш лучший портрет в одном клике", "foot.tag": "AI-фотостудия", "foot.report": "Пожаловаться / удалить", "foot.privacy": "Исходные фото не хранятся на сервере.",
       "km.copy": "Скопировать", "km.ok": "Готово", "km.paidT": "Оплата прошла", "km.paidP": "На ваш баланс добавлено {n} кредитов. Это ваш личный код: сохраните его, чтобы пользоваться балансом на другом устройстве.",
       "km.enterT": "Введите код", "km.enterP": "Код вида PT-XXXX-XXXX-XXXX из письма или от студии.", "km.enterOk": "Войти", "km.myT": "Ваш код", "km.myP": "Баланс: {n} кредитов. Сохраните код, чтобы открыть портреты на другом устройстве.", "km.logout": "Выйти",
       "lb.close": "Закрыть ✕", "lb.before": "до", "lb.after": "после", "lb.only": "Только результат", "lb.cmp": "Сравнить с оригиналом",
@@ -726,7 +727,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "price.popular": "Most popular", "price.portraits": "{n} portraits", "price.per": "{p} per portrait", "price.buy": "Buy", "price.f1": "All looks and formats", "price.f2": "High resolution", "price.f3": "Before/after comparison", "price.f4": "Credits never expire",
       "price.haveCode": "Already have a code?", "price.enterCode": "Enter code", "price.soon": "Payments are coming soon. Ask the studio for a code.",
       "faq.eyebrow": "FAQ", "faq.title": "Frequently asked questions",
-      "band.t": "Your best portrait is one click away", "foot.tag": "AI photo studio", "foot.privacy": "Source photos are not stored on the server.",
+      "band.t": "Your best portrait is one click away", "foot.tag": "AI photo studio", "foot.report": "Report / removal", "foot.privacy": "Source photos are not stored on the server.",
       "km.copy": "Copy", "km.ok": "Done", "km.paidT": "Payment successful", "km.paidP": "{n} credits were added. This is your personal code: save it to use your balance on another device.",
       "km.enterT": "Enter your code", "km.enterP": "A code like PT-XXXX-XXXX-XXXX from your receipt or the studio.", "km.enterOk": "Sign in", "km.myT": "Your code", "km.myP": "Balance: {n} credits. Save this code to open your portraits on another device.", "km.logout": "Sign out",
       "lb.close": "Close ✕", "lb.before": "before", "lb.after": "after", "lb.only": "Result only", "lb.cmp": "Compare with original",
@@ -828,7 +829,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "faq.title": "Preguntas frecuentes",
       "band.t": "Tu mejor retrato, a un clic",
       "foot.tag": "Estudio de fotos con IA",
-      "foot.privacy": "Las fotos originales no se guardan en el servidor.",
+      "foot.privacy": "Las fotos originales no se guardan en el servidor.", "foot.report": "Denunciar / eliminar",
       "km.copy": "Copiar",
       "km.ok": "Listo",
       "km.paidT": "Pago completado",
@@ -1560,6 +1561,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
 
   
   document.getElementById("openPrivacy")?.addEventListener("click", e => { e.preventDefault(); document.getElementById("privacyModal").hidden = false; });
+  { const fr = document.getElementById("footReport"), hl = document.documentElement.lang; if (fr) fr.href = (hl === "en" || hl === "ru" ? "/" + hl : "") + "/report"; }
   document.getElementById("openTerms")?.addEventListener("click", e => { e.preventDefault(); document.getElementById("termsModal").hidden = false; });
   document.getElementById("privacyModal")?.addEventListener("click", e => { if (e.target.id === "privacyModal") e.target.hidden = true; });
   document.getElementById("termsModal")?.addEventListener("click", e => { if (e.target.id === "termsModal") e.target.hidden = true; });
@@ -1609,7 +1611,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     <h4>4. Cookies and analytics</h4>
     <p>We use essential cookies for site functionality and analytics tools (Google Analytics, TikTok Pixel, Meta Pixel) to measure site usage and advertising performance. You can control cookies through your browser settings.</p>
     <h4>5. Your rights</h4>
-    <p>You may request access to, correction of, or deletion of your data by contacting us. Residents of certain US states and the EU may have additional rights under applicable law.</p>
+    <p>You may request access to, correction of, or deletion of your data through our <a href="/en/report">report and removal form</a> or by contacting us. If a portrait shows you without your consent, use the same form: we usually remove it within 24–48 hours. Residents of certain US states and the EU may have additional rights under applicable law.</p>
     <h4>6. Contact</h4>
     <p>For privacy questions, email the address shown in the site footer.</p>
     <div class="row"><button class="btn solid" type="button" onclick="document.getElementById('privacyModal').hidden=true">Close</button></div>
