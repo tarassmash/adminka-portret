@@ -395,7 +395,6 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       <a href="#styles" data-i18n="nav.styles">Образы</a>
       <a href="#pricing" data-i18n="nav.pricing">Цены</a>
       <a href="#faq" data-i18n="nav.faq">Вопросы</a>
-      <a href="/blog" id="navBlog" data-i18n="nav.blog">Блог</a>
     </nav>
     <div class="navr">
       <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="ru">RU</button></div>
@@ -531,11 +530,6 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     <div class="have-code"><span data-i18n="price.haveCode">Уже есть код?</span><button type="button" id="enterCode" data-i18n="price.enterCode">Ввести код</button></div>
   </section>
 
-  <section class="sec" id="blogPosts" hidden>
-    <div class="sec-head"><div class="eyebrow" data-i18n="blog.eyebrow">Блог</div><h2 class="title" data-i18n="blog.title">Советы о портретах и фото</h2></div>
-    <div class="posts" id="latestPosts"><!--LATEST_POSTS--></div>
-    <p style="margin:18px 0 0"><a class="btn" id="allPosts" href="/blog" data-i18n="blog.all">Все статьи</a></p>
-  </section>
 
   <section class="sec" id="faq">
     <div class="sec-head"><div class="eyebrow" data-i18n="faq.eyebrow">Вопросы</div><h2 class="title" data-i18n="faq.title">Частые вопросы</h2></div>
@@ -978,7 +972,9 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     const c6 = document.createElement("div"); c6.className = "c c6"; c6.textContent = t("collage.cap"); box.appendChild(c6);
   }
   const escH = (v) => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  // блог на главной не показываем: он нужен только для поискового трафика
   function renderLatest() {
+    if (!$("blogPosts")) return;
     const list = cfg.latest?.[L === "ru" ? "ru" : "en"] || [];
     $("blogPosts").hidden = !list.length;
     $("latestPosts").innerHTML = list.map(p => `<a class="post" href="${escH(p.url)}"><span class="ph">${p.cover ? `<img src="${escH(thumb(p.cover, dprW(400)))}" alt="${escH(p.alt)}" loading="lazy" decoding="async">` : ""}</span><span class="tx"><span class="d">${escH(p.date)}</span><b>${escH(p.title)}</b><span class="s">${escH(p.description)}</span></span></a>`).join("");
