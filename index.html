@@ -78,8 +78,8 @@ h2.title { font: 400 clamp(30px, 4.4vw, 48px)/1.08 var(--f-display); margin: 8px
 .links a:hover { color: var(--ink); }
 .navr { display: flex; gap: 10px; align-items: center; }
 .lang { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
-.lang button { border: 0; background: none; padding: 5px 10px; font: 500 12px var(--f-mono); cursor: pointer; color: var(--muted); }
-.lang button[aria-pressed="true"] { background: var(--ink); color: var(--card); }
+.lang a { border: 0; background: none; padding: 5px 10px; font: 500 12px var(--f-mono); cursor: pointer; color: var(--muted); text-decoration: none; }
+.lang a[aria-current="page"] { background: var(--ink); color: var(--card); }
 .bal { font: 500 13px var(--f-mono); padding: 7px 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); cursor: pointer; white-space: nowrap; }
 .bal b { color: var(--ink); }
 .btn { border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 10px 18px; font-size: 14.5px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all .15s ease; }
@@ -93,7 +93,7 @@ h2.title { font: 400 clamp(30px, 4.4vw, 48px)/1.08 var(--f-display); margin: 8px
   .nav .btn.solid { display: none; }
   .logo b { display: none; }
   .navr { gap: 6px; }
-  .lang button { padding: 5px 8px; }
+  .lang a { padding: 5px 8px; }
   .bal .bl { display: none; }
   .bal { padding: 7px 10px; }
 }
@@ -397,7 +397,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       <a href="#faq" data-i18n="nav.faq">Вопросы</a>
     </nav>
     <div class="navr">
-      <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="ru">RU</button></div>
+      <div class="lang" role="group" aria-label="Language"><a href="/" hreflang="es" data-lang="es">ES</a><a href="/en" hreflang="en" data-lang="en">EN</a><a href="/ru" hreflang="ru" data-lang="ru">RU</a></div>
       <button class="btn orders-btn" id="ordersBtn" type="button" hidden><span data-i18n="orders.btn">Мои заказы</span></button>
       <button class="bal" id="balBtn" type="button" hidden></button>
       <a class="btn solid" href="#studio" data-i18n="nav.cta">Создать портрет</a>
@@ -431,8 +431,8 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     </div>
     <div class="hero-ba" id="heroBa">
       <div class="mini" id="heroMini" tabindex="0" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
-        <img class="after" alt="" loading="eager" fetchpriority="high">
-        <img class="before" alt="" loading="eager">
+        <img class="after" alt="" loading="eager" fetchpriority="high" width="600" height="750">
+        <img class="before" alt="" loading="eager" width="600" height="750">
         <div class="line"></div>
         <span class="t l">before</span>
         <span class="t r">after</span>
@@ -544,7 +544,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   <footer>
     <span><b class="brand">Portretto</b> · <span data-i18n="foot.tag">AI Photo Studio</span></span>
     <span id="contact"></span>
-    <div class="lang foot-lang" role="group" aria-label="Language"><button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="ru">RU</button></div>
+    <div class="lang foot-lang" role="group" aria-label="Language"><a href="/" hreflang="es" data-lang="es">ES</a><a href="/en" hreflang="en" data-lang="en">EN</a><a href="/ru" hreflang="ru" data-lang="ru">RU</a></div>
     <span class="foot-links">
       <a href="#" id="openPrivacy">Privacy Policy</a>
       <a href="#" id="openTerms">Terms of Service</a>
@@ -904,10 +904,16 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   const qLang = new URLSearchParams(location.search).get("lang");
   // Роботы поисковиков видят главную на русском, английская версия — по адресу /?lang=en
   const isBot = /bot|crawl|spider|slurp|lighthouse|inspectiontool/i.test(navigator.userAgent);
-  // язык: ?lang=… → выбранный ранее → язык телефона (es/ru) → английский
-  const LANGS = ["es", "en", "ru"];
+  // язык задаёт адрес страницы: / — испанский, /en, /ru (так их видят поисковики).
+  // При первом заходе человека перенаправляем на версию на языке его телефона.
+  const LANGS = ["es", "en", "ru"], LANG_PATH = { es: "/", en: "/en", ru: "/ru" };
   const byDevice = () => { const l = (navigator.languages?.[0] || navigator.language || "").toLowerCase().slice(0, 2); return l === "es" || ["ca", "gl", "eu"].includes(l) ? "es" : ["ru", "uk", "be", "kk"].includes(l) ? "ru" : "en"; };
-  let L = LANGS.includes(qLang) ? qLang : isBot ? "en" : LANGS.includes(store.get("pt_lang")) ? store.get("pt_lang") : byDevice();
+  const pageLang = LANGS.includes(window.__PAGE_LANG) ? window.__PAGE_LANG : "es";
+  if (!isBot && !store.get("pt_lang") && !location.search.includes("session_id") && byDevice() !== pageLang) {
+    store.set("pt_lang", byDevice());
+    location.replace(LANG_PATH[byDevice()] + location.search + location.hash);
+  }
+  let L = LANGS.includes(qLang) ? qLang : pageLang;
   const t = (k, vars = {}) => (T[L][k] ?? T.en[k] ?? T.ru[k] ?? k).replace(/\{(\w+)\}/g, (_, v) => vars[v] ?? "");
   // названия образов, пакетов и форматов приходят с сервера: es → en, если перевода нет
   const tx = (o) => o ? (o[L] ?? o.en ?? o.ru ?? "") : "";
@@ -930,16 +936,17 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = t(el.dataset.i18n));
     document.querySelectorAll("[data-i18n-html]").forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
     document.querySelectorAll("[data-i18n-ph]").forEach(el => el.placeholder = t(el.dataset.i18nPh));
-    document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === L)));
-    document.title = (L !== "es" && window.__SEO?.[L]?.title) || `${cfg?.brand || "Portretto"} — ${t("hero.eyebrow")}`;
-    const metaD = document.querySelector('meta[name="description"]'); if (metaD && L !== "es" && window.__SEO?.[L]) metaD.content = window.__SEO[L].description;
+    document.querySelectorAll(".lang [data-lang]").forEach(b => b.dataset.lang === L ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
+    document.title = window.__SEO?.[L]?.title || `${cfg?.brand || "Portretto"} — ${t("hero.eyebrow")}`;
+    const metaD = document.querySelector('meta[name="description"]'); if (metaD && window.__SEO?.[L]) metaD.content = window.__SEO[L].description;
     ["navBlog", "footBlog", "allPosts"].forEach(id => { const a = $(id); if (a) a.href = L === "ru" ? "/blog" : "/en/blog"; });
     $("faqList").innerHTML = "";
     FAQ[L].forEach(([q, a]) => { const d = document.createElement("details"); d.innerHTML = "<summary></summary><p></p>"; d.querySelector("summary").textContent = q; d.querySelector("p").textContent = a; $("faqList").appendChild(d); });
     if (cfg) { renderLooks(); renderFormats(); renderPrices(); renderCollage(); renderDesc(); renderExamples(); renderLatest(); }
     renderBalance(); updateNote(); setToggleLabel();
   }
-  document.querySelectorAll(".lang button").forEach(b => b.onclick = () => { L = b.dataset.lang; store.set("pt_lang", L); applyLang(); });
+  // переход на другую языковую версию: запоминаем выбор и сохраняем #раздел
+  document.querySelectorAll(".lang [data-lang]").forEach(a => a.onclick = (e) => { store.set("pt_lang", a.dataset.lang); e.preventDefault(); location.href = LANG_PATH[a.dataset.lang] + location.search.replace(/[?&]lang=\w+/, "") + location.hash; });
 
   const money = (v) => new Intl.NumberFormat(L === "ru" ? "ru-RU" : L === "es" ? "es-ES" : "en-GB", { style: "currency", currency: (cfg?.currency || "eur").toUpperCase(), maximumFractionDigits: v % 1 ? 2 : 0 }).format(v);
   function toast(txt) { const d = document.createElement("div"); d.className = "toast"; d.textContent = txt; document.body.appendChild(d); setTimeout(() => d.remove(), 2200); }
@@ -992,6 +999,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       const m = d.querySelector(".mini");
       const [after, before] = m.querySelectorAll("img");
       after.src = thumb(ex.after, dprW(420)); before.src = thumb(ex.before, dprW(420)); after.decoding = before.decoding = "async";
+      after.alt = `${ex.caption || styleName(ex.style)} — ${t("lb.after")}`; before.alt = `${t("lb.before")}: selfie`;
       m.setAttribute("aria-label", t("ba.slider"));
       m.querySelector(".t.l").textContent = t("lb.before"); m.querySelector(".t.r").textContent = t("lb.after");
       d.querySelector(".meta b").textContent = ex.caption || styleName(ex.style);
@@ -1019,6 +1027,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       const ex = list[0];
       const [after, before] = heroM.querySelectorAll("img");
       after.src = thumb(ex.after, 960); before.src = thumb(ex.before, 960);
+      after.alt = `${ex.caption || styleName(ex.style)} — ${t("lb.after")}`; before.alt = `${t("lb.before")}: selfie`;
       heroM.querySelector(".t.l").textContent = t("lb.before");
       heroM.querySelector(".t.r").textContent = t("lb.after");
       const cap = document.querySelector("#heroBa .hero-ba-cap"); if (cap) cap.textContent = t("hero.cap") + (ex.ai ? " · " + t("ba.ai") : "");

@@ -316,11 +316,15 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
         <div class="label">Главная страница в поиске</div>
         <div class="form" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
           <div class="stack" style="gap:8px">
-            <div class="fld"><label class="label" for="hRuT"><span>Заголовок (RU)</span><span class="cnt" id="chRuT"></span></label><input type="text" id="hRuT" maxlength="120"></div>
+            <div class="fld"><label class="label" for="hEsT"><span>Título (ES) — главная /</span><span class="cnt" id="chEsT"></span></label><input type="text" id="hEsT" maxlength="120"></div>
+            <div class="fld"><label class="label" for="hEsD"><span>Descripción (ES)</span><span class="cnt" id="chEsD"></span></label><textarea id="hEsD" rows="3" maxlength="300"></textarea></div>
+          </div>
+          <div class="stack" style="gap:8px">
+            <div class="fld"><label class="label" for="hRuT"><span>Заголовок (RU) — /ru</span><span class="cnt" id="chRuT"></span></label><input type="text" id="hRuT" maxlength="120"></div>
             <div class="fld"><label class="label" for="hRuD"><span>Описание (RU)</span><span class="cnt" id="chRuD"></span></label><textarea id="hRuD" rows="3" maxlength="300"></textarea></div>
           </div>
           <div class="stack" style="gap:8px">
-            <div class="fld"><label class="label" for="hEnT"><span>Title (EN)</span><span class="cnt" id="chEnT"></span></label><input type="text" id="hEnT" maxlength="120"></div>
+            <div class="fld"><label class="label" for="hEnT"><span>Title (EN) — /en</span><span class="cnt" id="chEnT"></span></label><input type="text" id="hEnT" maxlength="120"></div>
             <div class="fld"><label class="label" for="hEnD"><span>Description (EN)</span><span class="cnt" id="chEnD"></span></label><textarea id="hEnD" rows="3" maxlength="300"></textarea></div>
           </div>
         </div>
@@ -707,6 +711,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   // ---------- настройки ----------
   function renderSettings() {
     const s = D.settings;
+    $("hEsT").value = s.home.es?.title || ""; $("hEsD").value = s.home.es?.description || ""; $("hEsT").placeholder = s.defaults.es?.title || ""; $("hEsD").placeholder = s.defaults.es?.description || "";
     $("hRuT").value = s.home.ru?.title || ""; $("hRuD").value = s.home.ru?.description || ""; $("hEnT").value = s.home.en?.title || ""; $("hEnD").value = s.home.en?.description || "";
     $("hRuT").placeholder = s.defaults.ru.title; $("hRuD").placeholder = s.defaults.ru.description; $("hEnT").placeholder = s.defaults.en.title; $("hEnD").placeholder = s.defaults.en.description;
     $("vG").value = s.verify.google; $("vY").value = s.verify.yandex; $("vB").value = s.verify.bing; $("vP").value = s.verify.pinterest || "";
@@ -718,13 +723,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   }
   function hc() {
     const c = (inp, out, lo, hi) => { const v = (inp.value || inp.placeholder).length; out.textContent = `${v} / ${lo}–${hi}`; out.className = "cnt " + (v >= lo && v <= hi ? "good" : "bad"); };
-    c($("hRuT"), $("chRuT"), 30, 65); c($("hRuD"), $("chRuD"), 110, 170); c($("hEnT"), $("chEnT"), 30, 65); c($("hEnD"), $("chEnD"), 110, 170);
+    c($("hEsT"), $("chEsT"), 30, 65); c($("hEsD"), $("chEsD"), 110, 170); c($("hRuT"), $("chRuT"), 30, 65); c($("hRuD"), $("chRuD"), 110, 170); c($("hEnT"), $("chEnT"), 30, 65); c($("hEnD"), $("chEnD"), 110, 170);
   }
-  ["hRuT", "hRuD", "hEnT", "hEnD"].forEach(id => $(id).oninput = hc);
+  ["hEsT", "hEsD", "hRuT", "hRuD", "hEnT", "hEnD"].forEach(id => $(id).oninput = hc);
   $("setSave").onclick = async () => {
     try {
       await api("/api/admin/seo/settings", {
-        home: { ru: { title: $("hRuT").value, description: $("hRuD").value }, en: { title: $("hEnT").value, description: $("hEnD").value } },
+        home: { es: { title: $("hEsT").value, description: $("hEsD").value }, ru: { title: $("hRuT").value, description: $("hRuD").value }, en: { title: $("hEnT").value, description: $("hEnD").value } },
         verify: { google: $("vG").value, yandex: $("vY").value, bing: $("vB").value, pinterest: $("vP").value }, analytics: { ga4: $("aGa").value, metrika: $("aYm").value, tiktok: $("aTt").value, meta: $("aFb").value },
         llm: $("sLlm").value, autoCover: $("sCover").checked, indexnow: $("sInow").checked,
       });
