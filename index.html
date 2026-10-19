@@ -982,7 +982,8 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     renderBalance(); updateNote(); setToggleLabel();
   }
   // переход на другую языковую версию: запоминаем выбор и сохраняем #раздел
-  document.querySelectorAll(".lang [data-lang]").forEach(a => a.onclick = (e) => { store.set("pt_lang", a.dataset.lang); e.preventDefault(); location.href = LANG_PATH[a.dataset.lang] + location.search.replace(/[?&]lang=\w+/, "") + location.hash; });
+  const setLangCookie = (l) => { try { document.cookie = `site_lang=${l}; path=/; max-age=31536000; samesite=lax`; } catch {} };
+  document.querySelectorAll(".lang [data-lang]").forEach(a => a.onclick = (e) => { store.set("pt_lang", a.dataset.lang); setLangCookie(a.dataset.lang); e.preventDefault(); location.href = LANG_PATH[a.dataset.lang] + location.search.replace(/[?&]lang=\w+/, "") + location.hash; });
 
   const money = (v) => new Intl.NumberFormat(L === "ru" ? "ru-RU" : L === "es" ? "es-ES" : "en-GB", { style: "currency", currency: (cfg?.currency || "eur").toUpperCase(), maximumFractionDigits: v % 1 ? 2 : 0 }).format(v);
   function toast(txt) { const d = document.createElement("div"); d.className = "toast"; d.textContent = txt; document.body.appendChild(d); setTimeout(() => d.remove(), 2200); }

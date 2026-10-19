@@ -2249,6 +2249,35 @@ function llmsTxt(req, full = false) {
   return lines.join("\n") + "\n";
 }
 
+// язык посетителя: выбор, сохранённый в cookie, или язык телефона/браузера (Accept-Language).
+// Испанский (и каталанский, галисийский, баскский) → /, русский (и украинский, белорусский, казахский) → /ru, остальные → /en.
+var AUTO_BOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|lighthouse|headless|inspectiontool/i;
+function langFromHeader(h) {
+  const list = String(h || "").split(",").map((part, i) => {
+    const [tag, ...params] = part.trim().toLowerCase().split(";");
+    const q = params.map((p) => p.trim()).find((p) => p.startsWith("q="));
+    return { base: tag.split("-")[0], q: q ? parseFloat(q.slice(2)) || 0 : 1, i };
+  }).filter((x) => x.base && x.base !== "*" && x.q > 0).sort((a, b) => b.q - a.q || a.i - b.i);
+  for (const { base } of list) {
+    if (["es", "ca", "gl", "eu"].includes(base)) return "es";
+    if (["ru", "uk", "be", "kk"].includes(base)) return "ru";
+    if (base === "en") return "en";
+  }
+  return list.length ? "en" : "";
+}
+function cookieLang(req) {
+  const m = /(?:^|;\s*)site_lang=(es|en|ru)\b/.exec(req.headers.cookie || "");
+  return m ? m[1] : "";
+}
+// для "/" — куда перенаправить человека (или "" — оставить испанскую версию)
+function autoLangRedirect(req, url, paths) {
+  if (url.searchParams.has("session_id") || url.searchParams.has("canceled") || url.searchParams.has("nolang")) return "";
+  if (AUTO_BOT.test(req.headers["user-agent"] || "")) return "";
+  const want = cookieLang(req) || langFromHeader(req.headers["accept-language"]);
+  if (!want || want === "es" || !paths[want]) return "";
+  return paths[want] + url.search;
+}
+
 // src/server.mjs
 function modelSettings() {
   const m = db.settings.models || {};
@@ -2843,6 +2872,11 @@ function dynamic(req, res2, url) {
   if (p === "/llms.txt" || p === "/llms-full.txt") return send(res2, 200, "text/markdown; charset=utf-8", llmsTxt(req, p === "/llms-full.txt")), true;
   // языковые версии главной: / (испанский), /en, /ru; старые адреса ?lang=… и /es ведут на новые
   const ql = url.searchParams.get("lang");
+  // первый заход на /: сразу открываем версию на языке телефона или ранее выбранную
+  if (p === "/" && !ql) {
+    const to = autoLangRedirect(req, url, HOME_PATH);
+    if (to) { res2.writeHead(302, { location: to, vary: "Accept-Language, Cookie", "cache-control": "no-store" }); res2.end(); return true; }
+  }
   if (p === "/" && ["en", "ru", "es"].includes(ql)) {
     const q = new URLSearchParams(url.search); q.delete("lang");
     res2.writeHead(301, { location: HOME_PATH[ql] + (q.toString() ? "?" + q : "") }); res2.end(); return true;
