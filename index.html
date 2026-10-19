@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -8,17 +8,7 @@
 <meta property="og:title" content="Portretto — AI Photo Studio">
 <meta property="og:description" content="Studio portrait from a simple selfie in under a minute.">
 <!--SEO_HEAD-->
-<!-- TikTok Pixel Code Start -->
-<script>
-!function (w, d, t) {
-  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
-var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
-;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
-  ttq.load('DB8IOTJC77U2O9K0OUTG');
-  ttq.page();
-}(window, document, 'ttq');
-</script>
-<!-- TikTok Pixel Code End -->
+<!-- Пиксели TikTok / Meta и Google Analytics подключаются из админки: /seo → Аналитика -->
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c2733'/%3E%3Ccircle cx='13' cy='13' r='5' fill='%23e8b64c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -361,7 +351,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       <a href="/blog" id="navBlog" data-i18n="nav.blog">Блог</a>
     </nav>
     <div class="navr">
-      <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="ru">RU</button><button type="button" data-lang="en">EN</button></div>
+      <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button><button type="button" data-lang="ru">RU</button></div>
       <button class="bal" id="balBtn" type="button" hidden></button>
       <a class="btn solid" href="#studio" data-i18n="nav.cta">Создать портрет</a>
     </div>
@@ -384,9 +374,9 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
         <span data-i18n="fact.3">Credits never expire</span>
       </div>
       <div class="trust-row">
-        <span data-i18n="trust.rating">★ 4.8 · real reviews</span>
+        <span id="trustPay" data-i18n="trust.rating">🔒 Secure payment by Stripe</span>
         <span>·</span>
-        <span data-i18n="trust.guarantee">Money-back guarantee</span>
+        <span data-i18n="trust.guarantee">No subscription</span>
         <span>·</span>
         <span data-i18n="trust.privacy">Photos are not stored</span>
       </div>
@@ -396,11 +386,11 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
         <img class="after" alt="" loading="eager" fetchpriority="high">
         <img class="before" alt="" loading="eager">
         <div class="line"></div>
-        <span class="t l">до</span>
-        <span class="t r">после</span>
+        <span class="t l">before</span>
+        <span class="t r">after</span>
       </div>
       <div class="hero-ba-cap" data-i18n="hero.cap">Your photo on the left · finished portrait on the right</div>
-      <button type="button" class="btn big solid" id="heroPlay" style="justify-self:center; margin-top:4px;">▶ Смотреть</button>
+      <button type="button" class="btn big solid" id="heroPlay" style="justify-self:center; margin-top:4px;">▶ Play</button>
     </div>
   </section>
 
@@ -560,7 +550,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "hero.eyebrow": "AI-фотостудия", "hero.title": "Студийный портрет<br><em>из селфи за 30 секунд</em>",
       "hero.lead": "Реальные селфи → профессиональные портреты. Лицо остаётся вашим. Без фотографа и записи.",
       "hero.cta": "Создать портрет", "hero.prices": "Смотреть цены",
-      "fact.1": "Сходство лица в приоритете", "fact.2": "Готово за 30–60 секунд", "fact.3": "Кредиты не сгорают", "trust.rating": "★ 4.8 · реальные отзывы", "trust.guarantee": "Гарантия возврата", "trust.privacy": "Фото не хранятся", "hero.cap": "Слева ваше фото · справа готовый портрет",
+      "fact.1": "Сходство лица в приоритете", "fact.2": "Готово за 30–60 секунд", "fact.3": "Не получилось — кредиты вернутся", "trust.rating": "🔒 Оплата через Stripe", "trust.guarantee": "Без подписки", "trust.privacy": "Исходные фото не хранятся", "hero.cap": "Слева ваше фото · справа готовый портрет",
       "how.eyebrow": "Как это работает", "how.title": "Три шага до портрета",
       "how.1t": "Загрузите селфи", "how.1p": "Одно-три фото, где хорошо видно лицо. Подойдёт снимок на телефон.",
       "how.2t": "Выберите образ", "how.2p": "Деловой, журнальный, чёрно-белый и другие. У каждого своя схема света.",
@@ -590,15 +580,15 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "bal": "Баланс: {n}", "copied": "Скопировано",
       "err.photo": "Сначала загрузите фото.", "err.style": "Выберите образ.", "err.net": "Нет связи с сервером. Проверьте интернет.", "err.max": "Достаточно трёх фото.", "err.open": "Не удалось открыть фото. Сохраните его как JPG и попробуйте снова.", "err.long": "Слишком долго. Попробуйте ещё раз.",
       "sample": "образ", "collage.cap": "Примеры образов",
-      "nav.ex": "До и после", "nav.blog": "Блог", "blog.eyebrow": "Блог", "blog.title": "Советы о портретах и фото", "blog.all": "Все статьи", "ba.eyebrow": "До и после", "ba.title": "Реальные селфи → реальные портреты", "ba.lead": "Слева фото, которое загрузили, справа готовый портрет. Разделитель двигается сам.",
-      "ba.ai": "вымышленный человек", "ba.zoom": "Крупнее", "ba.slider": "Сравнение до и после",
+      "nav.ex": "До и после", "nav.blog": "Блог", "blog.eyebrow": "Блог", "blog.title": "Советы о портретах и фото", "blog.all": "Все статьи", "ba.eyebrow": "До и после", "ba.title": "Селфи → студийный портрет", "ba.lead": "Слева фото, которое загрузили, справа готовый портрет. Разделитель двигается сам.",
+      "ba.ai": "вымышленный человек", "play": "Смотреть", "ba.zoom": "Крупнее", "ba.slider": "Сравнение до и после",
     },
     en: {
       "nav.how": "How it works", "nav.styles": "Looks", "nav.pricing": "Pricing", "nav.faq": "FAQ", "nav.cta": "Create portrait",
       "hero.eyebrow": "AI photo studio", "hero.title": "Studio portrait<br><em>from a selfie in 30 seconds</em>",
       "hero.lead": "Real selfies → professional portraits. Your face stays yours. No photographer, no booking.",
       "hero.cta": "Create your portrait", "hero.prices": "See pricing",
-      "fact.1": "Face likeness comes first", "fact.2": "Ready in 30–60 seconds", "fact.3": "Credits never expire", "trust.rating": "★ 4.8 · real reviews", "trust.guarantee": "Money-back guarantee", "trust.privacy": "Photos are not stored", "hero.cap": "Your photo on the left · finished portrait on the right",
+      "fact.1": "Face likeness comes first", "fact.2": "Ready in 30–60 seconds", "fact.3": "Failed portrait? Credits come back", "trust.rating": "🔒 Secure payment by Stripe", "trust.guarantee": "No subscription", "trust.privacy": "Source photos are not stored", "hero.cap": "Your photo on the left · finished portrait on the right",
       "how.eyebrow": "How it works", "how.title": "Three steps to your portrait",
       "how.1t": "Upload a selfie", "how.1p": "One to three photos with your face clearly visible. A phone shot is fine.",
       "how.2t": "Pick a look", "how.2p": "Business, magazine, black-and-white and more. Each has its own lighting setup.",
@@ -628,8 +618,139 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       "bal": "Balance: {n}", "copied": "Copied",
       "err.photo": "Upload a photo first.", "err.style": "Pick a look.", "err.net": "Can't reach the server. Check your connection.", "err.max": "Three photos are enough.", "err.open": "Couldn't open this photo. Save it as JPG and try again.", "err.long": "This is taking too long. Please try again.",
       "sample": "look", "collage.cap": "Sample looks",
-      "nav.ex": "Before & after", "nav.blog": "Blog", "blog.eyebrow": "Blog", "blog.title": "Portrait and photo tips", "blog.all": "All articles", "ba.eyebrow": "Before & after", "ba.title": "Real selfies → real portraits", "ba.lead": "On the left, the uploaded photo; on the right, the finished portrait. The divider moves on its own.",
-      "ba.ai": "fictional person", "ba.zoom": "Enlarge", "ba.slider": "Before and after comparison",
+      "nav.ex": "Before & after", "nav.blog": "Blog", "blog.eyebrow": "Blog", "blog.title": "Portrait and photo tips", "blog.all": "All articles", "ba.eyebrow": "Before & after", "ba.title": "Selfie → studio portrait", "ba.lead": "On the left, the uploaded photo; on the right, the finished portrait. The divider moves on its own.",
+      "ba.ai": "fictional person", "play": "Play", "ba.zoom": "Enlarge", "ba.slider": "Before and after comparison",
+    },
+    es: {
+      "nav.how": "Cómo funciona",
+      "nav.styles": "Estilos",
+      "nav.pricing": "Precios",
+      "nav.faq": "Preguntas",
+      "nav.cta": "Crear retrato",
+      "hero.eyebrow": "Estudio de fotos con IA",
+      "hero.title": "Retrato de estudio<br><em>a partir de un selfie en 30 segundos</em>",
+      "hero.lead": "Tu selfie → un retrato profesional. Tu cara sigue siendo la tuya. Sin fotógrafo ni cita previa.",
+      "hero.cta": "Crear mi retrato",
+      "hero.prices": "Ver precios",
+      "fact.1": "El parecido es lo primero",
+      "fact.2": "Listo en 30–60 segundos",
+      "fact.3": "¿Falla un retrato? Te devolvemos los créditos",
+      "trust.rating": "🔒 Pago seguro con Stripe",
+      "trust.guarantee": "Sin suscripción",
+      "trust.privacy": "No guardamos tus fotos originales",
+      "hero.cap": "Tu foto a la izquierda · el retrato final a la derecha",
+      "how.eyebrow": "Cómo funciona",
+      "how.title": "Tres pasos hasta tu retrato",
+      "how.1t": "Sube un selfie",
+      "how.1p": "De una a tres fotos en las que se vea bien tu cara. Vale una foto del móvil.",
+      "how.2t": "Elige un estilo",
+      "how.2p": "Profesional, revista, blanco y negro y más. Cada uno con su propia iluminación.",
+      "how.3t": "Descarga tus retratos",
+      "how.3p": "Compáralos con el original y guarda tus favoritos en alta resolución.",
+      "studio.eyebrow": "Estudio",
+      "studio.title": "Crea tu retrato",
+      "s1.t": "Tu foto",
+      "s1.sub": "Cuanto mejor se vea tu cara, mayor será el parecido. Una segunda o tercera foto desde otro ángulo mejora la precisión.",
+      "s1.drop": "Subir fotos",
+      "s1.dropHint": "Arrastra aquí o pulsa · JPG o PNG · hasta 3 fotos",
+      "tips.good": "Funciona bien",
+      "tips.g1": "Cara de frente o de tres cuartos, de cerca",
+      "tips.g2": "Luz de día uniforme, imagen nítida",
+      "tips.g3": "Una sola persona en la foto",
+      "tips.bad": "Funciona peor",
+      "tips.b1": "Gafas de sol, mascarillas, sombras fuertes",
+      "tips.b2": "Fotos de grupo y filtros fuertes",
+      "tips.b3": "Fotos borrosas o muy pequeñas",
+      "s2.t": "Estilo y descripción",
+      "s2.sub": "Elige un estilo y, si quieres, añade detalles con tus palabras. O elige «Tu propia idea» y describe el retrato entero.",
+      "desc.label": "Tu descripción (opcional)",
+      "desc.hint": "Añade detalles: ropa, lugar, expresión. Tu descripción tiene prioridad sobre el estilo.",
+      "desc.ph": "Ej.: traje azul marino sin corbata, sonrisa suave, ventanales de fondo",
+      "desc.labelC": "Describe tu idea",
+      "desc.hintC": "Dónde estás, qué llevas, la luz y el ambiente. Puedes escribir en cualquier idioma.",
+      "desc.phC": "Ej.: yo como capitán de yate con uniforme blanco en cubierta, luz de atardecer, viento en el pelo, tonos cálidos",
+      "err.desc": "Describe tu idea en unas pocas palabras.",
+      "s3.t": "Detalles",
+      "s3.format": "Formato",
+      "s3.count": "Variantes",
+      "s3.go": "Crear retratos",
+      "s3.model": "Modelo de IA",
+      "m.credits": "{n} créd. por retrato",
+      "lk.t": "Máximo parecido",
+      "lk.p": "Una segunda pasada lleva la cara de tu foto al retrato final. El resultado más fiel; añade 10–20 segundos.",
+      "lk.who": "¿Quién sale en la foto?",
+      "g.male": "Hombre",
+      "g.female": "Mujer",
+      "err.gender": "Indica quién sale en la foto: un hombre o una mujer.",
+      "ph.refine": "Mejorando el parecido…",
+      "note.time": "Normalmente 30–60 segundos",
+      "note.cost": "Usará {n} de tus {b} créditos",
+      "note.nokey": "Necesitas un paquete de retratos o un código",
+      "res.t": "Tus retratos",
+      "res.sub": "Pulsa un retrato para compararlo con el original. Todos se guardan con tu código.",
+      "res.download": "Descargar",
+      "res.compare": "Comparar",
+      "ph.send": "Subiendo fotos…",
+      "ph.queue": "En cola…",
+      "ph.queuePos": "En cola, {n} por delante",
+      "ph.work": "Fotografiando y retocando…",
+      "ph.shoot": "revelando…",
+      "price.eyebrow": "Precios",
+      "price.title": "Paga por retrato, sin suscripción",
+      "price.lead": "Un crédito es un retrato. Los créditos no caducan y sirven para todos los estilos.",
+      "price.popular": "El más elegido",
+      "price.portraits": "{n} retratos",
+      "price.per": "{p} por retrato",
+      "price.buy": "Comprar",
+      "price.f1": "Todos los estilos y formatos",
+      "price.f2": "Alta resolución",
+      "price.f3": "Comparación antes/después",
+      "price.f4": "Los créditos no caducan",
+      "price.haveCode": "¿Ya tienes un código?",
+      "price.enterCode": "Introducir código",
+      "price.soon": "Los pagos estarán disponibles pronto. Pide un código al estudio.",
+      "faq.eyebrow": "Preguntas",
+      "faq.title": "Preguntas frecuentes",
+      "band.t": "Tu mejor retrato, a un clic",
+      "foot.tag": "Estudio de fotos con IA",
+      "foot.privacy": "Las fotos originales no se guardan en el servidor.",
+      "km.copy": "Copiar",
+      "km.ok": "Listo",
+      "km.paidT": "Pago completado",
+      "km.paidP": "Se han añadido {n} créditos. Este es tu código personal: guárdalo para usar tu saldo en otro dispositivo.",
+      "km.enterT": "Introduce tu código",
+      "km.enterP": "Un código tipo PT-XXXX-XXXX-XXXX del recibo o del estudio.",
+      "km.enterOk": "Entrar",
+      "km.myT": "Tu código",
+      "km.myP": "Saldo: {n} créditos. Guarda este código para abrir tus retratos en otro dispositivo.",
+      "km.logout": "Salir",
+      "lb.close": "Cerrar ✕",
+      "lb.before": "antes",
+      "lb.after": "después",
+      "lb.only": "Solo el resultado",
+      "lb.cmp": "Comparar con el original",
+      "bal": "Saldo: {n}",
+      "copied": "Copiado",
+      "err.photo": "Primero sube una foto.",
+      "err.style": "Elige un estilo.",
+      "err.net": "No hay conexión con el servidor. Revisa tu internet.",
+      "err.max": "Con tres fotos es suficiente.",
+      "err.open": "No pudimos abrir esta foto. Guárdala como JPG y vuelve a intentarlo.",
+      "err.long": "Está tardando demasiado. Inténtalo de nuevo.",
+      "sample": "estilo",
+      "collage.cap": "Ejemplos de estilos",
+      "nav.ex": "Antes y después",
+      "nav.blog": "Blog",
+      "blog.eyebrow": "Blog",
+      "blog.title": "Consejos sobre retratos y fotos",
+      "blog.all": "Todos los artículos",
+      "ba.eyebrow": "Antes y después",
+      "ba.title": "Selfie → retrato de estudio",
+      "ba.lead": "A la izquierda, la foto subida; a la derecha, el retrato final. El divisor se mueve solo.",
+      "ba.ai": "persona ficticia",
+      "play": "Ver",
+      "ba.zoom": "Ampliar",
+      "ba.slider": "Comparación antes y después",
     },
   };
   const FAQ = {
@@ -649,10 +770,19 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       ["What if a generation fails?", "If a portrait fails because of an error, the credits go back to your balance automatically."],
       ["How do I sign in on another device?", "After payment you get a personal code like PT-XXXX-XXXX-XXXX. Enter it in the pricing section to open your balance and portraits."],
     ],
+    es: [
+      ["¿El retrato se parecerá a mí?", "Conservar tu cara es la prioridad. Funciona mejor una foto nítida de frente con luz de día, y un segundo ángulo suele mejorar el parecido. ¿No te convence una variante? Crea otra: cada generación es un poco distinta."],
+      ["¿Cuánto tarda?", "Normalmente 30–60 segundos, algo más en horas punta. Verás el progreso en pantalla."],
+      ["¿Qué pasa con mis fotos?", "Las fotos originales se envían a la IA solo para crear tu retrato y no se guardan en nuestro servidor. Los retratos terminados están disponibles con tu código personal."],
+      ["¿Puedo usar los retratos para trabajo?", "Sí: en webs, currículums, redes sociales, publicidad e impresión."],
+      ["¿Y si falla una generación?", "Si un retrato no se crea por un error, los créditos vuelven a tu saldo automáticamente."],
+      ["¿Cómo entro desde otro dispositivo?", "Tras el pago recibes un código personal tipo PT-XXXX-XXXX-XXXX. Introdúcelo en la sección de precios para abrir tu saldo y tus retratos."],
+    ],
   };
   const CHIPS = {
     ru: ["лёгкая улыбка", "серьёзный уверенный взгляд", "в белой рубашке", "в чёрной водолазке", "в деловом костюме", "в вечернем платье", "на фоне ночного города", "на фоне моря", "в библиотеке с книгами", "в стиле обложки Vogue", "мягкий дневной свет", "драматичный контрастный свет"],
     en: ["soft smile", "serious confident look", "white shirt", "black turtleneck", "business suit", "evening dress", "night city background", "sea in the background", "library with books", "Vogue cover style", "soft daylight", "dramatic contrast lighting"],
+    es: ["sonrisa suave", "mirada seria y segura", "camisa blanca", "jersey negro de cuello alto", "traje", "vestido de noche", "ciudad de noche de fondo", "el mar de fondo", "biblioteca con libros", "estilo portada de Vogue", "luz de día suave", "iluminación dramática de contraste"],
   };
   const SILHOUETTE = '<svg viewBox="0 0 100 110" aria-hidden="true"><path fill="#0b0f13" d="M50 8c-13 0-22 10-22 24 0 11 5 20 12 25v7c-17 3-32 12-36 30l-2 16h96l-2-16c-4-18-19-27-36-30v-7c7-5 12-14 12-25C72 18 63 8 50 8z"/></svg>';
 
@@ -662,11 +792,51 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
     del(k) { try { localStorage.removeItem(k); } catch {} },
   };
+  // ================= Аналитика: GA4 + TikTok + Meta =================
+  // GA4 считает «время вовлечения» только по событиям; на одностраничном сайте без них
+  // визиты из встроенных браузеров TikTok/Facebook показываются как 0 сек.
+  const TT = { view_content: "ViewContent", add_photo: "AddToCart", begin_checkout: "InitiateCheckout", purchase: "CompletePayment", generate: "SubmitForm", cta_click: "ClickButton" };
+  const FB = { view_content: "ViewContent", add_photo: "AddToCart", begin_checkout: "InitiateCheckout", purchase: "Purchase", generate: "Lead" };
+  const once = new Set();
+  function track(ev, params = {}, onlyOnce = false) {
+    if (onlyOnce) { if (once.has(ev)) return; once.add(ev); }
+    try { window.gtag && gtag("event", ev, params); } catch {}
+    try { if (window.ttq && TT[ev]) ttq.track(TT[ev], params.value ? { value: params.value, currency: params.currency, content_type: "product", content_id: params.item_id || "portrait" } : { content_type: "product", content_id: params.item_id || "portrait" }); } catch {}
+    try { if (window.fbq && FB[ev]) fbq("track", FB[ev], params.value ? { value: params.value, currency: params.currency } : {}); } catch {}
+  }
+  (() => {
+    // сохраняем источник визита, чтобы видеть его и после возврата со Stripe
+    const q = new URLSearchParams(location.search), src = {};
+    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "ttclid", "fbclid", "gclid"].forEach(k => { if (q.get(k)) src[k] = q.get(k).slice(0, 120); });
+    try { if (Object.keys(src).length) sessionStorage.setItem("pt_src", JSON.stringify(src)); } catch {}
+    const t0 = Date.now(); let active = 0, last = t0, visible = !document.hidden;
+    const tick = () => { const now = Date.now(); if (visible) active += now - last; last = now; };
+    document.addEventListener("visibilitychange", () => { tick(); visible = !document.hidden; });
+    // засечки активного времени: после 10 с GA4 засчитывает визит как вовлечённый
+    [10, 30, 60, 120].forEach(sec => setTimeout(function wait() { tick(); if (active >= sec * 1000) track("time_on_page", { seconds: sec, engagement_time_msec: sec * 1000 }); else if (Date.now() - t0 < 30 * 60e3) setTimeout(wait, 2000); }, sec * 1000));
+    let marks = [25, 50, 75, 90];
+    addEventListener("scroll", () => {
+      const h = document.documentElement, p = (h.scrollTop + innerHeight) / h.scrollHeight * 100;
+      while (marks.length && p >= marks[0]) track("scroll_depth", { percent: marks.shift() });
+    }, { passive: true });
+    document.addEventListener("click", e => {
+      const a = e.target.closest("a.btn, button.btn, .nav a");
+      if (a) track("cta_click", { label: (a.dataset.i18n || a.id || a.textContent || "").trim().slice(0, 40), target: a.getAttribute("href") || "" });
+    }, true);
+    const studio = document.getElementById("studio");
+    if (studio && "IntersectionObserver" in window) new IntersectionObserver((es, o) => { if (es.some(x => x.isIntersecting)) { track("view_content", { item_id: "studio" }, true); o.disconnect(); } }, { rootMargin: "0px 0px -40% 0px" }).observe(studio);
+  })();
+
   const qLang = new URLSearchParams(location.search).get("lang");
   // Роботы поисковиков видят главную на русском, английская версия — по адресу /?lang=en
   const isBot = /bot|crawl|spider|slurp|lighthouse|inspectiontool/i.test(navigator.userAgent);
-  let L = (qLang === "en" || qLang === "ru") ? qLang : isBot ? "en" : store.get("pt_lang") || "en";
-  const t = (k, vars = {}) => (T[L][k] ?? T.ru[k] ?? k).replace(/\{(\w+)\}/g, (_, v) => vars[v] ?? "");
+  // язык: ?lang=… → выбранный ранее → язык телефона (es/ru) → английский
+  const LANGS = ["es", "en", "ru"];
+  const byDevice = () => { const l = (navigator.languages?.[0] || navigator.language || "").toLowerCase().slice(0, 2); return l === "es" || ["ca", "gl", "eu"].includes(l) ? "es" : ["ru", "uk", "be", "kk"].includes(l) ? "ru" : "en"; };
+  let L = LANGS.includes(qLang) ? qLang : isBot ? "en" : LANGS.includes(store.get("pt_lang")) ? store.get("pt_lang") : byDevice();
+  const t = (k, vars = {}) => (T[L][k] ?? T.en[k] ?? T.ru[k] ?? k).replace(/\{(\w+)\}/g, (_, v) => vars[v] ?? "");
+  // названия образов, пакетов и форматов приходят с сервера: es → en, если перевода нет
+  const tx = (o) => o ? (o[L] ?? o.en ?? o.ru ?? "") : "";
 
   let cfg = null, showcase = [];
   let key = store.get("pt_key") || "", credits = null;
@@ -680,9 +850,9 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     document.querySelectorAll("[data-i18n-html]").forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
     document.querySelectorAll("[data-i18n-ph]").forEach(el => el.placeholder = t(el.dataset.i18nPh));
     document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === L)));
-    document.title = window.__SEO?.[L]?.title || `${cfg?.brand || "Portretto"} — ${t("hero.eyebrow")}`;
-    const metaD = document.querySelector('meta[name="description"]'); if (metaD && window.__SEO?.[L]) metaD.content = window.__SEO[L].description;
-    ["navBlog", "footBlog", "allPosts"].forEach(id => { const a = $(id); if (a) a.href = L === "en" ? "/en/blog" : "/blog"; });
+    document.title = (L !== "es" && window.__SEO?.[L]?.title) || `${cfg?.brand || "Portretto"} — ${t("hero.eyebrow")}`;
+    const metaD = document.querySelector('meta[name="description"]'); if (metaD && L !== "es" && window.__SEO?.[L]) metaD.content = window.__SEO[L].description;
+    ["navBlog", "footBlog", "allPosts"].forEach(id => { const a = $(id); if (a) a.href = L === "ru" ? "/blog" : "/en/blog"; });
     $("faqList").innerHTML = "";
     FAQ[L].forEach(([q, a]) => { const d = document.createElement("details"); d.innerHTML = "<summary></summary><p></p>"; d.querySelector("summary").textContent = q; d.querySelector("p").textContent = a; $("faqList").appendChild(d); });
     if (cfg) { renderLooks(); renderFormats(); renderPrices(); renderCollage(); renderDesc(); renderExamples(); renderLatest(); }
@@ -690,7 +860,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   }
   document.querySelectorAll(".lang button").forEach(b => b.onclick = () => { L = b.dataset.lang; store.set("pt_lang", L); applyLang(); });
 
-  const money = (v) => new Intl.NumberFormat(L === "ru" ? "ru-RU" : "en-GB", { style: "currency", currency: (cfg?.currency || "eur").toUpperCase(), maximumFractionDigits: v % 1 ? 2 : 0 }).format(v);
+  const money = (v) => new Intl.NumberFormat(L === "ru" ? "ru-RU" : L === "es" ? "es-ES" : "en-GB", { style: "currency", currency: (cfg?.currency || "eur").toUpperCase(), maximumFractionDigits: v % 1 ? 2 : 0 }).format(v);
   function toast(txt) { const d = document.createElement("div"); d.className = "toast"; d.textContent = txt; document.body.appendChild(d); setTimeout(() => d.remove(), 2200); }
 
   // ================= API =================
@@ -715,14 +885,14 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       const st = item ? cfg.styles.find(x => x.id === item.style) : real[(i * 3 + 1) % real.length];
       if (item) { const img = new Image(); img.src = item.url; img.alt = ""; img.decoding = "async"; c.appendChild(img); }
       else { c.style.background = st.swatch; c.innerHTML = SILHOUETTE; }
-      if (st) { const l = document.createElement("span"); l.className = "lbl"; l.textContent = st.name[L]; c.appendChild(l); }
+      if (st) { const l = document.createElement("span"); l.className = "lbl"; l.textContent = tx(st.name); c.appendChild(l); }
       box.appendChild(c);
     }
     const c6 = document.createElement("div"); c6.className = "c c6"; c6.textContent = t("collage.cap"); box.appendChild(c6);
   }
   const escH = (v) => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   function renderLatest() {
-    const list = cfg.latest?.[L] || [];
+    const list = cfg.latest?.[L === "ru" ? "ru" : "en"] || [];
     $("blogPosts").hidden = !list.length;
     $("latestPosts").innerHTML = list.map(p => `<a class="post" href="${escH(p.url)}"><span class="ph">${p.cover ? `<img src="${escH(p.cover)}" alt="${escH(p.alt)}" loading="lazy">` : ""}</span><span class="tx"><span class="d">${escH(p.date)}</span><b>${escH(p.title)}</b><span class="s">${escH(p.description)}</span></span></a>`).join("");
   }
@@ -754,7 +924,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       };
       const play = d.querySelector(".meta .btn");
       play.textContent = "▶";
-      play.title = L === "en" ? "Play" : "Воспроизвести";
+      play.title = t("play");
       play.onclick = () => tween(p > 50 ? 2 : 98);
       set(98); // start showing mostly "after"
       box.appendChild(d);
@@ -768,6 +938,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       after.src = ex.after; before.src = ex.before;
       heroM.querySelector(".t.l").textContent = t("lb.before");
       heroM.querySelector(".t.r").textContent = t("lb.after");
+      const cap = document.querySelector("#heroBa .hero-ba-cap"); if (cap) cap.textContent = t("hero.cap") + (ex.ai ? " · " + t("ba.ai") : "");
       let p = 50, drag = false;
       const set = v => { p = Math.max(0, Math.min(100, v)); heroM.style.setProperty("--pos", p + "%"); heroM.setAttribute("aria-valuenow", String(Math.round(p))); };
       const fromX = x => { const r = heroM.getBoundingClientRect(); set((x - r.left) / r.width * 100); };
@@ -779,7 +950,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       };
       const playBtn = document.getElementById("heroPlay");
       if (playBtn) {
-        playBtn.textContent = "▶ " + (L === "en" ? "Play" : "Смотреть");
+        playBtn.textContent = "▶ " + t("play");
         playBtn.onclick = () => tween(p > 50 ? 2 : 98);
       }
       // Автозапуск один раз, чтобы сразу показать результат
@@ -813,8 +984,8 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       else if (cover) { const img = new Image(); img.src = cover.url; img.alt = ""; img.loading = "lazy"; sw.appendChild(img); }
       else { sw.style.background = s.swatch; sw.innerHTML = SILHOUETTE; }
       lab.querySelector(".check").style.zIndex = 2;
-      lab.querySelector("b").textContent = s.name[L];
-      lab.querySelector(".d").textContent = s.desc[L];
+      lab.querySelector("b").textContent = tx(s.name);
+      lab.querySelector(".d").textContent = tx(s.desc);
       lab.querySelector(".l").textContent = s.light;
       const inp = lab.querySelector("input");
       inp.onchange = () => { style = s.id; renderDesc(); if (s.custom) $("wishes").focus(); };
@@ -832,7 +1003,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       el.appendChild(b);
     });
   }
-  function renderFormats() { seg($("formats"), cfg.formats.map(f => ({ id: f.id, label: f.name[L] })), format, v => format = v); renderModels(); renderLikeness(); renderCounts(); }
+  function renderFormats() { seg($("formats"), cfg.formats.map(f => ({ id: f.id, label: tx(f.name) })), format, v => format = v); renderModels(); renderLikeness(); renderCounts(); }
   function renderModels() {
     const list = cfg.models || [];
     if (!model || !list.some(m => m.id === model)) model = list.some(m => m.id === store.get("pt_model")) ? store.get("pt_model") : cfg.defaultModel;
@@ -842,7 +1013,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       const b = document.createElement("button"); b.type = "button"; b.className = "model";
       b.setAttribute("aria-pressed", String(m.id === model));
       b.innerHTML = "<b></b><span></span><em></em>";
-      b.querySelector("b").textContent = m.name[L]; b.querySelector("span").textContent = m.desc[L]; b.querySelector("em").textContent = t("m.credits", { n: m.credits });
+      b.querySelector("b").textContent = tx(m.name); b.querySelector("span").textContent = tx(m.desc); b.querySelector("em").textContent = t("m.credits", { n: m.credits });
       b.onclick = () => { model = m.id; store.set("pt_model", model); renderModels(); renderCounts(); };
       box.appendChild(b);
     });
@@ -866,7 +1037,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       const d = document.createElement("div"); d.className = "price" + (p.popular ? " pop" : "");
       d.innerHTML = `${p.popular ? `<span class="badge"></span>` : ""}<h3></h3><div><div class="amt"></div><div class="per"></div></div><ul><li></li><li></li><li></li><li></li></ul><button class="btn ${p.popular ? "solid" : ""} big" type="button"></button>`;
       if (p.popular) d.querySelector(".badge").textContent = t("price.popular");
-      d.querySelector("h3").textContent = `${p.name[L]} · ${t("price.portraits", { n: p.credits })}`;
+      d.querySelector("h3").textContent = `${tx(p.name)} · ${t("price.portraits", { n: p.credits })}`;
       d.querySelector(".amt").textContent = money(p.price);
       d.querySelector(".per").textContent = t("price.per", { p: money(Math.round(p.price / p.credits * 100) / 100) });
       const lis = d.querySelectorAll("li"); ["price.f1", "price.f2", "price.f3", "price.f4"].forEach((k, i) => lis[i].textContent = t(k));
@@ -931,7 +1102,9 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
 
   async function buy(pack, btn) {
     btn.disabled = true;
-    try { const r = await api("/api/checkout", { method: "POST", body: JSON.stringify({ pack, key, lang: L }) }); location.href = r.url; }
+    const pk = cfg.packs?.find(x => x.id === pack);
+    track("begin_checkout", { item_id: pack, value: pk?.price, currency: (cfg.currency || "eur").toUpperCase() });
+    try { const r = await api("/api/checkout", { method: "POST", body: JSON.stringify({ pack, key, lang: L }) }); setTimeout(() => location.href = r.url, 300); }
     catch (e) { toast(e.message); btn.disabled = false; }
   }
   async function confirmPayment() {
@@ -941,6 +1114,8 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     try {
       const r = await api("/api/checkout/confirm?session_id=" + encodeURIComponent(sid));
       key = r.key; credits = r.credits; store.set("pt_key", key);
+      const pk = cfg.packs?.find(x => x.id === r.pack);
+      track("purchase", { transaction_id: sid, item_id: r.pack || "", value: r.amount ?? pk?.price, currency: (r.currency || cfg.currency || "eur").toUpperCase() });
       renderBalance(); renderCounts(); openModal("paid", r);
     } catch (e) { toast(e.message); }
   }
@@ -965,7 +1140,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     for (const f of list) {
       if (!f.type.startsWith("image/")) continue;
       if (photos.length >= 3) { showMsg(t("err.max"), true); break; }
-      try { photos.push(await toJpeg(f)); } catch (e) { showMsg(e.message, true); }
+      try { photos.push(await toJpeg(f)); track("add_photo", { count: photos.length }, true); } catch (e) { showMsg(e.message, true); }
     }
     renderPhotos();
   }
@@ -992,7 +1167,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   function showMsg(txt, err) { const m = $("msg"); m.textContent = txt; m.className = "msg" + (err ? " err" : ""); }
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const ratioCss = f => f.replace(":", " / ");
-  const styleName = id => cfg.styles.find(s => s.id === id)?.name[L] || "";
+  const styleName = id => tx(cfg.styles.find(s => s.id === id)?.name);
 
   async function generate() {
     if (busy) return;
@@ -1004,6 +1179,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     if (!key || credits === 0) { showMsg(t("note.nokey"), true); $("pricing").scrollIntoView({ behavior: "smooth" }); return; }
 
     busy = true; $("go").disabled = true; showMsg("");
+    track("generate", { item_id: style || "", count });
     const source = photos[0], fmt = format, sname = styleName(style), n = count;
     $("results").hidden = false;
     const ph = [];
@@ -1110,6 +1286,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       [cfg, showcase] = await Promise.all([fetch("/api/config").then(r => r.json()), fetch("/api/showcase").then(r => r.json()).catch(() => [])]);
     } catch { showMsg(t("err.net"), true); return; }
     document.querySelectorAll(".brand").forEach(el => el.textContent = cfg.brand);
+    if (!cfg.stripe) { const tp = $("trustPay"); if (tp) { tp.hidden = true; tp.nextElementSibling && (tp.nextElementSibling.hidden = true); } }
     if (cfg.contact) { const a = document.createElement("a"); a.href = "mailto:" + cfg.contact; a.textContent = cfg.contact; $("contact").appendChild(a); }
     applyLang();
     await refreshBalance();
@@ -1132,14 +1309,14 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       <li>Photos you upload to create portraits.</li>
       <li>Account code (PT-XXXX-XXXX-XXXX) and credit balance.</li>
       <li>Payment information processed by our payment provider (we do not store full card details).</li>
-      <li>Basic usage data and analytics via cookies and pixels (including TikTok Pixel).</li>
+      <li>Basic usage data and analytics via cookies and pixels (Google Analytics, TikTok Pixel and Meta Pixel).</li>
     </ul>
     <h4>2. How we use your photos</h4>
     <p>Uploaded photos are sent to our AI provider solely to generate your portrait. Source photos are not stored on our servers after processing. Finished portraits are saved and linked to your personal code so you can access them later.</p>
     <h4>3. Data retention</h4>
     <p>Source photos are deleted immediately after generation. Finished portraits remain available via your code until you request deletion. Payment records are kept as required by law.</p>
     <h4>4. Cookies and analytics</h4>
-    <p>We use essential cookies for site functionality and analytics pixels (including TikTok) to measure advertising performance. You can control cookies through your browser settings.</p>
+    <p>We use essential cookies for site functionality and analytics tools (Google Analytics, TikTok Pixel, Meta Pixel) to measure site usage and advertising performance. You can control cookies through your browser settings.</p>
     <h4>5. Your rights</h4>
     <p>You may request access to, correction of, or deletion of your data by contacting us. Residents of certain US states and the EU may have additional rights under applicable law.</p>
     <h4>6. Contact</h4>

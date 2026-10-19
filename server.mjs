@@ -20,9 +20,9 @@ var DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATA_DIR || 
 var PERSISTENT = Boolean(process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATA_DIR);
 var FILE = path.join(DATA_DIR, "portretto-db.json");
 var DEFAULT_PACKS = [
-  { id: "start", credits: 10, price: 9, name: { ru: "\u0421\u0442\u0430\u0440\u0442", en: "Starter" }, popular: false },
-  { id: "pro", credits: 30, price: 19, name: { ru: "\u041F\u043E\u043F\u0443\u043B\u044F\u0440\u043D\u044B\u0439", en: "Popular" }, popular: true },
-  { id: "max", credits: 60, price: 29, name: { ru: "\u041F\u0440\u043E\u0444\u0438", en: "Pro" }, popular: false }
+  { id: "start", credits: 10, price: 9, name: { ru: "\u0421\u0442\u0430\u0440\u0442", en: "Starter", es: "Inicio" }, popular: false },
+  { id: "pro", credits: 30, price: 19, name: { ru: "\u041F\u043E\u043F\u0443\u043B\u044F\u0440\u043D\u044B\u0439", en: "Popular", es: "Popular" }, popular: true },
+  { id: "max", credits: 60, price: 29, name: { ru: "\u041F\u0440\u043E\u0444\u0438", en: "Pro", es: "Pro" }, popular: false }
 ];
 var empty = () => ({
   keys: {},
@@ -91,64 +91,64 @@ var QUALITY = [
 var STYLES = [
   {
     id: "business",
-    name: { ru: "\u0414\u0435\u043B\u043E\u0432\u043E\u0439 \u043F\u043E\u0440\u0442\u0440\u0435\u0442", en: "Business headshot" },
-    desc: { ru: "\u0414\u043B\u044F \u0441\u0430\u0439\u0442\u0430 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0438, \u0440\u0435\u0437\u044E\u043C\u0435 \u0438 LinkedIn. \u0421\u0442\u0440\u043E\u0433\u0438\u0439 \u043A\u043E\u0441\u0442\u044E\u043C, \u0441\u0435\u0440\u044B\u0439 \u0444\u043E\u043D.", en: "For your company site, CV and LinkedIn. Tailored suit, grey backdrop." },
+    name: { ru: "\u0414\u0435\u043B\u043E\u0432\u043E\u0439 \u043F\u043E\u0440\u0442\u0440\u0435\u0442", en: "Business headshot" , es: "Retrato profesional" },
+    desc: { ru: "\u0414\u043B\u044F \u0441\u0430\u0439\u0442\u0430 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0438, \u0440\u0435\u0437\u044E\u043C\u0435 \u0438 LinkedIn. \u0421\u0442\u0440\u043E\u0433\u0438\u0439 \u043A\u043E\u0441\u0442\u044E\u043C, \u0441\u0435\u0440\u044B\u0439 \u0444\u043E\u043D.", en: "For your company site, CV and LinkedIn. Tailored suit, grey backdrop." , es: "Para la web de tu empresa, tu CV y LinkedIn. Traje a medida, fondo gris." },
     light: "85mm \xB7 f/4 \xB7 octabox 150 + rim",
     swatch: "radial-gradient(circle at 35% 30%, #d8dbe0 0%, #9aa1ab 45%, #4a5059 100%)",
     prompt: "Premium corporate headshot, chest-up framing, subject slightly turned, confident approachable expression with a subtle natural smile. Wardrobe: impeccably tailored dark navy or charcoal suit or blazer with a crisp shirt, styled appropriately for the person. Background: neutral mid-grey seamless studio paper with a soft gradient. Lighting: large octabox key light at 45 degrees, soft fill, gentle hair light separating the subject from the background."
   },
   {
     id: "office",
-    name: { ru: "\u0421\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0439 \u043E\u0444\u0438\u0441", en: "Modern office" },
-    desc: { ru: "\u0414\u0440\u0443\u0436\u0435\u043B\u044E\u0431\u043D\u044B\u0439 \u043F\u043E\u0440\u0442\u0440\u0435\u0442 \u0432 \u0441\u0432\u0435\u0442\u043B\u043E\u043C \u043E\u0444\u0438\u0441\u0435 \u0441 \u043C\u044F\u0433\u043A\u0438\u043C \u0440\u0430\u0437\u043C\u044B\u0442\u0438\u0435\u043C.", en: "A friendly portrait in a bright office with soft background blur." },
+    name: { ru: "\u0421\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0439 \u043E\u0444\u0438\u0441", en: "Modern office" , es: "Oficina moderna" },
+    desc: { ru: "\u0414\u0440\u0443\u0436\u0435\u043B\u044E\u0431\u043D\u044B\u0439 \u043F\u043E\u0440\u0442\u0440\u0435\u0442 \u0432 \u0441\u0432\u0435\u0442\u043B\u043E\u043C \u043E\u0444\u0438\u0441\u0435 \u0441 \u043C\u044F\u0433\u043A\u0438\u043C \u0440\u0430\u0437\u043C\u044B\u0442\u0438\u0435\u043C.", en: "A friendly portrait in a bright office with soft background blur." , es: "Un retrato cercano en una oficina luminosa con el fondo suavemente desenfocado." },
     light: "85mm \xB7 f/1.8 \xB7 window + bounce",
     swatch: "linear-gradient(135deg, #f4f1ea 0%, #c9d6de 45%, #7f98a8 100%)",
     prompt: "Modern professional portrait in a bright contemporary office with large windows, background beautifully blurred with creamy bokeh (glass, plants, warm wood). Waist-up framing, relaxed confident posture, genuine warm smile. Wardrobe: smart-casual, a quality blazer or knit over a clean shirt. Lighting: soft natural window light as key, white bounce fill, airy and optimistic mood."
   },
   {
     id: "bw_classic",
-    name: { ru: "\u041A\u043B\u0430\u0441\u0441\u0438\u043A\u0430 \u0427/\u0411", en: "Classic B&W" },
-    desc: { ru: "\u0411\u043B\u0430\u0433\u043E\u0440\u043E\u0434\u043D\u044B\u0439 \u0447\u0451\u0440\u043D\u043E-\u0431\u0435\u043B\u044B\u0439 \u043F\u043E\u0440\u0442\u0440\u0435\u0442 \u0432 \u0434\u0443\u0445\u0435 \u0441\u0442\u0443\u0434\u0438\u0439\u043D\u043E\u0439 \u043A\u043B\u0430\u0441\u0441\u0438\u043A\u0438.", en: "A timeless black-and-white studio portrait." },
+    name: { ru: "\u041A\u043B\u0430\u0441\u0441\u0438\u043A\u0430 \u0427/\u0411", en: "Classic B&W" , es: "Clásico B/N" },
+    desc: { ru: "\u0411\u043B\u0430\u0433\u043E\u0440\u043E\u0434\u043D\u044B\u0439 \u0447\u0451\u0440\u043D\u043E-\u0431\u0435\u043B\u044B\u0439 \u043F\u043E\u0440\u0442\u0440\u0435\u0442 \u0432 \u0434\u0443\u0445\u0435 \u0441\u0442\u0443\u0434\u0438\u0439\u043D\u043E\u0439 \u043A\u043B\u0430\u0441\u0441\u0438\u043A\u0438.", en: "A timeless black-and-white studio portrait." , es: "Un retrato de estudio en blanco y negro, atemporal." },
     light: "105mm \xB7 f/5.6 \xB7 Rembrandt",
     swatch: "radial-gradient(circle at 30% 35%, #bdbdbd 0%, #505050 40%, #0e0e0e 80%)",
     prompt: "Timeless black and white fine-art studio portrait, head and shoulders, deep black background. Rembrandt lighting with a single key light creating a small triangle of light on the shadow cheek, dramatic yet refined contrast, silver gelatin film look with fine grain, thoughtful calm expression. Wardrobe: simple dark clothing, no patterns."
   },
   {
     id: "editorial",
-    name: { ru: "\u041E\u0431\u043B\u043E\u0436\u043A\u0430 \u0436\u0443\u0440\u043D\u0430\u043B\u0430", en: "Magazine cover" },
-    desc: { ru: "\u041C\u043E\u0434\u043D\u0430\u044F \u0441\u044A\u0451\u043C\u043A\u0430: \u0441\u043E\u0447\u043D\u044B\u0439 \u0446\u0432\u0435\u0442\u043D\u043E\u0439 \u0444\u043E\u043D, \u0441\u0432\u0435\u0442 \u043A\u0430\u043A \u043D\u0430 \u043E\u0431\u043B\u043E\u0436\u043A\u0435.", en: "Fashion editorial: bold colour backdrop, cover-style light." },
+    name: { ru: "\u041E\u0431\u043B\u043E\u0436\u043A\u0430 \u0436\u0443\u0440\u043D\u0430\u043B\u0430", en: "Magazine cover" , es: "Portada de revista" },
+    desc: { ru: "\u041C\u043E\u0434\u043D\u0430\u044F \u0441\u044A\u0451\u043C\u043A\u0430: \u0441\u043E\u0447\u043D\u044B\u0439 \u0446\u0432\u0435\u0442\u043D\u043E\u0439 \u0444\u043E\u043D, \u0441\u0432\u0435\u0442 \u043A\u0430\u043A \u043D\u0430 \u043E\u0431\u043B\u043E\u0436\u043A\u0435.", en: "Fashion editorial: bold colour backdrop, cover-style light." , es: "Editorial de moda: fondo de color intenso y luz de portada." },
     light: "70mm \xB7 f/8 \xB7 beauty dish",
     swatch: "radial-gradient(circle at 50% 30%, #ffb38a 0%, #e0583a 45%, #7a1f1a 100%)",
     prompt: "High-fashion magazine editorial portrait, bold saturated solid color seamless backdrop that complements the subject's skin tone, beauty dish key light from above-front with a clean catchlight, crisp specular highlights. Stylish contemporary designer outfit, strong confident pose, editorial styling of hair. Vogue / GQ cover quality, leave clean negative space above the head."
   },
   {
     id: "golden_hour",
-    name: { ru: "\u0417\u043E\u043B\u043E\u0442\u043E\u0439 \u0447\u0430\u0441", en: "Golden hour" },
-    desc: { ru: "\u0422\u0451\u043F\u043B\u044B\u0439 \u0437\u0430\u043A\u0430\u0442\u043D\u044B\u0439 \u0441\u0432\u0435\u0442 \u043D\u0430 \u0443\u043B\u0438\u0446\u0435, \u0436\u0438\u0432\u043E\u0435 \u0435\u0441\u0442\u0435\u0441\u0442\u0432\u0435\u043D\u043D\u043E\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D\u0438\u0435.", en: "Warm sunset light outdoors, relaxed and natural." },
+    name: { ru: "\u0417\u043E\u043B\u043E\u0442\u043E\u0439 \u0447\u0430\u0441", en: "Golden hour" , es: "Hora dorada" },
+    desc: { ru: "\u0422\u0451\u043F\u043B\u044B\u0439 \u0437\u0430\u043A\u0430\u0442\u043D\u044B\u0439 \u0441\u0432\u0435\u0442 \u043D\u0430 \u0443\u043B\u0438\u0446\u0435, \u0436\u0438\u0432\u043E\u0435 \u0435\u0441\u0442\u0435\u0441\u0442\u0432\u0435\u043D\u043D\u043E\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D\u0438\u0435.", en: "Warm sunset light outdoors, relaxed and natural." , es: "Luz cálida de atardecer al aire libre, relajado y natural." },
     light: "135mm \xB7 f/2 \xB7 backlit sun",
     swatch: "radial-gradient(circle at 75% 25%, #fff0c2 0%, #f3b25e 35%, #8a5a3a 100%)",
     prompt: "Outdoor lifestyle portrait during golden hour, the low sun behind the subject creating a warm glowing rim light in the hair, soft golden fill on the face from a reflector, dreamy background of a park or city street dissolved into large warm bokeh. Relaxed natural expression. Wardrobe: tasteful casual clothing in warm neutral tones."
   },
   {
     id: "luxury",
-    name: { ru: "\u041F\u0440\u0435\u043C\u0438\u0443\u043C \u043B\u043E\u0443-\u043A\u0438", en: "Luxury low-key" },
-    desc: { ru: "\u0422\u0451\u043C\u043D\u044B\u0439, \u0434\u043E\u0440\u043E\u0433\u043E\u0439, \u043A\u0438\u043D\u0435\u043C\u0430\u0442\u043E\u0433\u0440\u0430\u0444\u0438\u0447\u043D\u044B\u0439 \u043E\u0431\u0440\u0430\u0437.", en: "Dark, premium and cinematic." },
+    name: { ru: "\u041F\u0440\u0435\u043C\u0438\u0443\u043C \u043B\u043E\u0443-\u043A\u0438", en: "Luxury low-key" , es: "Low-key de lujo" },
+    desc: { ru: "\u0422\u0451\u043C\u043D\u044B\u0439, \u0434\u043E\u0440\u043E\u0433\u043E\u0439, \u043A\u0438\u043D\u0435\u043C\u0430\u0442\u043E\u0433\u0440\u0430\u0444\u0438\u0447\u043D\u044B\u0439 \u043E\u0431\u0440\u0430\u0437.", en: "Dark, premium and cinematic." , es: "Oscuro, elegante y cinematográfico." },
     light: "85mm \xB7 f/2.8 \xB7 stripbox + gobo",
     swatch: "radial-gradient(circle at 40% 40%, #3f5a5c 0%, #1b2627 50%, #07090a 100%)",
     prompt: "Luxurious low-key portrait, dark moody charcoal-teal painted canvas backdrop, narrow strip box key light sculpting the face, subtle warm accent light, cinematic color grade. Elegant premium wardrobe (dark tailored jacket, fine fabrics, understated accessories). Powerful, composed, successful look."
   },
   {
     id: "high_key",
-    name: { ru: "\u0421\u0432\u0435\u0442\u043B\u044B\u0439 \u0445\u0430\u0439-\u043A\u0438", en: "Bright high-key" },
-    desc: { ru: "\u0427\u0438\u0441\u0442\u044B\u0439 \u0431\u0435\u043B\u044B\u0439 \u0444\u043E\u043D, \u043C\u044F\u0433\u043A\u0438\u0439 \u0441\u0432\u0435\u0442, \u0441\u0432\u0435\u0436\u0438\u0439 \u0438 \u043B\u0451\u0433\u043A\u0438\u0439 \u0441\u043D\u0438\u043C\u043E\u043A.", en: "Clean white backdrop, soft light, fresh and airy." },
+    name: { ru: "\u0421\u0432\u0435\u0442\u043B\u044B\u0439 \u0445\u0430\u0439-\u043A\u0438", en: "Bright high-key" , es: "High-key luminoso" },
+    desc: { ru: "\u0427\u0438\u0441\u0442\u044B\u0439 \u0431\u0435\u043B\u044B\u0439 \u0444\u043E\u043D, \u043C\u044F\u0433\u043A\u0438\u0439 \u0441\u0432\u0435\u0442, \u0441\u0432\u0435\u0436\u0438\u0439 \u0438 \u043B\u0451\u0433\u043A\u0438\u0439 \u0441\u043D\u0438\u043C\u043E\u043A.", en: "Clean white backdrop, soft light, fresh and airy." , es: "Fondo blanco limpio, luz suave, fresco y ligero." },
     light: "85mm \xB7 f/5.6 \xB7 2 softboxes + bg",
     swatch: "radial-gradient(circle at 50% 40%, #ffffff 0%, #f1f3f5 55%, #cfd5db 100%)",
     prompt: "Bright high-key studio portrait on a pure white seamless background, soft even wraparound lighting from two large softboxes plus background lights, very soft shadows, fresh and clean look, natural happy expression. Wardrobe: light neutral tones (white, cream, light grey)."
   },
   {
     id: "cinematic",
-    name: { ru: "\u041A\u0438\u043D\u043E-\u043D\u0435\u043E\u043D", en: "Cinematic neon" },
-    desc: { ru: "\u0426\u0432\u0435\u0442\u043D\u044B\u0435 \u0433\u0435\u043B\u0438, \u043A\u0430\u043A \u0432 \u043A\u0430\u0434\u0440\u0435 \u0438\u0437 \u0444\u0438\u043B\u044C\u043C\u0430.", en: "Coloured gels, like a still from a film." },
+    name: { ru: "\u041A\u0438\u043D\u043E-\u043D\u0435\u043E\u043D", en: "Cinematic neon" , es: "Neón de cine" },
+    desc: { ru: "\u0426\u0432\u0435\u0442\u043D\u044B\u0435 \u0433\u0435\u043B\u0438, \u043A\u0430\u043A \u0432 \u043A\u0430\u0434\u0440\u0435 \u0438\u0437 \u0444\u0438\u043B\u044C\u043C\u0430.", en: "Coloured gels, like a still from a film." , es: "Geles de colores, como un fotograma de película." },
     light: "50mm \xB7 f/1.4 \xB7 magenta/cyan gels",
     swatch: "linear-gradient(120deg, #ff3fa4 0%, #6b2bd9 50%, #16c6d9 100%)",
     prompt: "Cinematic portrait with dual colored gel lighting: magenta key light from one side and cyan rim light from the other, dark background with subtle haze, anamorphic film look, moody and striking. Wardrobe: modern dark streetwear or a sleek jacket."
@@ -157,18 +157,18 @@ var STYLES = [
 var CUSTOM = {
   id: "custom",
   custom: true,
-  name: { ru: "\u0421\u0432\u043E\u0439 \u043E\u0431\u0440\u0430\u0437", en: "Your own idea" },
-  desc: { ru: "\u041E\u043F\u0438\u0448\u0438\u0442\u0435 \u0441\u043B\u043E\u0432\u0430\u043C\u0438, \u043A\u0430\u043A\u0438\u043C \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u043F\u043E\u0440\u0442\u0440\u0435\u0442: \u043C\u0435\u0441\u0442\u043E, \u043E\u0434\u0435\u0436\u0434\u0430, \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D\u0438\u0435.", en: "Describe the portrait in your own words: place, outfit, mood." },
+  name: { ru: "\u0421\u0432\u043E\u0439 \u043E\u0431\u0440\u0430\u0437", en: "Your own idea" , es: "Tu propia idea" },
+  desc: { ru: "\u041E\u043F\u0438\u0448\u0438\u0442\u0435 \u0441\u043B\u043E\u0432\u0430\u043C\u0438, \u043A\u0430\u043A\u0438\u043C \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u043F\u043E\u0440\u0442\u0440\u0435\u0442: \u043C\u0435\u0441\u0442\u043E, \u043E\u0434\u0435\u0436\u0434\u0430, \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D\u0438\u0435.", en: "Describe the portrait in your own words: place, outfit, mood." , es: "Describe el retrato con tus palabras: lugar, ropa, ambiente." },
   light: "",
   swatch: "repeating-linear-gradient(135deg, #e7e9ec 0 12px, #dfe2e6 12px 24px)",
   prompt: ""
 };
 STYLES.push(CUSTOM);
 var FORMATS = [
-  { id: "4:5", name: { ru: "\u041F\u043E\u0440\u0442\u0440\u0435\u0442 4:5", en: "Portrait 4:5" } },
-  { id: "1:1", name: { ru: "\u041A\u0432\u0430\u0434\u0440\u0430\u0442 1:1", en: "Square 1:1" } },
-  { id: "9:16", name: { ru: "\u0421\u0442\u043E\u0440\u0438\u0441 9:16", en: "Story 9:16" } },
-  { id: "3:2", name: { ru: "\u0413\u043E\u0440\u0438\u0437\u043E\u043D\u0442 3:2", en: "Landscape 3:2" } }
+  { id: "4:5", name: { ru: "\u041F\u043E\u0440\u0442\u0440\u0435\u0442 4:5", en: "Portrait 4:5" , es: "Retrato 4:5" } },
+  { id: "1:1", name: { ru: "\u041A\u0432\u0430\u0434\u0440\u0430\u0442 1:1", en: "Square 1:1" , es: "Cuadrado 1:1" } },
+  { id: "9:16", name: { ru: "\u0421\u0442\u043E\u0440\u0438\u0441 9:16", en: "Story 9:16" , es: "Historia 9:16" } },
+  { id: "3:2", name: { ru: "\u0413\u043E\u0440\u0438\u0437\u043E\u043D\u0442 3:2", en: "Landscape 3:2" , es: "Horizontal 3:2" } }
 ];
 function buildPrompt(style, text) {
   const parts = [IDENTITY];
@@ -286,7 +286,7 @@ async function stripe(method, path6, body) {
 function createCheckout({ pack, currency: currency2, key, origin: origin2, lang: lang2, brand }) {
   return stripe("POST", "/v1/checkout/sessions", {
     mode: "payment",
-    locale: lang2 === "en" ? "en" : "ru",
+    locale: ["en", "es", "ru"].includes(lang2) ? lang2 : "auto",
     success_url: `${origin2}/?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin2}/#pricing`,
     allow_promotion_codes: "true",
@@ -297,7 +297,7 @@ function createCheckout({ pack, currency: currency2, key, origin: origin2, lang:
           currency: currency2,
           unit_amount: Math.round(pack.price * 100),
           product_data: {
-            name: `${brand} \u2014 ${pack.name[lang2] || pack.name.ru}`,
+            name: `${brand} \u2014 ${pack.name[lang2] || pack.name.en || pack.name.ru}`,
             description: lang2 === "en" ? `${pack.credits} AI studio portraits` : `${pack.credits} \u0441\u0442\u0443\u0434\u0438\u0439\u043D\u044B\u0445 AI-\u043F\u043E\u0440\u0442\u0440\u0435\u0442\u043E\u0432`
           }
         }
@@ -477,8 +477,8 @@ var MODELS = [
     cost: 0.15,
     credits: 1,
     batch: true,
-    name: { ru: "Nano Banana Pro", en: "Nano Banana Pro" },
-    desc: { ru: "\u041B\u0443\u0447\u0448\u0435\u0435 \u0441\u0445\u043E\u0434\u0441\u0442\u0432\u043E \u0438 \u043A\u0430\u0447\u0435\u0441\u0442\u0432\u043E. \u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0443\u0435\u043C.", en: "Best likeness and quality. Recommended." },
+    name: { ru: "Nano Banana Pro", en: "Nano Banana Pro", es: "Nano Banana Pro" },
+    desc: { ru: "\u041B\u0443\u0447\u0448\u0435\u0435 \u0441\u0445\u043E\u0434\u0441\u0442\u0432\u043E \u0438 \u043A\u0430\u0447\u0435\u0441\u0442\u0432\u043E. \u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0443\u0435\u043C.", en: "Best likeness and quality. Recommended." , es: "El mejor parecido y calidad. Recomendado." },
     input: ({ prompt, photos, format, count, resolution }) => ({ prompt, image_urls: photos, num_images: count, aspect_ratio: format, resolution: res(resolution), output_format: "png" })
   },
   {
@@ -487,8 +487,8 @@ var MODELS = [
     cost: 0.12,
     credits: 1,
     batch: true,
-    name: { ru: "Nano Banana 2", en: "Nano Banana 2" },
-    desc: { ru: "\u0411\u044B\u0441\u0442\u0440\u0435\u0435 \u0438 \u0434\u0435\u0448\u0435\u0432\u043B\u0435 Pro, \u043E\u0447\u0435\u043D\u044C \u0445\u043E\u0440\u043E\u0448\u0435\u0435 \u0441\u0445\u043E\u0434\u0441\u0442\u0432\u043E.", en: "Faster and cheaper than Pro, very good likeness." },
+    name: { ru: "Nano Banana 2", en: "Nano Banana 2", es: "Nano Banana 2" },
+    desc: { ru: "\u0411\u044B\u0441\u0442\u0440\u0435\u0435 \u0438 \u0434\u0435\u0448\u0435\u0432\u043B\u0435 Pro, \u043E\u0447\u0435\u043D\u044C \u0445\u043E\u0440\u043E\u0448\u0435\u0435 \u0441\u0445\u043E\u0434\u0441\u0442\u0432\u043E.", en: "Faster and cheaper than Pro, very good likeness." , es: "Más rápido y barato que Pro, muy buen parecido." },
     input: ({ prompt, photos, format, count, resolution }) => ({ prompt, image_urls: photos, num_images: count, aspect_ratio: format, resolution: res(resolution), output_format: "png" })
   },
   {
@@ -497,8 +497,8 @@ var MODELS = [
     cost: 0.04,
     credits: 1,
     batch: true,
-    name: { ru: "Seedream 4.5", en: "Seedream 4.5" },
-    desc: { ru: "\u0412\u044B\u0441\u043E\u043A\u043E\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u0435, \u0443\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442 \u0432\u0441\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043D\u044B\u0435 \u0444\u043E\u0442\u043E.", en: "High resolution, uses every photo you upload." },
+    name: { ru: "Seedream 4.5", en: "Seedream 4.5", es: "Seedream 4.5" },
+    desc: { ru: "\u0412\u044B\u0441\u043E\u043A\u043E\u0435 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D\u0438\u0435, \u0443\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442 \u0432\u0441\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043D\u044B\u0435 \u0444\u043E\u0442\u043E.", en: "High resolution, uses every photo you upload." , es: "Alta resolución, usa todas las fotos que subas." },
     input: ({ prompt, photos, format, count }) => ({ prompt, image_urls: photos, num_images: count, image_size: seedSize(format) })
   },
   {
@@ -507,8 +507,8 @@ var MODELS = [
     cost: 0.05,
     credits: 1,
     batch: false,
-    name: { ru: "FLUX.2 Pro", en: "FLUX.2 Pro" },
-    desc: { ru: "\u0424\u043E\u0442\u043E\u0440\u0435\u0430\u043B\u0438\u0437\u043C \u0438 \u0435\u0441\u0442\u0435\u0441\u0442\u0432\u0435\u043D\u043D\u0430\u044F \u043A\u043E\u0436\u0430.", en: "Photorealism and natural skin." },
+    name: { ru: "FLUX.2 Pro", en: "FLUX.2 Pro", es: "FLUX.2 Pro" },
+    desc: { ru: "\u0424\u043E\u0442\u043E\u0440\u0435\u0430\u043B\u0438\u0437\u043C \u0438 \u0435\u0441\u0442\u0435\u0441\u0442\u0432\u0435\u043D\u043D\u0430\u044F \u043A\u043E\u0436\u0430.", en: "Photorealism and natural skin." , es: "Fotorrealismo y piel natural." },
     input: ({ prompt, photos, format }) => ({ prompt, image_urls: photos, image_size: size(format, 1536), output_format: "png", safety_tolerance: "2" })
   },
   {
@@ -517,8 +517,8 @@ var MODELS = [
     cost: 0.2,
     credits: 2,
     batch: true,
-    name: { ru: "GPT Image 2", en: "GPT Image 2" },
-    desc: { ru: "\u0422\u043E\u0447\u043D\u043E \u0441\u043B\u0435\u0434\u0443\u0435\u0442 \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u044E, \u0445\u043E\u0440\u043E\u0448 \u0434\u043B\u044F \u0441\u043B\u043E\u0436\u043D\u044B\u0445 \u0441\u0446\u0435\u043D.", en: "Follows descriptions precisely, great for complex scenes." },
+    name: { ru: "GPT Image 2", en: "GPT Image 2", es: "GPT Image 2" },
+    desc: { ru: "\u0422\u043E\u0447\u043D\u043E \u0441\u043B\u0435\u0434\u0443\u0435\u0442 \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u044E, \u0445\u043E\u0440\u043E\u0448 \u0434\u043B\u044F \u0441\u043B\u043E\u0436\u043D\u044B\u0445 \u0441\u0446\u0435\u043D.", en: "Follows descriptions precisely, great for complex scenes." , es: "Sigue la descripción con precisión, ideal para escenas complejas." },
     input: ({ prompt, photos, count }) => ({ prompt, image_urls: photos, num_images: count, quality: "high", output_format: "png" })
   },
   {
@@ -527,8 +527,8 @@ var MODELS = [
     cost: 0.08,
     credits: 1,
     batch: true,
-    name: { ru: "FLUX Kontext Max", en: "FLUX Kontext Max" },
-    desc: { ru: "\u0410\u043A\u043A\u0443\u0440\u0430\u0442\u043D\u044B\u0435 \u043F\u0440\u0430\u0432\u043A\u0438 \u043E\u0434\u043D\u043E\u0433\u043E \u0444\u043E\u0442\u043E.", en: "Careful edits of a single photo." },
+    name: { ru: "FLUX Kontext Max", en: "FLUX Kontext Max", es: "FLUX Kontext Max" },
+    desc: { ru: "\u0410\u043A\u043A\u0443\u0440\u0430\u0442\u043D\u044B\u0435 \u043F\u0440\u0430\u0432\u043A\u0438 \u043E\u0434\u043D\u043E\u0433\u043E \u0444\u043E\u0442\u043E.", en: "Careful edits of a single photo." , es: "Ediciones cuidadosas de una sola foto." },
     input: ({ prompt, photos, format, count }) => ({ prompt, image_url: photos[0], num_images: count, aspect_ratio: format === "4:5" ? "3:4" : format, output_format: "png", safety_tolerance: "2" })
   },
   {
@@ -537,8 +537,8 @@ var MODELS = [
     cost: 0.05,
     credits: 1,
     batch: true,
-    name: { ru: "Qwen Image Edit", en: "Qwen Image Edit" },
-    desc: { ru: "\u041D\u0435\u0434\u043E\u0440\u043E\u0433\u0430\u044F, \u0445\u043E\u0440\u043E\u0448\u043E \u0434\u0435\u0440\u0436\u0438\u0442 \u0434\u0435\u0442\u0430\u043B\u0438.", en: "Affordable, keeps details well." },
+    name: { ru: "Qwen Image Edit", en: "Qwen Image Edit", es: "Qwen Image Edit" },
+    desc: { ru: "\u041D\u0435\u0434\u043E\u0440\u043E\u0433\u0430\u044F, \u0445\u043E\u0440\u043E\u0448\u043E \u0434\u0435\u0440\u0436\u0438\u0442 \u0434\u0435\u0442\u0430\u043B\u0438.", en: "Affordable, keeps details well." , es: "Económico, conserva bien los detalles." },
     input: ({ prompt, photos, format, count }) => ({ prompt, image_urls: photos, num_images: count, image_size: size(format, 1536), output_format: "png" })
   },
   {
@@ -547,7 +547,7 @@ var MODELS = [
     cost: 0.05,
     credits: 1,
     batch: false,
-    name: { ru: "FLUX PuLID (Face ID)", en: "FLUX PuLID (Face ID)" },
+    name: { ru: "FLUX PuLID (Face ID)", en: "FLUX PuLID (Face ID)", es: "FLUX PuLID (Face ID)" },
     desc: { ru: "\u0421\u043F\u0435\u0446\u0438\u0430\u043B\u044C\u043D\u0430\u044F \u043C\u043E\u0434\u0435\u043B\u044C \u043F\u0435\u0440\u0435\u043D\u043E\u0441\u0430 \u043B\u0438\u0446\u0430, \u0441\u043E\u0437\u0434\u0430\u0451\u0442 \u043A\u0430\u0434\u0440 \u0441 \u043D\u0443\u043B\u044F.", en: "A dedicated face-ID model that builds the shot from scratch." },
     input: ({ prompt, photos, format }) => ({ prompt, reference_image_url: photos[0], image_size: size(format, 1344), id_weight: 1, num_inference_steps: 28, guidance_scale: 4 })
   }
@@ -1093,6 +1093,8 @@ var S = db.seo;
 S.home ||= { ru: { title: "", description: "" }, en: { title: "", description: "" } };
 S.verify ||= { google: "", yandex: "", bing: "" };
 S.analytics ||= { ga4: "", metrika: "" };
+if (S.analytics.tiktok === void 0) S.analytics.tiktok = "DB8IOTJC77U2O9K0OUTG";
+S.analytics.meta ||= "";
 S.links ||= [];
 S.maxLinks ??= 6;
 S.llm ||= LLM_MODELS[0].id;
@@ -1616,7 +1618,9 @@ function saveSettings(b) {
   const ga = clean(b.analytics?.ga4, 30).toUpperCase(), ym = clean(b.analytics?.metrika, 20);
   if (ga && !/^G-[A-Z0-9]{4,}$/.test(ga)) throw new UserError3("ID Google Analytics \u0432\u044B\u0433\u043B\u044F\u0434\u0438\u0442 \u0442\u0430\u043A: G-XXXXXXXXXX.");
   if (ym && !/^\d{5,12}$/.test(ym)) throw new UserError3("\u041D\u043E\u043C\u0435\u0440 \u0441\u0447\u0451\u0442\u0447\u0438\u043A\u0430 \u042F\u043D\u0434\u0435\u043A\u0441.\u041C\u0435\u0442\u0440\u0438\u043A\u0438 \u2014 \u0442\u043E\u043B\u044C\u043A\u043E \u0446\u0438\u0444\u0440\u044B.");
-  S.analytics = { ga4: ga, metrika: ym };
+  const tt = clean(b.analytics?.tiktok, 40).toUpperCase().replace(/[^A-Z0-9]/g, ""), fb = clean(b.analytics?.meta, 20).replace(/\D/g, "");
+  if (fb && !/^\d{8,20}$/.test(fb)) throw new UserError3("ID пикселя Meta \u2014 только цифры.");
+  S.analytics = { ga4: ga, metrika: ym, tiktok: tt, meta: fb };
   if (LLM_MODELS.some((m) => m.id === b.llm)) S.llm = b.llm;
   S.indexnow = b.indexnow !== false;
   S.autoCover = b.autoCover !== false;
@@ -1672,7 +1676,9 @@ function headExtras() {
   if (s.verify.yandex) out.push(`<meta name="yandex-verification" content="${esc(s.verify.yandex)}">`);
   if (s.verify.bing) out.push(`<meta name="msvalidate.01" content="${esc(s.verify.bing)}">`);
   if (s.verify.pinterest) out.push(`<meta name="p:domain_verify" content="${esc(s.verify.pinterest)}">`);
-  if (s.analytics.ga4) out.push(`<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(s.analytics.ga4)}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","${esc(s.analytics.ga4)}");</script>`);
+  if (s.analytics.ga4) out.push(`<script async src="https://www.googletagmanager.com/gtag/js?id=${esc(s.analytics.ga4)}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","${esc(s.analytics.ga4)}",{transport_type:"beacon"});</script>`);
+  if (s.analytics.tiktok) out.push(`<script>!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=d.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=d.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};ttq.load("${esc(s.analytics.tiktok)}");ttq.page();}(window,document,"ttq");</script>`);
+  if (s.analytics.meta) out.push(`<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","${esc(s.analytics.meta)}");fbq("track","PageView");</script><noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${esc(s.analytics.meta)}&ev=PageView&noscript=1"></noscript>`);
   if (s.analytics.metrika) out.push(`<script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(${s.analytics.metrika},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});</script>`);
   return out.join("\n");
 }
@@ -1997,7 +2003,7 @@ var parse = (raw) => {
   }
 };
 var origin = (req) => (process.env.PUBLIC_URL || `${req.headers["x-forwarded-proto"] || "http"}://${req.headers["x-forwarded-host"] || req.headers.host}`).replace(/\/$/, "");
-var lang = (v) => v === "en" ? "en" : "ru";
+var lang = (v) => v === "en" || v === "es" ? v : "ru";
 var packs = () => db.settings.packs;
 var currency = () => db.settings.currency || "eur";
 function clientKey(req, required = true) {
@@ -2106,7 +2112,8 @@ var routes = {
     const s = await retrieveSession(id);
     const r = fulfill(s);
     if (!r) throw new UserError4("\u041F\u043B\u0430\u0442\u0451\u0436 \u0435\u0449\u0451 \u043D\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0451\u043D. \u041E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443 \u0447\u0435\u0440\u0435\u0437 \u043C\u0438\u043D\u0443\u0442\u0443.", 402);
-    json(res2, r);
+    // \u0441\u0443\u043C\u043C\u0430 \u0438 \u043F\u0430\u043A\u0435\u0442 \u2014 \u0434\u043B\u044F \u0441\u043E\u0431\u044B\u0442\u0438\u044F \u043F\u043E\u043A\u0443\u043F\u043A\u0438 \u0432 GA4 / TikTok / Meta
+    json(res2, { ...r, pack: s.metadata?.pack || "", amount: (s.amount_total || 0) / 100, currency: s.currency || currency() });
   },
   "POST /api/stripe/webhook": async (req, res2) => {
     const raw = await readBody(req, 1e6);
