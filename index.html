@@ -110,6 +110,9 @@ h2.title { font: 400 clamp(30px, 4.4vw, 48px)/1.08 var(--f-display); margin: 8px
 
 .hero-ba { display: grid; gap: 10px; align-content: center; }
 .hero-ba .mini { aspect-ratio: 4 / 5; max-height: 500px; border-radius: 16px; box-shadow: 0 16px 48px -16px rgba(0,0,0,.3); }
+/* верхний пример двигается сам — кружок ↔ не показываем, чтобы не тянули пальцем */
+.hero-ba .mini .line::after { display: none; }
+.hero-ba .mini .line { box-shadow: 0 0 10px rgba(0,0,0,.3); }
 
 #heroPlay { font-weight: 700; min-width: 180px; }
 #heroPlay:hover { border-color: var(--lamp); }
@@ -1030,6 +1033,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     $("latestPosts").innerHTML = list.map(p => `<a class="post" href="${escH(p.url)}"><span class="ph">${p.cover ? `<img src="${escH(thumb(p.cover, dprW(400)))}" alt="${escH(p.alt)}" loading="lazy" decoding="async">` : ""}</span><span class="tx"><span class="d">${escH(p.date)}</span><b>${escH(p.title)}</b><span class="s">${escH(p.description)}</span></span></a>`).join("");
   }
   let exStops = [];
+  let heroStop = null;
   const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
   function renderExamples() {
     exStops.forEach(f => f()); exStops = [];
@@ -1074,22 +1078,29 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       heroM.querySelector(".t.l").textContent = t("lb.before");
       heroM.querySelector(".t.r").textContent = t("lb.after");
       const cap = document.querySelector("#heroBa .hero-ba-cap"); if (cap) cap.textContent = t("hero.cap") + (ex.ai ? " · " + t("ba.ai") : "");
-      let p = 50, drag = false;
+      heroStop?.();
+      let p = 50, anim = 0, timer = 0, dir = 0, visible = true;
       const set = v => { p = Math.max(0, Math.min(100, v)); heroM.style.setProperty("--pos", p + "%"); heroM.setAttribute("aria-valuenow", String(Math.round(p))); };
-      const fromX = x => { const r = heroM.getBoundingClientRect(); set((x - r.left) / r.width * 100); };
       set(98);
       const tween = (to, ms = 1100) => {
+        cancelAnimationFrame(anim);
+        if (RM) return set(to);
         const from = p, t0 = performance.now();
-        const step = now => { const k = Math.min(1, (now - t0) / ms), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; set(from + (to - from) * e); if (k < 1) requestAnimationFrame(step); };
-        requestAnimationFrame(step);
+        const step = now => { const k = Math.min(1, (now - t0) / ms), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; set(from + (to - from) * e); if (k < 1) anim = requestAnimationFrame(step); };
+        anim = requestAnimationFrame(step);
       };
       const playBtn = document.getElementById("heroPlay");
       if (playBtn) {
         playBtn.textContent = "▶ " + t("play");
         playBtn.onclick = () => tween(p > 50 ? 2 : 98);
       }
-      // Автозапуск один раз, чтобы сразу показать результат
-      setTimeout(() => { if (p > 50) tween(12); }, 800);
+      // Двигается сам по кругу, без пальца: из TikTok свайп закрывает сайт
+      const TARGETS = [8, 92]; // сначала «после», потом снова «до»
+      const tick = () => { if (visible && !document.hidden) { tween(TARGETS[dir]); dir = 1 - dir; } };
+      const first = setTimeout(() => { tick(); timer = setInterval(tick, 2800); }, 700);
+      const io = "IntersectionObserver" in window ? new IntersectionObserver(es => { visible = es[es.length - 1].isIntersecting; }) : null;
+      if (io) io.observe(heroM);
+      heroStop = () => { clearTimeout(first); clearInterval(timer); cancelAnimationFrame(anim); io?.disconnect(); };
     } else if (heroM) {
       document.getElementById("heroBa").style.display = "none";
     }
