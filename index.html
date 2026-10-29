@@ -111,6 +111,12 @@ h2.title { font: 400 clamp(30px, 4.4vw, 48px)/1.08 var(--f-display); margin: 8px
 .hero h1 { font: 400 clamp(40px, 6.4vw, 78px)/1.0 var(--f-display); margin: 12px 0 0; letter-spacing: -.015em; text-wrap: balance; }
 .hero h1 em { font-style: normal; color: var(--muted); }
 .hero .lead { font-size: 18.5px; }
+/* Главное преимущество: премиум-качество за 1 */
+.usp { display: flex; gap: 10px; align-items: flex-start; margin: 16px 0 0; padding: 12px 16px; border-radius: 14px; background: color-mix(in srgb, var(--lamp) 16%, var(--card)); border: 1px solid color-mix(in srgb, var(--lamp) 55%, var(--line)); font-size: 16px; line-height: 1.4; }
+.usp .s { font-size: 20px; line-height: 1.1; }
+.usp b { white-space: nowrap; }
+.usp[hidden] { display: none; }
+@media (max-width: 700px) { .usp { font-size: 15px; padding: 10px 12px; } }
 .hero .ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
 .facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 26px; font-size: 14px; color: var(--muted); }
 .facts span { display: inline-flex; gap: 8px; align-items: center; }
@@ -470,6 +476,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       <div class="eyebrow" data-i18n="hero.eyebrow">AI-фотостудия</div>
       <h1 data-i18n-html="hero.title">Studio portrait<br><em>from a selfie in 30 seconds</em></h1>
       <p class="lead" data-i18n="hero.lead">Real selfies → professional portraits. Your face stays yours. No photographer, no booking.</p>
+      <p class="usp" id="heroUsp" hidden></p>
       <div class="trial-pill" id="trialPill" hidden></div>
       <div class="ctas">
         <a class="btn solid big" href="#studio" data-i18n="hero.cta">Create your portrait</a>
@@ -1055,7 +1062,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   function renderPromo() {
     const bar = $("promoBar"); if (!bar) return;
     const one = (cfg.packs || []).filter(p => p.credits === 1).sort((a, b) => a.price - b.price)[0];
-    if (!one) { bar.hidden = true; return; }
+    if (!one) { bar.hidden = true; if ($("heroUsp")) $("heroUsp").hidden = true; return; }
     const p = `<b>${money(one.price)}</b>`;
     const n = cfg.trial?.count;
     const TX = n ? {
@@ -1069,6 +1076,17 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     };
     bar.innerHTML = TX[L] || TX.en;
     bar.hidden = false;
+    // Под заголовком: премиум-качество всего за 1 за портрет — наше преимущество
+    const usp = $("heroUsp");
+    if (usp) {
+      const U = {
+        ru: `Премиум-качество всего за ${p} за портрет. Это наше главное преимущество!`,
+        en: `Premium quality for just ${p} per portrait. That's our main advantage!`,
+        es: `Calidad premium por solo ${p} por retrato. ¡Esa es nuestra gran ventaja!`
+      };
+      usp.innerHTML = `<span class="s" aria-hidden="true">⭐</span><span>${U[L] || U.en}</span>`;
+      usp.hidden = false;
+    }
   }
   let exStops = [];
   let heroStop = null;
