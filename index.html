@@ -376,6 +376,9 @@ textarea { min-height: 76px; resize: vertical; }
 .price li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; }
 .price li::before { content: "✓"; color: var(--ok); font-weight: 700; }
 .price .btn { justify-content: center; }
+.price.tap { cursor: pointer; transition: border-color .15s, transform .15s; -webkit-tap-highlight-color: transparent; }
+.price.tap:hover { border-color: var(--ink); }
+.price.tap:active { transform: scale(.985); }
 .have-code { margin-top: 18px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: 14.5px; }
 .have-code button { background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; font-weight: 600; color: var(--ink); }
 
@@ -1251,7 +1254,9 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       const lis = d.querySelectorAll("li"); ["price.f1", "price.f2", "price.f3", "price.f4"].forEach((k, i) => lis[i].textContent = t(k));
       const b = d.querySelector("button"); b.textContent = t("price.buy");
       if (!cfg.stripe) { b.disabled = true; b.title = t("price.soon"); }
-      b.onclick = () => buy(p.id, b);
+      b.onclick = e => { e.stopPropagation(); buy(p.id, b); };
+      // оплата открывается и по нажатию на всю карточку, не только на кнопку
+      if (cfg.stripe) { d.classList.add("tap"); d.onclick = () => { if (!b.disabled) buy(p.id, b); }; }
       box.appendChild(d);
     });
     if (!cfg.stripe) { const n = document.createElement("p"); n.className = "lead"; n.textContent = t("price.soon"); box.appendChild(n); }
