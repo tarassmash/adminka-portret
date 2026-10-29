@@ -20,6 +20,7 @@ var DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATA_DIR || 
 var PERSISTENT = Boolean(process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATA_DIR);
 var FILE = path.join(DATA_DIR, "portretto-db.json");
 var DEFAULT_PACKS = [
+  { id: "one", credits: 1, price: 1, name: { ru: "Один портрет", en: "Single portrait", es: "Un retrato" }, popular: false },
   { id: "start", credits: 10, price: 9, name: { ru: "\u0421\u0442\u0430\u0440\u0442", en: "Starter", es: "Inicio" }, popular: false },
   { id: "pro", credits: 30, price: 19, name: { ru: "\u041F\u043E\u043F\u0443\u043B\u044F\u0440\u043D\u044B\u0439", en: "Popular", es: "Popular" }, popular: true },
   { id: "max", credits: 60, price: 29, name: { ru: "\u041F\u0440\u043E\u0444\u0438", en: "Pro", es: "Pro" }, popular: false }
@@ -41,6 +42,13 @@ try {
   console.error("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u0440\u043E\u0447\u0438\u0442\u0430\u0442\u044C \u0431\u0430\u0437\u0443:", e.message);
 }
 var timer = null;
+// Пакет «1 портрет за 1» добавляется на рабочий сайт один раз.
+// Если потом удалить его в админке, он не вернётся.
+if (!db.settings.onePack) {
+  if (!(db.settings.packs || []).some((p) => p.credits === 1)) db.settings.packs = [DEFAULT_PACKS[0], ...(db.settings.packs || [])].slice(0, 6);
+  db.settings.onePack = true;
+  setTimeout(() => save(), 0);
+}
 function save() {
   clearTimeout(timer);
   timer = setTimeout(flush, 200);
@@ -2189,7 +2197,7 @@ function ssrLooks(l, tt) {
 }
 function ssrPrices(l, tt) {
   const f = ["price.f1", "price.f2", "price.f3", "price.f4"].map((k) => `<li>${escT(tt(k))}</li>`).join("");
-  return (packs() || []).map((p) => `<div class="price${p.popular ? " pop" : ""}">${p.popular ? `<span class="badge">${escT(tt("price.popular"))}</span>` : ""}<h3>${escT(locTx(p.name, l))} · ${escT(tt("price.portraits", { n: p.credits }))}</h3><div><div class="amt">${escT(moneyFmt(p.price, l))}</div><div class="per">${escT(tt("price.per", { p: moneyFmt(Math.round(p.price / p.credits * 100) / 100, l) }))}</div></div><ul>${f}</ul><button class="btn ${p.popular ? "solid" : ""} big" type="button">${escT(tt("price.buy"))}</button></div>`).join("");
+  return (packs() || []).map((p) => `<div class="price${p.popular ? " pop" : ""}">${p.popular ? `<span class="badge">${escT(tt("price.popular"))}</span>` : ""}<h3>${escT(locTx(p.name, l))}${p.credits === 1 ? "" : ` · ${escT(tt("price.portraits", { n: p.credits }))}`}</h3><div><div class="amt">${escT(moneyFmt(p.price, l))}</div><div class="per">${escT(tt("price.per", { p: moneyFmt(Math.round(p.price / p.credits * 100) / 100, l) }))}</div></div><ul>${f}</ul><button class="btn ${p.popular ? "solid" : ""} big" type="button">${escT(tt("price.buy"))}</button></div>`).join("");
 }
 function renderHomeLang(html, l) {
   const { T, FAQ } = homeDict(html);
@@ -2980,7 +2988,7 @@ var routes = {
       id: String(p.id || `pack${i}`).replace(/[^\w-]/g, "").slice(0, 20) || `pack${i}`,
       credits: Math.max(1, parseInt(p.credits, 10) || 1),
       price: Math.max(0.5, Math.round((parseFloat(p.price) || 1) * 100) / 100),
-      name: { ru: String(p.name?.ru || "").slice(0, 40) || "\u041F\u0430\u043A\u0435\u0442", en: String(p.name?.en || "").slice(0, 40) || "Pack" },
+      name: { ru: String(p.name?.ru || "").slice(0, 40) || "\u041F\u0430\u043A\u0435\u0442", en: String(p.name?.en || "").slice(0, 40) || "Pack", ...(p.name?.es ? { es: String(p.name.es).slice(0, 40) } : {}) },
       popular: Boolean(p.popular)
     }));
     if (["eur", "usd", "gbp"].includes(cur)) db.settings.currency = cur;

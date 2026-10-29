@@ -69,6 +69,11 @@ h2.title { font: 400 clamp(30px, 4.4vw, 48px)/1.08 var(--f-display); margin: 8px
 .sec-head { display: grid; gap: 4px; margin-bottom: 28px; }
 
 /* Nav */
+/* Полоса с акцией на самом верху */
+.promo { display: block; background: var(--lamp, #f0c150); color: var(--lamp-ink, #11161b); text-align: center; text-decoration: none; font-weight: 700; font-size: 14.5px; line-height: 1.35; padding: calc(env(safe-area-inset-top, 0px) + 9px) 16px 9px; }
+.promo b { font-weight: 800; white-space: nowrap; }
+.promo[hidden] { display: none; }
+@media (max-width: 480px) { .promo { font-size: 13.5px; padding-block: calc(env(safe-area-inset-top, 0px) + 8px) 8px; } }
 .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(16px); border-bottom: 1px solid transparent; }
 .nav.scrolled { border-bottom-color: var(--line); }
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-block: 14px; }
@@ -436,6 +441,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
 </style>
 </head>
 <body>
+<a class="promo" id="promoBar" href="#pricing" hidden></a>
 <header class="nav" id="nav">
   <div class="wrap">
     <a class="logo" href="#top"><span class="mark" aria-hidden="true"></span><b class="brand">Portretto</b></a>
@@ -997,7 +1003,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     ["navBlog", "footBlog", "allPosts"].forEach(id => { const a = $(id); if (a) a.href = L === "ru" ? "/blog" : "/en/blog"; });
     $("faqList").innerHTML = "";
     FAQ[L].forEach(([q, a]) => { const d = document.createElement("details"); d.innerHTML = "<summary></summary><p></p>"; d.querySelector("summary").textContent = q; d.querySelector("p").textContent = a; $("faqList").appendChild(d); });
-    if (cfg) { renderLooks(); renderFormats(); renderPrices(); renderCollage(); renderDesc(); renderExamples(); renderLatest(); }
+    if (cfg) { renderLooks(); renderFormats(); renderPrices(); renderCollage(); renderPromo(); renderDesc(); renderExamples(); renderLatest(); }
     renderBalance(); updateNote(); setToggleLabel();
   }
   // переход на другую языковую версию: запоминаем выбор и сохраняем #раздел
@@ -1041,6 +1047,25 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
     const list = cfg.latest?.[L === "ru" ? "ru" : "en"] || [];
     $("blogPosts").hidden = !list.length;
     $("latestPosts").innerHTML = list.map(p => `<a class="post" href="${escH(p.url)}"><span class="ph">${p.cover ? `<img src="${escH(thumb(p.cover, dprW(400)))}" alt="${escH(p.alt)}" loading="lazy" decoding="async">` : ""}</span><span class="tx"><span class="d">${escH(p.date)}</span><b>${escH(p.title)}</b><span class="s">${escH(p.description)}</span></span></a>`).join("");
+  }
+  // Полоса на самом верху: бесплатная проба, потом портрет за {цена пакета на 1 портрет}
+  function renderPromo() {
+    const bar = $("promoBar"); if (!bar) return;
+    const one = (cfg.packs || []).filter(p => p.credits === 1).sort((a, b) => a.price - b.price)[0];
+    if (!one) { bar.hidden = true; return; }
+    const p = `<b>${money(one.price)}</b>`;
+    const n = cfg.trial?.count;
+    const TX = n ? {
+      ru: `🎁 ${n} портрета бесплатно, а потом всего ${p} за профессиональный портрет!`,
+      en: `🎁 ${n} portraits free, then just ${p} per professional portrait!`,
+      es: `🎁 ${n} retratos gratis, ¡y después solo ${p} por retrato profesional!`
+    } : {
+      ru: `Профессиональный портрет всего за ${p}!`,
+      en: `A professional portrait for just ${p}!`,
+      es: `¡Un retrato profesional por solo ${p}!`
+    };
+    bar.innerHTML = TX[L] || TX.en;
+    bar.hidden = false;
   }
   let exStops = [];
   let heroStop = null;
@@ -1220,7 +1245,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
       const d = document.createElement("div"); d.className = "price" + (p.popular ? " pop" : "");
       d.innerHTML = `${p.popular ? `<span class="badge"></span>` : ""}<h3></h3><div><div class="amt"></div><div class="per"></div></div><ul><li></li><li></li><li></li><li></li></ul><button class="btn ${p.popular ? "solid" : ""} big" type="button"></button>`;
       if (p.popular) d.querySelector(".badge").textContent = t("price.popular");
-      d.querySelector("h3").textContent = `${tx(p.name)} · ${t("price.portraits", { n: p.credits })}`;
+      d.querySelector("h3").textContent = p.credits === 1 ? tx(p.name) : `${tx(p.name)} · ${t("price.portraits", { n: p.credits })}`;
       d.querySelector(".amt").textContent = money(p.price);
       d.querySelector(".per").textContent = t("price.per", { p: money(Math.round(p.price / p.credits * 100) / 100) });
       const lis = d.querySelectorAll("li"); ["price.f1", "price.f2", "price.f3", "price.f4"].forEach((k, i) => lis[i].textContent = t(k));
