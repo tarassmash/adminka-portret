@@ -52,6 +52,9 @@
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 html, body { margin: 0; }
+/* боковой свайп не уводит со страницы (жест «назад»/закрытие во встроенных браузерах) */
+html, body { overscroll-behavior-x: none; }
+body { overflow-x: clip; }
 body { background: var(--paper); color: var(--ink); font: 16px/1.55 var(--f-body); -webkit-font-smoothing: antialiased; }
 img { max-width: 100%; }
 a { color: inherit; }
@@ -295,7 +298,7 @@ textarea { min-height: 76px; resize: vertical; }
 
 /* Before/after examples: swipe on phones */
 @media (max-width: 700px) {
-  .ba-grid { display: grid; grid-auto-flow: column; grid-auto-columns: 82%; grid-template-columns: none; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; padding-bottom: 6px; scrollbar-width: none; }
+  .ba-grid { display: grid; grid-auto-flow: column; grid-auto-columns: 82%; grid-template-columns: none; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; gap: 12px; padding-bottom: 6px; scrollbar-width: none; }
   .ba-grid::-webkit-scrollbar { display: none; }
   .ba-grid > * { scroll-snap-align: start; }
 }
@@ -956,6 +959,7 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   const pageLang = LANGS.includes(window.__PAGE_LANG) ? window.__PAGE_LANG : "es";
   if (!isBot && !store.get("pt_lang") && !location.search.includes("session_id") && byDevice() !== pageLang) {
     store.set("pt_lang", byDevice());
+    window.__ptRedirecting = true;
     location.replace(LANG_PATH[byDevice()] + location.search + location.hash);
   }
   let L = LANGS.includes(qLang) ? qLang : pageLang;
@@ -1277,6 +1281,33 @@ footer { padding-block: 40px 44px; color: var(--muted); font-size: 13.5px; displ
   $("ordersClose").onclick = () => closeOrders();
   addEventListener("popstate", () => { if (location.hash !== "#orders" && !$("orders").hidden) closeOrders(false); });
   addEventListener("hashchange", () => { if (location.hash === "#orders" && key && $("orders").hidden) openOrders(); });
+
+  // ================= Защита от закрытия свайпом вправо =================
+  // Во встроенном браузере TikTok (и Instagram/Facebook) свайп вправо = «назад».
+  // Если истории нет, окно закрывается. Добавляем одну запись в историю:
+  // первый случайный свайп вернёт человека на этот же сайт, а не закроет его.
+  (() => {
+    const ua = navigator.userAgent || "";
+    const inApp = /musical_ly|BytedanceWebview|TikTok|trill_|aweme|Instagram|FBAN|FBAV/i.test(ua);
+    if (isBot || !inApp || !history.pushState) return;
+    const MSG = { ru: "Вы всё ещё на сайте 🙂 Чтобы выйти, нажмите ✕ вверху", en: "You're still here 🙂 To leave, tap ✕ at the top", es: "Sigues aquí 🙂 Para salir, toca ✕ arriba" };
+    const push = () => { try { history.pushState({ ptGuard: 1 }, "", location.href); } catch {} };
+    const arm = () => {
+      if (window.__ptRedirecting || history.state?.ptGuard) return;
+      try { history.replaceState({ ...(history.state || {}), ptBase: 1 }, ""); } catch {}
+      push();
+    };
+    if (document.readyState === "complete") setTimeout(arm, 0); else addEventListener("load", () => setTimeout(arm, 0), { once: true });
+    // Android (Chromium) пропускает при «назад» записи, добавленные без касания,
+    // поэтому после первого касания добавляем ещё одну — уже «настоящую».
+    const onGesture = () => { removeEventListener("click", onGesture, true); removeEventListener("touchend", onGesture, true); if (!window.__ptRedirecting) push(); };
+    addEventListener("click", onGesture, true); addEventListener("touchend", onGesture, true);
+    addEventListener("popstate", e => {
+      if (!e.state?.ptBase) return;
+      push(); // снова ставим защиту
+      toast(MSG[L] || MSG.en);
+    });
+  })();
 
   const km = { mode: "" };
   function openModal(mode, data = {}) {
